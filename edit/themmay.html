@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thêm máy - Edit Video 1 Chạm</title>
+<link rel="stylesheet" href="style.css"></head>
+<body><div class="card">
+  <h2 id="h">Đang xử lý...</h2>
+  <p class="sub" id="msg">Vui lòng chờ trong giây lát.</p>
+  <div class="code hide" id="code"></div>
+  <button class="btn main hide" id="cp" type="button">Sao chép mã</button>
+  <p class="sub hide" id="after" style="margin-top:14px">Quay lại tab tool, dán mã này vào ô Mã kích hoạt.</p>
+  <a class="btn main hide" id="zalo" href="#" target="_blank"></a>
+</div>
+<script src="common.js"></script>
+<script>
+  var P = params();
+  function fail(msg) {
+    $('h').textContent = 'Chưa thêm được máy'; $('msg').textContent = msg;
+    $('zalo').href = 'https://zalo.me/0866828691'; $('zalo').textContent = 'Liên hệ Nam qua Zalo: 0866828691'; $('zalo').classList.remove('hide');
+  }
+  if (!P.ma || !isDeviceId(P.may)) fail('Liên kết không hợp lệ. Hãy mở tool, nhập mã rồi bấm "Thêm máy này".');
+  else callApi({ action: 'themmay', ma: P.ma, may: P.may }).then(function (r) {
+    if (!r.ok) return fail(r.msg);
+    $('h').textContent = 'Thêm máy thành công'; $('msg').textContent = r.msg;
+    $('code').textContent = r.code; $('code').classList.remove('hide');
+    $('cp').classList.remove('hide'); $('after').classList.remove('hide');
+    $('cp').onclick = function () { copyText(r.code, function (ok) { $('cp').textContent = ok ? 'Đã sao chép' : 'Hãy bấm giữ mã để sao chép'; }); };
+  }).catch(function () { fail('Có lỗi kết nối, vui lòng thử lại.'); });
+</script></body></html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đăng ký - Edit Video 1 Chạm</title>
+<link rel="stylesheet" href="style.css"></head>
+<body><div class="card">
+  <div id="bad" class="hide">
+    <h2>Liên kết không hợp lệ</h2>
+    <p class="sub">Hãy mở tool và bấm <b>Dùng thử</b> hoặc <b>Mua tool</b> trong tool để đăng ký.</p>
+  </div>
+
+  <div id="home" class="hide">
+    <h1 id="title"></h1>
+    <p class="sub" id="intro"></p>
+    <form id="f">
+      <label for="n">Tên của bạn</label><input id="n" required maxlength="60" autocomplete="name">
+      <label for="e">Email</label><input id="e" type="email" required autocomplete="email">
+      <label for="p">Số điện thoại</label><input id="p" type="tel" required inputmode="tel" autocomplete="tel" placeholder="0912345678">
+      <button id="b" type="submit" class="btn main" style="margin-top:22px"></button>
+    </form>
+    <div id="m" class="msg"></div>
+  </div>
+
+  <div id="trial-done" class="hide">
+    <h2>Đăng ký dùng thử thành công</h2>
+    <p class="sub" id="trial-msg"></p>
+    <div class="code hide" id="trial-code"></div>
+    <button class="btn main hide" id="trial-copy" type="button">Sao chép mã</button>
+    <p class="sub" style="margin-top:14px">Quay lại tab tool, dán mã vào ô Mã kích hoạt.</p>
+    <a class="btn zalo" id="zalo1" href="#" target="_blank">Vào nhóm Zalo hỗ trợ sử dụng tool</a>
+    <a class="btn ghost" id="contact1" href="#" target="_blank"></a>
+  </div>
+
+  <div id="buy-done" class="hide">
+    <h2>Thanh toán bản vĩnh viễn</h2>
+    <p class="sub">Quét mã bên dưới bằng app ngân hàng để chuyển khoản. Số tiền và nội dung đã điền sẵn.</p>
+    <img class="qr" id="qr" alt="Mã QR chuyển khoản">
+    <div class="bank">
+      Ngân hàng: <b id="bk-name"></b><br>
+      Số tài khoản: <b id="bk-acc"></b><br>
+      Chủ tài khoản: <b id="bk-owner"></b><br>
+      Số tiền: <b id="bk-price"></b><br>
+      Nội dung: <b id="memo"></b>
+    </div>
+    <p class="note"><b style="color:#f59e0b">Lưu ý:</b> nội dung chuyển khoản phải là <b>họ tên và số điện thoại bạn vừa đăng ký</b> (mã QR đã điền sẵn). Nếu chuyển khoản tay, hãy ghi đúng như trên để Nam kiểm tra và gửi mã nhanh.</p>
+    <p class="note">Sau khi chuyển khoản, mã kích hoạt vĩnh viễn sẽ được gửi vào email của bạn. Cần hỗ trợ nhanh, hãy nhắn Nam kèm ảnh chuyển khoản.</p>
+    <a class="btn main" id="zalo2" href="#" target="_blank"></a>
+    <a class="btn ghost" id="tel" href="#"></a>
+    <a class="btn zalo" id="zalo3" href="#" target="_blank">Vào nhóm Zalo hỗ trợ sử dụng tool</a>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+  var P = params(), plan = P.dk, may = P.may, cfg = null;
+  var trial = plan === 'thu';
+  var label = trial ? 'Nhận mã dùng thử' : 'Tiếp tục thanh toán';
+  if ((plan !== 'thu' && plan !== 'mua') || !isDeviceId(may)) {
+    $('bad').classList.remove('hide');
+  } else {
+    $('b').textContent = label;
+    $('title').textContent = trial ? 'Dùng thử' : 'Mua Edit Video 1 Chạm';
+    $('intro').textContent = 'Điền thông tin bên dưới. Mã chỉ chạy trên máy bạn vừa bấm đăng ký (mã máy ' + may + ').';
+    $('home').classList.remove('hide');
+    getConfig().then(function (c) {
+      cfg = c;
+      if (trial) $('title').textContent = 'Dùng thử ' + c.trialDays + ' ngày';
+      $('intro').textContent = (trial ? 'Miễn phí ' + c.trialDays + ' ngày. Mã kích hoạt gửi qua email. ' : 'Bản vĩnh viễn: ' + c.priceText + '. Đăng ký xong sẽ hiện mã QR chuyển khoản. ') +
+        'Mã chỉ chạy trên máy bạn vừa bấm đăng ký (mã máy ' + may + ').';
+      ['zalo1', 'zalo3'].forEach(function (id) { $(id).href = c.zaloGroup; });
+      $('zalo2').href = 'https://zalo.me/' + c.phone; $('zalo2').textContent = 'Liên hệ Nam qua Zalo: ' + c.phone;
+      $('contact1').href = 'https://zalo.me/' + c.phone; $('contact1').textContent = 'Liên hệ Nam: ' + c.phone;
+      $('tel').href = 'tel:' + c.phone; $('tel').textContent = 'Gọi điện: ' + c.phone;
+      $('bk-name').textContent = c.bankName; $('bk-acc').textContent = c.bankAccount;
+      $('bk-owner').textContent = c.bankOwner; $('bk-price').textContent = c.priceText;
+    }).catch(function () {});
+  }
+  function done(id) { $('home').classList.add('hide'); $(id).classList.remove('hide'); window.scrollTo(0, 0); }
+  $('f').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var b = $('b'), m = $('m');
+    b.disabled = true; b.textContent = 'Đang gửi...'; m.textContent = '';
+    function fail(msg) { m.className = 'msg err'; m.textContent = msg || 'Có lỗi, vui lòng thử lại.'; b.disabled = false; b.textContent = label; }
+    callApi({ action: plan, name: $('n').value, email: $('e').value, phone: $('p').value, may: may }).then(function (r) {
+      if (!r.ok) return fail(r.msg);
+      if (plan === 'thu') {
+        $('trial-msg').textContent = r.msg;
+        if (r.code) {
+          $('trial-code').textContent = r.code; $('trial-code').classList.remove('hide');
+          $('trial-copy').classList.remove('hide');
+          $('trial-copy').onclick = function () { copyText(r.code, function (ok) { $('trial-copy').textContent = ok ? 'Đã sao chép' : 'Hãy bấm giữ mã để sao chép'; }); };
+        }
+        done('trial-done');
+      } else {
+        $('memo').textContent = r.memo;
+        var c = cfg || {};
+        $('qr').src = 'https://img.vietqr.io/image/' + (c.bankCode || 'TCB') + '-' + (c.bankAccount || '') + '-compact2.png?amount=' + (c.price || '') +
+          '&addInfo=' + encodeURIComponent(r.memo) + '&accountName=' + encodeURIComponent(c.bankOwner || '');
+        done('buy-done');
+      }
+    }).catch(function () { fail(); });
+  });
+</script></body></html>

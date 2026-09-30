@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edit Video 1 Chạm</title>
+<link rel="stylesheet" href="style.css"></head>
+<body><div class="card" style="text-align:center">
+  <h1>Edit Video 1 Chạm</h1>
+
+  <div id="inapp" class="hide">
+    <div class="warn">Bạn đang mở link trong ứng dụng (Zalo, Facebook, TikTok...). Trình duyệt trong ứng dụng không đăng nhập được Google nên sẽ không vào được tool. Hãy mở bằng Chrome hoặc Safari.</div>
+    <a class="btn main hide" id="chrome" href="#">Mở tool bằng Chrome</a>
+    <button class="btn ghost" id="copy" type="button">Sao chép link tool</button>
+    <p class="note" id="copy-note">Bấm "Sao chép link tool", mở Chrome hoặc Safari, dán vào thanh địa chỉ rồi vào.</p>
+  </div>
+
+  <div id="normal">
+    <p class="sub">Chưa có mã kích hoạt? Vào tool rồi bấm <b>Dùng thử</b> hoặc <b>Mua tool</b> ngay trên màn hình kích hoạt.</p>
+    <a class="btn main" id="go" href="#">Vào tool</a>
+  </div>
+  <p class="note hide" id="err">Chưa tải được đường dẫn tool. Vui lòng tải lại trang.</p>
+</div>
+<script src="common.js"></script>
+<script>
+  var ua = navigator.userAgent;
+  var inApp = /Zalo|FBAN|FBAV|FB_IAB|Instagram|Messenger|TikTok|musical_ly|Bytedance|BytedanceWebview|Line\/|; wv\)/i.test(ua);
+  var android = /Android/i.test(ua);
+  getConfig().then(function (c) {
+    var link = c.toolLink;
+    $('go').href = link;
+    if (inApp) {
+      $('inapp').classList.remove('hide');
+      $('normal').classList.add('hide');
+      if (android) {
+        var u = link.replace(/^https:\/\//, '');
+        $('chrome').href = 'intent://' + u + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(link) + ';end';
+        $('chrome').classList.remove('hide');
+      }
+      $('copy').onclick = function () {
+        copyText(link, function (ok) {
+          $('copy').textContent = ok ? 'Đã sao chép link' : 'Không sao chép được, hãy bấm giữ link bên dưới';
+          if (!ok) $('copy-note').textContent = link;
+        });
+      };
+    }
+  }).catch(function () { $('err').classList.remove('hide'); });
+</script></body></html>
