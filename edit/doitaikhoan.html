@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đổi tài khoản Google - Edit Video 1 Chạm</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .lbl{font-size:13px;color:#9a9aa2;margin-top:14px;line-height:1.5}
+  h3{font-size:15px;margin:20px 0 4px}
+</style></head>
+<body><div class="card">
+  <h2>Đổi tài khoản Google</h2>
+  <p class="sub">Tài khoản hiện tại hết điểm? Chọn một tài khoản Google khác để mở lại tool.</p>
+
+  <h3>Chọn theo email</h3>
+  <p class="lbl" style="margin-top:0">Bấm nút bên dưới, Google hiện <b>danh sách email</b> các tài khoản trên trình duyệt này. Bấm đúng email còn điểm (tài khoản ghi "Đã đăng xuất" sẽ hỏi mật khẩu; chưa có thì chọn "Sử dụng một tài khoản khác" để đăng nhập). Tool sẽ mở ra bằng tài khoản đó.</p>
+  <a class="btn main" id="choose" href="#" style="display:none">Chọn tài khoản</a>
+  <p class="sub" id="err" style="display:none">Không tải được link tool, hãy thử lại sau ít phút.</p>
+
+  <p class="lbl">Sau khi tool mở lại, nhập lại mã kích hoạt (cài đặt đã lưu sẽ tự nạp lại). Muốn kiểm tra tài khoản và số điểm còn lại: trong Google Flow, bấm ảnh đại diện góc phải phía trên.</p>
+</div>
+<script src="common.js"></script>
+<script>
+  getConfig().then(function (c) {
+    if (!/\/shared\/tool\//.test(String(c.toolLink || ''))) throw new Error('no link');
+    var a = $('choose');
+    a.href = 'https://accounts.google.com/AccountChooser?continue=' + encodeURIComponent(c.toolLink);
+    a.style.display = 'block';
+  }).catch(function () { $('err').style.display = 'block'; });
+</script></body></html>
