@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đổi tài khoản Google - Tạo Video 1 Chạm</title>
+<link rel="stylesheet" href="style.css"></head>
+<body><div class="card">
+  <h2>Đổi tài khoản Google</h2>
+  <p class="sub">Tài khoản hiện tại hết điểm? Chọn tài khoản khác đã đăng nhập sẵn trên Chrome này. Tool sẽ mở lại bằng tài khoản bạn chọn.</p>
+  <div id="list"><p class="sub">Đang tải...</p></div>
+  <p class="sub" style="margin-top:18px;font-size:13px">Số 1 là tài khoản đăng nhập đầu tiên trên trình duyệt, số 2 là tài khoản thứ hai... Muốn biết mình đang ở tài khoản nào: vào Google Flow, bấm ảnh đại diện góc phải phía trên, sẽ thấy tên, email và số điểm còn lại.</p>
+  <p class="sub" style="font-size:13px">Sau khi tool mở lại, nhập lại mã kích hoạt (cài đặt đã lưu sẽ tự nạp lại).</p>
+  <a class="btn ghost hide" id="add" href="#" target="_blank">Chưa có tài khoản khác? Đăng nhập thêm tài khoản Google</a>
+</div>
+<script src="common.js"></script>
+<script>
+  getConfig().then(function (c) {
+    var m = String(c.toolLink || '').match(/\/shared\/tool\/([0-9a-f-]+)/i);
+    if (!m) throw new Error('no link');
+    var id = m[1], list = $('list');
+    list.innerHTML = '';
+    for (var n = 0; n < 5; n++) {
+      var a = document.createElement('a');
+      a.className = 'btn ' + (n === 0 ? 'main' : 'ghost');
+      a.target = '_blank';
+      a.href = 'https://flow.google.com/u/' + n + '/shared/tool/' + id;
+      a.textContent = 'Mở bằng tài khoản ' + (n + 1);
+      list.appendChild(a);
+    }
+    $('add').href = 'https://accounts.google.com/AddSession?continue=' + encodeURIComponent(c.toolLink);
+    $('add').classList.remove('hide');
+  }).catch(function () {
+    $('list').innerHTML = '<p class="sub">Không tải được link tool, hãy thử lại sau ít phút.</p>';
+  });
+</script></body></html>
