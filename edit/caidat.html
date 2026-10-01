@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cài đặt - Edit Video 1 Chạm</title>
+<link rel="stylesheet" href="style.css"></head>
+<body><div class="card">
+  <h2 id="h">Đang xử lý cài đặt...</h2>
+  <p class="sub" id="msg">Trang này sẽ tự đóng, bạn quay lại tool nhé.</p>
+  <button class="btn main hide" id="close" type="button">Đóng trang này</button>
+</div>
+<script src="common.js"></script>
+<script>
+  // Tool mở trang này: #a=save|load&ma=<mã kích hoạt>&s=<mã cài đặt khi lưu>. Kết quả trả về tool bằng postMessage.
+  var P = params();
+  function done(res) {
+    var ok = !!(res && res.ok);
+    $('h').textContent = ok ? (P.a === 'save' ? 'Đã lưu cài đặt' : 'Đã nạp cài đặt') : 'Chưa xử lý được cài đặt';
+    $('msg').textContent = (res && res.msg) || 'Có lỗi, vui lòng thử lại.';
+    try { if (window.opener) window.opener.postMessage({ type: 'TV1C_SETTINGS', action: P.a, ok: ok, settings: (res && res.settings) || '', msg: (res && res.msg) || '' }, '*'); } catch (e) {}
+    if (ok) setTimeout(function () { window.close(); }, 900);
+    else { $('close').classList.remove('hide'); $('close').onclick = function () { window.close(); }; }
+  }
+  if (!P.ma || (P.a !== 'save' && P.a !== 'load')) done({ ok: false, msg: 'Liên kết không hợp lệ.' });
+  else callApi(P.a === 'save' ? { action: 'luucaidat', ma: P.ma, caidat: P.s } : { action: 'docaidat', ma: P.ma })
+    .then(done).catch(function () { done({ ok: false, msg: 'Có lỗi kết nối, vui lòng thử lại.' }); });
+</script></body></html>
