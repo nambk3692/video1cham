@@ -1,1 +1,1 @@
-<!DOCTYPE html><html><body><script>if(window.opener){window.opener.postMessage("POPUP_TEST_OK","*");}document.write("sent, closing...");setTimeout(function(){window.close();},1500);</script></body></html>
+<!DOCTYPE html><html><body><pre id="o">...</pre>pre><script>var el=document.getElementById("o");try{var hasOpener=!!window.opener;el.textContent="opener exists: "+hasOpener;if(window.opener){window.opener.postMessage("POPUP_TEST_OK","*");el.textContent+=" | message sent";}}catch(e){el.textContent="ERROR: "+e.message;}</script></body></html></script></body></html>
