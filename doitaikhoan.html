@@ -2,32 +2,63 @@
 <html lang="vi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Đổi tài khoản Google - Tạo Video 1 Chạm</title>
-<link rel="stylesheet" href="style.css"></head>
+<link rel="stylesheet" href="style.css">
+<style>
+  .row{margin-top:12px}
+  .row .btn{margin-top:6px}
+  .two{display:flex;gap:8px}
+  .two .btn{margin-top:0}
+  .two .grow{flex:1}
+  .two .copy{width:42%}
+  .linkbox{width:100%;box-sizing:border-box;margin-top:6px;padding:8px;border-radius:8px;border:1px solid #3a3a40;background:#0e0e10;color:#fbbf24;font-size:12px;display:none}
+  .lbl{font-size:13px;color:#9a9aa2;margin-top:14px}
+</style></head>
 <body><div class="card">
   <h2>Đổi tài khoản Google</h2>
-  <p class="sub">Tài khoản hiện tại hết điểm? Chọn tài khoản khác đã đăng nhập sẵn trên Chrome này. Tool sẽ mở lại bằng tài khoản bạn chọn.</p>
+  <p class="sub">Tài khoản hiện tại hết điểm? Chọn tài khoản khác đã đăng nhập sẵn trên Chrome này để mở lại tool.</p>
+  <div class="warn" style="background:#422006;border:1px solid #a16207;color:#fde68a;border-radius:10px;padding:12px;font-size:13px;line-height:1.5;margin-bottom:6px">
+    <b>Cách làm chắc chắn nhất:</b> bấm <b>Sao chép link</b> ở tài khoản muốn dùng, mở một <b>tab Chrome mới</b>, dán vào thanh địa chỉ rồi Enter. Nếu bấm <b>Mở</b> mà báo "is blocked" thì dùng cách này.
+  </div>
   <div id="list"><p class="sub">Đang tải...</p></div>
-  <p class="sub" style="margin-top:18px;font-size:13px">Số 1 là tài khoản đăng nhập đầu tiên trên trình duyệt, số 2 là tài khoản thứ hai... Muốn biết mình đang ở tài khoản nào: vào Google Flow, bấm ảnh đại diện góc phải phía trên, sẽ thấy tên, email và số điểm còn lại.</p>
-  <p class="sub" style="font-size:13px">Sau khi tool mở lại, nhập lại mã kích hoạt (cài đặt đã lưu sẽ tự nạp lại).</p>
-  <a class="btn ghost hide" id="add" href="#" target="_blank">Chưa có tài khoản khác? Đăng nhập thêm tài khoản Google</a>
+  <input id="box" class="linkbox" readonly>
+  <p class="lbl">Số 1 là tài khoản đăng nhập đầu tiên trên trình duyệt, số 2 là tài khoản thứ hai... Muốn biết mình đang ở tài khoản nào: vào Google Flow, bấm ảnh đại diện góc phải phía trên, sẽ thấy tên, email và số điểm còn lại.</p>
+  <p class="lbl">Sau khi tool mở lại, nhập lại mã kích hoạt (cài đặt đã lưu sẽ tự nạp lại).</p>
+  <div class="row" id="addrow" style="display:none">
+    <div class="lbl">Chưa có tài khoản khác? Đăng nhập thêm tài khoản Google:</div>
+    <div class="two"><a class="btn ghost grow" id="add" href="#" target="_blank">Mở</a><button class="btn ghost copy" id="addcp" type="button">Sao chép link</button></div>
+  </div>
 </div>
 <script src="common.js"></script>
 <script>
+  function showCopied(btn, url, ok) {
+    btn.textContent = ok ? 'Đã sao chép' : 'Sao chép link';
+    var box = $('box');
+    box.value = url; box.style.display = 'block';
+    if (!ok) { box.focus(); box.select(); box.scrollIntoView({block: 'center'}); }
+    setTimeout(function () { btn.textContent = 'Sao chép link'; }, 2500);
+  }
+  function addCopy(btn, url) {
+    btn.onclick = function () { copyText(url, function (ok) { showCopied(btn, url, ok); }); };
+  }
   getConfig().then(function (c) {
     var m = String(c.toolLink || '').match(/\/shared\/tool\/([0-9a-f-]+)/i);
     if (!m) throw new Error('no link');
     var id = m[1], list = $('list');
     list.innerHTML = '';
     for (var n = 0; n < 5; n++) {
+      var url = 'https://flow.google.com/u/' + n + '/shared/tool/' + id;
+      var row = document.createElement('div'); row.className = 'row two';
       var a = document.createElement('a');
-      a.className = 'btn ' + (n === 0 ? 'main' : 'ghost');
-      a.target = '_blank';
-      a.href = 'https://flow.google.com/u/' + n + '/shared/tool/' + id;
-      a.textContent = 'Mở bằng tài khoản ' + (n + 1);
-      list.appendChild(a);
+      a.className = 'btn grow ' + (n === 0 ? 'main' : 'ghost');
+      a.target = '_blank'; a.href = url; a.textContent = 'Mở tài khoản ' + (n + 1);
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'btn ghost copy'; b.textContent = 'Sao chép link';
+      addCopy(b, url);
+      row.appendChild(a); row.appendChild(b); list.appendChild(row);
     }
-    $('add').href = 'https://accounts.google.com/AddSession?continue=' + encodeURIComponent(c.toolLink);
-    $('add').classList.remove('hide');
+    var addUrl = 'https://accounts.google.com/AddSession?continue=' + encodeURIComponent(c.toolLink);
+    $('add').href = addUrl; addCopy($('addcp'), addUrl);
+    $('addrow').style.display = 'block';
   }).catch(function () {
     $('list').innerHTML = '<p class="sub">Không tải được link tool, hãy thử lại sau ít phút.</p>';
   });
