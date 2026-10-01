@@ -11,22 +11,31 @@
   .two .grow{flex:1}
   .two .copy{width:42%}
   .linkbox{width:100%;box-sizing:border-box;margin-top:6px;padding:8px;border-radius:8px;border:1px solid #3a3a40;background:#0e0e10;color:#fbbf24;font-size:12px;display:none}
-  .lbl{font-size:13px;color:#9a9aa2;margin-top:14px}
+  .lbl{font-size:13px;color:#9a9aa2;margin-top:14px;line-height:1.5}
+  h3{font-size:15px;margin:20px 0 4px}
+  details{margin-top:16px}
+  summary{cursor:pointer;color:#9a9aa2;font-size:13px}
 </style></head>
 <body><div class="card">
   <h2>Đổi tài khoản Google</h2>
-  <p class="sub">Tài khoản hiện tại hết điểm? Chọn tài khoản khác đã đăng nhập sẵn trên Chrome này để mở lại tool.</p>
-  <div class="warn" style="background:#422006;border:1px solid #a16207;color:#fde68a;border-radius:10px;padding:12px;font-size:13px;line-height:1.5;margin-bottom:6px">
-    <b>Cách làm chắc chắn nhất:</b> bấm <b>Sao chép link</b> ở tài khoản muốn dùng, mở một <b>tab Chrome mới</b>, dán vào thanh địa chỉ rồi Enter. Nếu bấm <b>Mở</b> mà báo "is blocked" thì dùng cách này.
+  <p class="sub">Tài khoản hiện tại hết điểm? Chọn một tài khoản Google khác để mở lại tool.</p>
+
+  <h3>Cách khuyên dùng: chọn theo email</h3>
+  <p class="lbl" style="margin-top:0">Google hiện <b>danh sách email</b> các tài khoản trên trình duyệt này. Bấm đúng email muốn dùng (tài khoản ghi "Đã đăng xuất" sẽ hỏi mật khẩu), tool mở ra bằng tài khoản đó.</p>
+  <div class="row two" id="primary"></div>
+
+  <div style="background:#422006;border:1px solid #a16207;color:#fde68a;border-radius:10px;padding:12px;font-size:13px;line-height:1.5;margin-top:14px">
+    Nếu bấm <b>Mở</b> mà báo "is blocked": bấm <b>Sao chép link</b>, mở một <b>tab Chrome mới</b>, dán vào thanh địa chỉ rồi Enter.
   </div>
-  <div id="list"><p class="sub">Đang tải...</p></div>
   <input id="box" class="linkbox" readonly>
-  <p class="lbl">Số 1 là tài khoản đăng nhập đầu tiên trên trình duyệt, số 2 là tài khoản thứ hai... Muốn biết mình đang ở tài khoản nào: vào Google Flow, bấm ảnh đại diện góc phải phía trên, sẽ thấy tên, email và số điểm còn lại.</p>
-  <p class="lbl">Sau khi tool mở lại, nhập lại mã kích hoạt (cài đặt đã lưu sẽ tự nạp lại).</p>
-  <div class="row" id="addrow" style="display:none">
-    <div class="lbl">Chưa có tài khoản khác? Đăng nhập thêm tài khoản Google:</div>
-    <div class="two"><a class="btn ghost grow" id="add" href="#" target="_blank">Mở</a><button class="btn ghost copy" id="addcp" type="button">Sao chép link</button></div>
-  </div>
+
+  <details>
+    <summary>Cách khác: chọn theo số thứ tự (chỉ dùng được với tài khoản đang đăng nhập)</summary>
+    <div id="list"><p class="sub">Đang tải...</p></div>
+    <p class="lbl">Số 1 là tài khoản đăng nhập đầu tiên trên trình duyệt, số 2 là tài khoản thứ hai... Số nào chưa có tài khoản sẽ chuyển sang trang chọn tài khoản của Google.</p>
+  </details>
+
+  <p class="lbl">Sau khi tool mở lại, nhập lại mã kích hoạt (cài đặt đã lưu sẽ tự nạp lại). Muốn kiểm tra tài khoản và số điểm còn lại: trong Google Flow, bấm ảnh đại diện góc phải phía trên.</p>
 </div>
 <script src="common.js"></script>
 <script>
@@ -40,25 +49,27 @@
   function addCopy(btn, url) {
     btn.onclick = function () { copyText(url, function (ok) { showCopied(btn, url, ok); }); };
   }
+  function makeRow(parent, label, url, main, wrap) {
+    var row = wrap ? parent : document.createElement('div');
+    if (!wrap) row.className = 'row two';
+    var a = document.createElement('a');
+    a.className = 'btn grow ' + (main ? 'main' : 'ghost');
+    a.target = '_blank'; a.href = url; a.textContent = label;
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'btn ghost copy'; b.textContent = 'Sao chép link';
+    addCopy(b, url);
+    row.appendChild(a); row.appendChild(b);
+    if (!wrap) parent.appendChild(row);
+  }
   getConfig().then(function (c) {
     var m = String(c.toolLink || '').match(/\/shared\/tool\/([0-9a-f-]+)/i);
     if (!m) throw new Error('no link');
-    var id = m[1], list = $('list');
-    list.innerHTML = '';
+    var id = m[1];
+    makeRow($('primary'), 'Chọn tài khoản', 'https://accounts.google.com/AccountChooser?continue=' + encodeURIComponent(c.toolLink), true, true);
+    var list = $('list'); list.innerHTML = '';
     for (var n = 0; n < 5; n++) {
-      var url = 'https://flow.google.com/u/' + n + '/shared/tool/' + id;
-      var row = document.createElement('div'); row.className = 'row two';
-      var a = document.createElement('a');
-      a.className = 'btn grow ' + (n === 0 ? 'main' : 'ghost');
-      a.target = '_blank'; a.href = url; a.textContent = 'Mở tài khoản ' + (n + 1);
-      var b = document.createElement('button');
-      b.type = 'button'; b.className = 'btn ghost copy'; b.textContent = 'Sao chép link';
-      addCopy(b, url);
-      row.appendChild(a); row.appendChild(b); list.appendChild(row);
+      makeRow(list, 'Mở tài khoản ' + (n + 1), 'https://flow.google.com/u/' + n + '/shared/tool/' + id, false, false);
     }
-    var addUrl = 'https://accounts.google.com/AddSession?continue=' + encodeURIComponent(c.toolLink);
-    $('add').href = addUrl; addCopy($('addcp'), addUrl);
-    $('addrow').style.display = 'block';
   }).catch(function () {
     $('list').innerHTML = '<p class="sub">Không tải được link tool, hãy thử lại sau ít phút.</p>';
   });
