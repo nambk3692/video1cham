@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lấy video - Tạo Video Phong Thủy 1 Chạm</title>
+<link rel="stylesheet" href="style.css"></head>
+<body><div class="card">
+  <h2 id="h">Đang lấy video...</h2>
+  <p class="sub" id="msg">Vui lòng chờ, trang này sẽ tự đóng.</p>
+  <button class="btn main hide" id="close" type="button">Đóng trang này</button>
+</div>
+<script src="common.js"></script>
+<script>
+  // Tool mở trang này: #ma=<mã kích hoạt>&link=<link video Facebook>. Kết quả trả về tool bằng postMessage (type PT1C_VIDEO).
+  // Video chỉ nằm tạm trong bộ nhớ trình duyệt rồi gửi cho tool, không lưu vào ổ cứng, không đi qua Apps Script.
+  var P = params();
+  var MAX_BYTES = 60 * 1024 * 1024;   // tối đa khoảng 60 MB
+  var MAX_SECONDS = 10 * 60;          // tối đa khoảng 10 phút
+  var TRIES = 4;                      // Facebook thỉnh thoảng trả trang không có video, tự thử lại
+
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function say(h, m) { if (h) $('h').textContent = h; if (m != null) $('msg').textContent = m; }
+
+  function finish(res) {
+    var ok = !!(res && res.ok);
+    say(ok ? 'Đã lấy xong video' : 'Chưa lấy được video', ok ? 'Quay lại tool nhé.' : ((res && res.msg) || 'Có lỗi, vui lòng thử lại.'));
+    try {
+      if (window.opener) {
+        var msg = { type: 'PT1C_VIDEO', ok: ok, msg: (res && res.msg) || '', desc: (res && res.desc) || '', name: (res && res.name) || '', mime: (res && res.mime) || '', buffer: (res && res.buffer) || null, seconds: (res && res.seconds) || 0 };
+        window.opener.postMessage(msg, '*', msg.buffer ? [msg.buffer] : []);
+      }
+    } catch (e) {}
+    if (ok) setTimeout(function () { window.close(); }, 900);
+    else { $('close').classList.remove('hide'); $('close').onclick = function () { window.close(); }; }
+  }
+
+  // Hỏi Apps Script đường dẫn mp4; chỉ thử lại khi lỗi là "không lấy được video" (chập chờn), các lỗi khác (mã sai, hết lượt, link sai) dừng ngay.
+  function getInfo() {
+    var n = 0;
+    function once() {
+      n++;
+      return callApi({ action: 'fbvideo', ma: P.ma, link: P.link }).then(function (r) {
+        if (r && r.ok) return r;
+        var retry = r && /Không lấy được video/.test(r.msg || '') && n < TRIES;
+        if (!retry) return r || { ok: false, msg: 'Có lỗi, vui lòng thử lại.' };
+        say(null, 'Facebook chưa trả video, đang thử lại (' + n + '/' + (TRIES - 1) + ')...');
+        return sleep(1500).then(once);
+      });
+    }
+    return once();
+  }
+
+  // Tải mp4 thẳng từ máy chủ Facebook về trình duyệt, có báo phần trăm và chặn file quá nặng.
+  function download(url) {
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error('http');
+      var total = Number(r.headers.get('content-length') || 0);
+      if (total && total > MAX_BYTES) throw new Error('big');
+      var reader = r.body.getReader(), chunks = [], got = 0;
+      function pump() {
+        return reader.read().then(function (x) {
+          if (x.done) return new Blob(chunks, { type: 'video/mp4' });
+          chunks.push(x.value); got += x.value.length;
+          if (got > MAX_BYTES) { reader.cancel(); throw new Error('big'); }
+          say(null, 'Đang tải video' + (total ? ' ' + Math.round(got * 100 / total) + '%' : '...'));
+          return pump();
+        });
+      }
+      return pump();
+    });
+  }
+
+  function duration(blob) {
+    return new Promise(function (res) {
+      var v = document.createElement('video'), u = URL.createObjectURL(blob);
+      v.preload = 'metadata';
+      v.onloadedmetadata = function () { var d = v.duration; URL.revokeObjectURL(u); res(isFinite(d) ? d : 0); };
+      v.onerror = function () { URL.revokeObjectURL(u); res(0); };
+      v.src = u;
+    });
+  }
+
+  if (!P.ma || !P.link) finish({ ok: false, msg: 'Liên kết không hợp lệ.' });
+  else getInfo().then(function (info) {
+    if (!info || !info.ok) return finish(info);
+    var urls = [info.sd, info.hd].filter(Boolean);   // ưu tiên bản thường cho nhẹ; hỏng thì thử bản HD
+    function tryUrl(i) {
+      if (i >= urls.length) return finish({ ok: false, msg: 'Không tải được video này, vui lòng thử lại.' });
+      return download(urls[i]).then(function (blob) {
+        return duration(blob).then(function (sec) {
+          if (sec > MAX_SECONDS) return finish({ ok: false, msg: 'Video quá dài (tối đa khoảng 10 phút).' });
+          return blob.arrayBuffer().then(function (buf) {
+            finish({ ok: true, desc: info.desc || '', name: 'facebook-video.mp4', mime: 'video/mp4', buffer: buf, seconds: Math.round(sec) });
+          });
+        });
+      }, function (e) {
+        if (e && e.message === 'big') return finish({ ok: false, msg: 'Video quá nặng (tối đa khoảng 60 MB).' });
+        return tryUrl(i + 1);
+      });
+    }
+    return tryUrl(0);
+  }).catch(function () { finish({ ok: false, msg: 'Có lỗi kết nối, vui lòng thử lại.' }); });
+</script></body></html>
