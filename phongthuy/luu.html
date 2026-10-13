@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lưu tiến độ - Tạo Video Phong Thủy 1 Chạm</title>
+<link rel="stylesheet" href="style.css"></head>
+<body><div class="card">
+  <h2 id="h">Đang lưu tiến độ...</h2>
+  <p class="sub" id="msg">Trang này sẽ tự đóng, bạn quay lại tool nhé.</p>
+  <button class="btn main hide" id="close" type="button">Đóng trang này</button>
+</div>
+<script>
+  // Tool mở trang này khi khách bấm tạo cảnh / ghép phim... (#a=save) hoặc khi bấm TẠO MỚI (#a=clear).
+  // Dữ liệu chỉ lưu trong trình duyệt của khách (IndexedDB của trang này), KHÔNG gửi đi đâu.
+  //   tool -> trang: {type:'PT1C_LUU_SAVE', json:'<chuỗi JSON trạng thái>', videos:[{id, mime, buffer}]}
+  //   trang -> tool: {type:'PT1C_LUU_READY'} (lặp tới khi nhận lệnh) rồi {type:'PT1C_LUU_SAVED', ok, msg}
+  var DB = 'pt1c_session', ST = 'kv';
+  var $ = function (id) { return document.getElementById(id); };
+  var P = {};
+  (location.hash.slice(1) || '').split('&').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) P[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1)); });
+
+  function openDb() {
+    return new Promise(function (res, rej) {
+      try {
+        var r = indexedDB.open(DB, 1);
+        r.onupgradeneeded = function () { r.result.createObjectStore(ST); };
+        r.onsuccess = function () { res(r.result); };
+        r.onerror = function () { rej(r.error || new Error('idb')); };
+      } catch (e) { rej(e); }
+    });
+  }
+  // Ghi đè toàn bộ: xoá hết rồi ghi bản mới (1 phiên duy nhất)
+  function saveAll(json, videos) {
+    return openDb().then(function (db) {
+      return new Promise(function (res, rej) {
+        var t = db.transaction(ST, 'readwrite'), s = t.objectStore(ST);
+        s.clear();
+        var ids = [];
+        (videos || []).forEach(function (v) { ids.push(v.id); s.put({ mime: v.mime || 'video/mp4', buffer: v.buffer }, 'v:' + v.id); });
+        s.put({ json: json, savedAt: Date.now(), videoIds: ids }, 'meta');
+        t.oncomplete = function () { res(); };
+        t.onerror = function () { rej(t.error); };
+        t.onabort = function () { rej(t.error || new Error('abort')); };
+      });
+    });
+  }
+  function clearAll() {
+    return openDb().then(function (db) {
+      return new Promise(function (res, rej) {
+        var t = db.transaction(ST, 'readwrite'); t.objectStore(ST).clear();
+        t.oncomplete = function () { res(); }; t.onerror = function () { rej(t.error); };
+      });
+    });
+  }
+
+  function end(type, ok, msg) {
+    $('h').textContent = ok ? (type === 'CLEARED' ? 'Đã xoá bản lưu' : 'Đã lưu tiến độ') : 'Chưa lưu được';
+    $('msg').textContent = msg || (ok ? 'Quay lại tool nhé.' : 'Có lỗi, vui lòng thử lại.');
+    try { if (window.opener) window.opener.postMessage({ type: 'PT1C_LUU_' + type, ok: ok, msg: msg || '' }, '*'); } catch (e) {}
+    if (ok) setTimeout(function () { window.close(); }, 700);
+    else { $('close').classList.remove('hide'); $('close').onclick = function () { window.close(); }; }
+  }
+
+  var handled = false, readyTimer = null;
+  function ready() { try { if (window.opener) window.opener.postMessage({ type: 'PT1C_LUU_READY' }, '*'); } catch (e) {} }
+
+  window.addEventListener('message', function (e) {
+    if (handled || !window.opener || e.source !== window.opener) return;
+    var d = e.data;
+    if (!d) return;
+    if (d.type === 'PT1C_LUU_SAVE') {
+      handled = true; clearInterval(readyTimer);
+      saveAll(d.json || '', d.videos || []).then(function () { end('SAVED', true, ''); }, function (err) { end('SAVED', false, 'Trình duyệt không cho lưu: ' + (err && err.message || err)); });
+    } else if (d.type === 'PT1C_LUU_CLEAR') {
+      handled = true; clearInterval(readyTimer);
+      clearAll().then(function () { end('CLEARED', true, ''); }, function () { end('CLEARED', false, 'Không xoá được bản lưu.'); });
+    }
+  });
+
+  if (!window.opener) end('SAVED', false, 'Hãy mở trang này từ trong tool.');
+  else {
+    ready();
+    readyTimer = setInterval(ready, 500);
+    setTimeout(function () { if (!handled) { clearInterval(readyTimer); end('SAVED', false, 'Tool không gửi dữ liệu, thử lại nhé.'); } }, 30000);
+  }
+</script></body></html>
