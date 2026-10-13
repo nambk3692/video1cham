@@ -18,19 +18,49 @@
   function getSaved() { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
   function setSaved(v) { try { if (v) localStorage.setItem(KEY, v); else localStorage.removeItem(KEY); } catch (e) {} }
   var ma = P.a === 'login' ? getSaved() : (P.ma || '');
+  // Bản lưu tiến độ do trang luu.html ghi (IndexedDB 'tv1c_session' của trang này)
+  function loadSession() {
+    return new Promise(function (res, rej) {
+      try {
+        var r = indexedDB.open('tv1c_session', 1);
+        r.onupgradeneeded = function () { r.result.createObjectStore('kv'); };
+        r.onerror = function () { rej(r.error); };
+        r.onsuccess = function () {
+          var db = r.result, t = db.transaction('kv', 'readonly'), st = t.objectStore('kv'), q = st.getAll(), k = st.getAllKeys();
+          t.oncomplete = function () {
+            var meta = null, vids = [];
+            k.result.forEach(function (key, i) {
+              if (key === 'meta') meta = q.result[i];
+              else if (String(key).indexOf('v:') === 0) vids.push({ id: String(key).slice(2), mime: q.result[i].mime, buffer: q.result[i].buffer });
+            });
+            res(meta && meta.json ? { json: meta.json, savedAt: meta.savedAt || 0, videos: vids } : null);
+          };
+          t.onerror = function () { rej(t.error); };
+        };
+      } catch (e) { rej(e); }
+    });
+  }
   function done(res) {
     var ok = !!(res && res.ok);
     var titles = { save: 'Đã lưu cài đặt', load: 'Đã nạp cài đặt', login: 'Đã nhận diện mã kích hoạt' };
     $('h').textContent = ok ? (titles[P.a] || 'Xong') : 'Chưa xử lý được';
     $('msg').textContent = (res && res.msg) || 'Có lỗi, vui lòng thử lại.';
-    try {
-      if (window.opener) window.opener.postMessage({
-        type: 'TV1C_SETTINGS', action: P.a, ok: ok,
-        settings: (res && res.settings) || '', msg: (res && res.msg) || '', ma: ok && P.a === 'login' ? ma : ''
-      }, '*');
-    } catch (e) {}
-    if (ok) setTimeout(function () { window.close(); }, 900);
-    else { $('close').classList.remove('hide'); $('close').onclick = function () { window.close(); }; }
+    var msg = {
+      type: 'TV1C_SETTINGS', action: P.a, ok: ok,
+      settings: (res && res.settings) || '', msg: (res && res.msg) || '', ma: ok && P.a === 'login' ? ma : ''
+    };
+    function send(session) {
+      try {
+        var transfer = [];
+        if (session) { msg.session = session; (session.videos || []).forEach(function (v) { if (v.buffer) transfer.push(v.buffer); }); }
+        if (window.opener) window.opener.postMessage(msg, '*', transfer);
+      } catch (e) {}
+      if (ok) setTimeout(function () { window.close(); }, session ? 1500 : 900);
+      else { $('close').classList.remove('hide'); $('close').onclick = function () { window.close(); }; }
+    }
+    // Khi vào tool (login) trả luôn bản lưu tiến độ lần trước (nếu có) để tool khôi phục sau F5/sập
+    if (ok && P.a === 'login') loadSession().then(send, function () { send(null); });
+    else send(null);
   }
   if (P.a !== 'save' && P.a !== 'load' && P.a !== 'login') done({ ok: false, msg: 'Liên kết không hợp lệ.' });
   else if (!ma) done({ ok: false, msg: P.a === 'login' ? 'Trình duyệt này chưa lưu mã kích hoạt. Hãy dán mã vào tool một lần.' : 'Liên kết không hợp lệ.' });
