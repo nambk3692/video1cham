@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8"><title>Kho tạm - Tạo Video Sức Khỏe 1 Chạm</title></head>
+<body>
+<script>
+  // Kho lưu tạm nằm ngay trong trình duyệt của khách (IndexedDB của trang này), KHÔNG gửi đi đâu.
+  // Tool nhúng trang này vào khung ẩn rồi gửi lệnh bằng postMessage:
+  //   {type:'PT1C_STORE', id, op:'ping'|'put'|'get'|'del'|'keys', key, value}
+  // Trả lời: {type:'PT1C_STORE_RES', id, ok, value, backend, error}
+  var DB = 'sk1c_store', ST = 'kv', dbp = null, backend = 'chua-ro', mem = {};
+
+  function openDb() {
+    if (dbp) return dbp;
+    dbp = new Promise(function (res, rej) {
+      try {
+        var r = indexedDB.open(DB, 1);
+        r.onupgradeneeded = function () { r.result.createObjectStore(ST); };
+        r.onsuccess = function () { backend = 'indexeddb'; res(r.result); };
+        r.onerror = function () { rej(r.error || new Error('idb')); };
+        r.onblocked = function () { rej(new Error('idb-blocked')); };
+      } catch (e) { rej(e); }
+    });
+    return dbp;
+  }
+  function tx(mode, fn) {
+    return openDb().then(function (db) {
+      return new Promise(function (res, rej) {
+        var t = db.transaction(ST, mode), out;
+        try { out = fn(t.objectStore(ST)); } catch (e) { rej(e); return; }
+        t.oncomplete = function () { res(out && 'result' in out ? out.result : undefined); };
+        t.onerror = function () { rej(t.error); };
+        t.onabort = function () { rej(t.error || new Error('abort')); };
+      });
+    });
+  }
+  function put(k, v) { return tx('readwrite', function (s) { return s.put(v, k); }); }
+  function get(k) { return tx('readonly', function (s) { return s.get(k); }); }
+  function del(k) { return tx('readwrite', function (s) { return s.delete(k); }); }
+  function keys() { return tx('readonly', function (s) { return s.getAllKeys(); }); }
+
+  // Nếu IndexedDB bị chặn thì dùng tạm bộ nhớ RAM (mất khi F5) và báo rõ backend để biết
+  function run(op, k, v) {
+    return openDb().then(function () {
+      if (op === 'put') return put(k, v);
+      if (op === 'get') return get(k);
+      if (op === 'del') return del(k);
+      if (op === 'keys') return keys();
+      return true;
+    }, function () {
+      backend = 'ram';
+      if (op === 'put') { mem[k] = v; return true; }
+      if (op === 'get') return mem[k];
+      if (op === 'del') { delete mem[k]; return true; }
+      if (op === 'keys') return Object.keys(mem);
+      return true;
+    });
+  }
+
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (!d || d.type !== 'PT1C_STORE' || !e.source) return;
+    function reply(o) {
+      o.type = 'PT1C_STORE_RES'; o.id = d.id; o.backend = backend;
+      try { e.source.postMessage(o, '*'); } catch (x) {}
+    }
+    run(d.op, d.key, d.value).then(function (val) { reply({ ok: true, value: val }); },
+      function (err) { reply({ ok: false, error: String(err && err.message || err) }); });
+  });
+
+  try { openDb().catch(function () { backend = 'ram'; }).then(function () { window.parent.postMessage({ type: 'PT1C_STORE_READY', backend: backend }, '*'); }); } catch (e) {}
+</script>
+</body></html>
