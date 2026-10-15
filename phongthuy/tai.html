@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tải phim - Tạo Video Phong Thủy 1 Chạm</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  video { width: 100%; max-height: 60vh; border-radius: 12px; background: #000; margin: 10px 0; }
+  .row { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+  a.btn { text-decoration: none; text-align: center; display: block; }
+</style></head>
+<body><div class="card">
+  <h2 id="h">Đang nhận phim từ tool...</h2>
+  <p class="sub" id="msg">Giữ trang này mở vài giây, không cần làm gì thêm.</p>
+  <video id="v" class="hide" controls playsinline></video>
+  <div class="row">
+    <button class="btn main hide" id="save" type="button">Lưu phim vào máy</button>
+    <a class="btn hide" id="dl" download="phim.mp4">Tải file phim (mp4)</a>
+    <p class="sub hide" id="tip">Nếu không thấy nút lưu: nhấn giữ vào video, chọn "Lưu" / "Chia sẻ" rồi chọn "Lưu video".</p>
+    <button class="btn hide" id="close" type="button">Đóng trang này</button>
+  </div>
+</div>
+<script>
+  // Tool (khi khách dùng iPhone/iPad) mở trang này rồi gửi phim sang. Phim chỉ nằm trong trình duyệt của khách, KHÔNG gửi đi đâu.
+  //   tool -> trang: {type:'PT1C_TAI_FILE', base64:'<mp4 base64 thuần>', mime:'video/mp4', filename:'phong-thuy.mp4'}
+  //   trang -> tool: {type:'PT1C_TAI_READY'} (lặp tới khi nhận) rồi {type:'PT1C_TAI_DONE', ok, msg}
+  var $ = function (id) { return document.getElementById(id); };
+  var handled = false, readyTimer = null, blobUrl = '', fileObj = null;
+
+  function toTool(o) { try { if (window.opener) window.opener.postMessage(o, '*'); } catch (e) {} }
+  function show(id) { $(id).classList.remove('hide'); }
+  function fail(msg) {
+    $('h').textContent = 'Chưa tải được';
+    $('msg').textContent = msg;
+    show('close'); $('close').onclick = function () { window.close(); };
+    toTool({ type: 'PT1C_TAI_DONE', ok: false, msg: msg });
+  }
+
+  function b64ToBlob(b64, mime) {
+    var bin = atob(b64), len = bin.length, CH = 1 << 20, parts = [];
+    for (var i = 0; i < len; i += CH) {
+      var n = Math.min(CH, len - i), u = new Uint8Array(n);
+      for (var j = 0; j < n; j++) u[j] = bin.charCodeAt(i + j);
+      parts.push(u);
+    }
+    return new Blob(parts, { type: mime || 'video/mp4' });
+  }
+
+  function onFile(d) {
+    handled = true; clearInterval(readyTimer);
+    try {
+      var name = d.filename || 'phong-thuy.mp4', mime = d.mime || 'video/mp4';
+      var blob = b64ToBlob(d.base64 || '', mime);
+      if (!blob.size) { fail('Phim rỗng, thử lại nhé.'); return; }
+      blobUrl = URL.createObjectURL(blob);
+      try { fileObj = new File([blob], name, { type: mime }); } catch (e) { fileObj = null; }
+      $('h').textContent = 'Phim đã sẵn sàng';
+      $('msg').textContent = 'Bấm nút "Lưu phim vào máy". Trên iPhone chọn "Lưu video" để lưu vào Ảnh.';
+      var v = $('v'); v.src = blobUrl; show('v');
+      var a = $('dl'); a.href = blobUrl; a.download = name; show('dl');
+      show('save'); show('tip');
+      $('save').onclick = function () {
+        // Phải chạy ngay trong lúc khách bấm nút (iPhone mới cho phép)
+        if (fileObj && navigator.canShare && navigator.canShare({ files: [fileObj] })) {
+          navigator.share({ files: [fileObj], title: name }).then(function () {
+            toTool({ type: 'PT1C_TAI_DONE', ok: true, msg: '' });
+          }, function (err) {
+            if (err && err.name === 'AbortError') return;
+            a.click();
+          });
+        } else { a.click(); toTool({ type: 'PT1C_TAI_DONE', ok: true, msg: '' }); }
+      };
+      show('close'); $('close').onclick = function () { window.close(); };
+    } catch (err) { fail('Không đọc được phim: ' + (err && err.message || err)); }
+  }
+
+  window.addEventListener('message', function (e) {
+    if (handled || !window.opener || e.source !== window.opener) return;
+    var d = e.data;
+    if (d && d.type === 'PT1C_TAI_FILE') onFile(d);
+  });
+
+  if (!window.opener) fail('Hãy mở trang này từ trong tool (bấm nút tải phim trong tool).');
+  else {
+    toTool({ type: 'PT1C_TAI_READY' });
+    readyTimer = setInterval(function () { toTool({ type: 'PT1C_TAI_READY' }); }, 500);
+    setTimeout(function () { if (!handled) { clearInterval(readyTimer); fail('Tool không gửi phim sang, thử lại nhé.'); } }, 60000);
+  }
+</script></body></html>
