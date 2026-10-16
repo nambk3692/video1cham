@@ -34,11 +34,16 @@
   <div id="buy-done" class="hide">
     <h2>Thanh toán bản vĩnh viễn</h2>
     <p class="sub">Quét mã bên dưới bằng app ngân hàng để chuyển khoản. Số tiền và nội dung đã điền sẵn.</p>
+    <div class="pkc on" data-k="tool"><span class="dot"></span><span class="t"><b>Mua riêng tool</b></span><span class="p" id="pt-tool"></span></div>
+    <div class="pkc" data-k="course"><span class="dot"></span><span class="t"><b>Mua riêng khóa học xây kênh sức khỏe</b></span><span class="p">1.686.000đ</span></div>
+    <div class="pkc" data-k="combo"><span class="dot"></span><span class="t"><b>Mua combo tool và khóa học</b><em>Tiết kiệm 986.000đ</em></span><span class="p">1.968.000đ</span></div>
     <img class="qr" id="qr" alt="Mã QR chuyển khoản">
+    <div class="qrinfo"><div class="qa">Số tiền: <span id="qramt"></span></div><div class="qn">Nội dung chuyển khoản:</div><div class="qh">ghi rõ họ tên và số điện thoại</div></div>
     <div class="bank">
       Ngân hàng: <b id="bk-name"></b><br>
       Số tài khoản: <b id="bk-acc"></b><br>
       Chủ tài khoản: <b id="bk-owner"></b><br>
+      Gói: <b id="pkname">Mua riêng tool</b><br>
       Số tiền: <b id="bk-price"></b><br>
       Nội dung: <b id="memo"></b>
     </div>
@@ -52,6 +57,11 @@
 <script src="common.js"></script>
 <script>
   var P = params(), plan = P.dk, may = P.may, cfg = null;
+  var PK = { tool: { amt: 1268000, txt: '1.268.000đ', name: 'Mua riêng tool' }, course: { amt: 1686000, txt: '1.686.000đ', name: 'Mua riêng khóa học xây kênh sức khỏe' }, combo: { amt: 1968000, txt: '1.968.000đ', name: 'Mua combo tool và khóa học' } };
+  var cur = 'tool', memoVal = '', bankCode = 'TCB', bankAcc = '', bankOwner = '';
+  function qrUrl() { return 'https://img.vietqr.io/image/' + bankCode + '-' + bankAcc + '-compact2.png?amount=' + PK[cur].amt + '&addInfo=' + encodeURIComponent(memoVal) + '&accountName=' + encodeURIComponent(bankOwner); }
+  function pickPk(k) { cur = k; document.querySelectorAll('.pkc').forEach(function (e) { e.classList.toggle('on', e.dataset.k === k); }); $('qr').src = qrUrl(); $('bk-price').textContent = PK[k].txt; $('qramt').textContent = PK[k].txt; $('pkname').textContent = PK[k].name; }
+  document.querySelectorAll('.pkc').forEach(function (e) { e.addEventListener('click', function () { pickPk(e.dataset.k); }); });
   var trial = plan === 'thu';
   var label = trial ? 'Nhận mã dùng thử' : 'Tiếp tục thanh toán';
   if ((plan !== 'thu' && plan !== 'mua') || !isDeviceId(may)) {
@@ -91,10 +101,12 @@
         }
         done('trial-done');
       } else {
-        $('memo').textContent = r.memo;
+        $('memo').textContent = r.memo; memoVal = r.memo;
         var c = cfg || {};
-        $('qr').src = 'https://img.vietqr.io/image/' + (c.bankCode || 'TCB') + '-' + (c.bankAccount || '') + '-compact2.png?amount=' + (c.price || '') +
-          '&addInfo=' + encodeURIComponent(r.memo) + '&accountName=' + encodeURIComponent(c.bankOwner || '');
+        PK.tool.amt = c.price || PK.tool.amt; PK.tool.txt = c.priceText || PK.tool.txt;
+        $('pt-tool').textContent = PK.tool.txt;
+        bankCode = c.bankCode || 'TCB'; bankAcc = c.bankAccount || ''; bankOwner = c.bankOwner || '';
+        pickPk('tool');
         done('buy-done');
       }
     }).catch(function () { fail(); });
