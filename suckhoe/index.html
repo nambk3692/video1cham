@@ -26,7 +26,7 @@
   var android = /Android/i.test(ua);
   if (/[?&]capnhat=1(&|$)/.test(location.search)) {
     $('title').textContent = 'Cập nhật bản mới';
-    $('sub').innerHTML = 'Bấm <b>Vào tool</b> bên dưới để vào bản mới nhất.<br>Sau khi vào, hãy <b>đóng thẻ tool cũ</b> để khỏi nhầm.';
+    $('sub').innerHTML = 'Bấm <b>Vào tool</b> bên dưới để vào bản mới nhất.<br>Nếu Flow hiện màn hình <b>"Công cụ được chia sẻ"</b>, hãy bấm <b>"Dùng thử trong một dự án"</b> để vào tool.<br>Sau khi vào, hãy <b>đóng thẻ tool cũ</b> để khỏi nhầm.';
   }
   getConfig().then(function (c) {
     var link = c.toolLink;
