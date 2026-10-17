@@ -4,7 +4,7 @@
 <title>Tạo Video Phong Thủy 1 Chạm</title>
 <link rel="stylesheet" href="style.css"></head>
 <body><div class="card" style="text-align:center">
-  <h1>Tạo Video Phong Thủy 1 Chạm</h1>
+  <h1 id="title">Tạo Video Phong Thủy 1 Chạm</h1>
 
   <div id="inapp" class="hide">
     <div class="warn">Bạn đang mở link trong ứng dụng (Zalo, Facebook, TikTok...). Trình duyệt trong ứng dụng không đăng nhập được Google nên sẽ không vào được tool. Hãy mở bằng Chrome hoặc Safari.</div>
@@ -14,7 +14,7 @@
   </div>
 
   <div id="normal">
-    <p class="sub">Chưa có mã kích hoạt? Vào tool rồi bấm <b>Dùng thử</b> hoặc <b>Mua tool</b> ngay trên màn hình kích hoạt.</p>
+    <p class="sub" id="sub">Chưa có mã kích hoạt? Vào tool rồi bấm <b>Dùng thử</b> hoặc <b>Mua tool</b> ngay trên màn hình kích hoạt.</p>
     <a class="btn main" id="go" href="#">Vào tool</a>
   </div>
   <p class="note hide" id="err">Chưa tải được đường dẫn tool. Vui lòng tải lại trang.</p>
@@ -24,6 +24,10 @@
   var ua = navigator.userAgent;
   var inApp = /Zalo|FBAN|FBAV|FB_IAB|Instagram|Messenger|TikTok|musical_ly|Bytedance|BytedanceWebview|Line\/|; wv\)/i.test(ua);
   var android = /Android/i.test(ua);
+  if (/[?&]capnhat=1(&|$)/.test(location.search)) {
+    $('title').textContent = 'Cập nhật bản mới';
+    $('sub').innerHTML = 'Bấm <b>Vào tool</b> bên dưới để vào bản mới nhất.<br>Nếu Flow hiện màn hình <b>"Công cụ được chia sẻ"</b>, hãy bấm <b>"Dùng thử trong một dự án"</b> để vào tool.<br>Sau khi vào, hãy <b>đóng thẻ tool cũ</b> để khỏi nhầm.';
+  }
   getConfig().then(function (c) {
     var link = c.toolLink;
     $('go').href = link;
