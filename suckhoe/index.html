@@ -17,6 +17,12 @@
     <p class="sub" id="sub">Chưa có mã kích hoạt? Vào tool rồi bấm <b>Dùng thử</b> hoặc <b>Mua tool</b> ngay trên màn hình kích hoạt.</p>
     <a class="btn main" id="go" href="#">Vào tool</a>
   </div>
+  <div id="luu" class="hide" style="margin-top:18px;text-align:left;border-top:1px solid #2a2a30;padding-top:14px">
+    <p class="sub" style="margin:0 0 8px;color:#e5e5ea"><b>Mẹo: lưu trang này để lần sau vào nhanh, kể cả khi có bản mới.</b></p>
+    <p class="note" style="margin:6px 0"><b>Máy tính:</b> bấm hình dấu sao trên thanh địa chỉ (hoặc nhấn Ctrl + D), rồi Xong.</p>
+    <p class="note" style="margin:6px 0"><b>Điện thoại Android (Chrome):</b> bấm dấu ba chấm góc trên bên phải, chọn "Thêm vào màn hình chính".</p>
+    <p class="note" style="margin:6px 0"><b>iPhone (Safari):</b> bấm nút Chia sẻ, chọn "Thêm vào Màn hình chính".</p>
+  </div>
   <p class="note hide" id="err">Chưa tải được đường dẫn tool. Vui lòng tải lại trang.</p>
 </div>
 <script src="common.js"></script>
@@ -28,6 +34,7 @@
     $('title').textContent = 'Cập nhật bản mới';
     $('sub').innerHTML = 'Bấm <b>Vào tool</b> bên dưới để vào bản mới nhất.<br>Nếu Flow hiện màn hình <b>"Công cụ được chia sẻ"</b>, hãy bấm <b>"Dùng thử trong một dự án"</b> để vào tool.<br>Sau khi vào, hãy <b>đóng thẻ tool cũ</b> để khỏi nhầm.';
   }
+  if (/[?&]luu=1(&|$)/.test(location.search)) { $('luu').classList.remove('hide'); }
   getConfig().then(function (c) {
     var link = c.toolLink;
     $('go').href = link;
