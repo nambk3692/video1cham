@@ -20,6 +20,25 @@
 </div>
 <script src="common.js"></script>
 <script>
+
+  // Video hướng dẫn: đặt mã video vào YT_ID khi chính thức; thử bằng ?yt=MÃ_VIDEO trên link.
+  var YT_ID = '';
+  (function () {
+    var m = location.search.match(/[?&]yt=([\w-]{6,20})/);
+    var id = m ? m[1] : YT_ID;
+    if (!id) return;
+    var sub = document.querySelector('.card .sub');
+    var w = document.createElement('div');
+    w.style.cssText = 'position:relative;padding-top:56.25%;margin:14px 0;border-radius:12px;overflow:hidden;background:#000';
+    var f = document.createElement('iframe');
+    f.src = 'https://www.youtube.com/embed/' + id;
+    f.title = 'Video hướng dẫn đổi tài khoản';
+    f.setAttribute('allowfullscreen', '');
+    f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    f.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:0';
+    w.appendChild(f);
+    if (sub && sub.parentNode) sub.parentNode.insertBefore(w, sub.nextSibling);
+  })();
   getConfig().then(function (c) {
     if (!/\/shared\/tool\//.test(String(c.toolLink || ''))) throw new Error('no link');
     var a = $('choose');
