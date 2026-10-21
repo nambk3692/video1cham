@@ -17,16 +17,16 @@
   <div id="none" class="hide">
     <h1>Mở khóa tạo tiêu đề và thumbnail</h1>
     <p class="sub">Chức năng thêm: tạo 4 tiêu đề và thumbnail theo mẫu, ghép chữ thumbnail vào đầu video. Phí mở khóa một lần: <b id="price" style="color:#f59e0b"></b>.</p>
-    <p class="sub" style="margin-bottom:6px">Quét mã bên dưới bằng app ngân hàng để chuyển khoản. Số tiền và nội dung đã điền sẵn.</p>
+    <p class="sub" style="margin-bottom:6px">Quét mã bên dưới bằng app ngân hàng để chuyển khoản. Số tiền đã điền sẵn, bạn tự nhập nội dung như hướng dẫn bên dưới.</p>
     <img class="qr" id="qr" alt="Mã QR chuyển khoản">
     <div class="bank">
       Ngân hàng: <b id="bk-name"></b><br>
       Số tài khoản: <b id="bk-acc"></b><br>
       Chủ tài khoản: <b id="bk-owner"></b><br>
       Số tiền: <b id="bk-price"></b><br>
-      Nội dung: <b id="memo"></b>
+      Nội dung: <b>THUMB + tên + số điện thoại</b><br>
+      Ví dụ: <b>THUMB NGUYEN VIET NAM 0866828691</b>
     </div>
-    <p class="note"><b style="color:#f59e0b">Lưu ý:</b> nội dung chuyển khoản phải đúng như trên (mã QR đã điền sẵn).</p>
     <p class="note">Chuyển khoản xong, bấm nút bên dưới để Nam kiểm tra và mở khóa cho bạn.</p>
     <button class="btn main" id="paid" type="button">Tôi đã chuyển khoản</button>
     <div id="m" class="msg"></div>
@@ -42,10 +42,11 @@
 
   <div id="unlocked" class="hide">
     <h2>Đã mở khóa thumbnail</h2>
-    <p class="sub">Mã kích hoạt MỚI của bạn (thay cho mã cũ):</p>
+    <p class="sub" id="unl-auto">Tool đã tự mở khóa thumbnail cho bạn, quay lại tool để dùng. Trang này sẽ tự đóng.</p>
+    <p class="sub">Mã kích hoạt MỚI của bạn (lưu lại phòng khi cần, thay cho mã cũ):</p>
     <div class="code" id="newcode"></div>
     <button class="btn main" id="copy" type="button">Sao chép mã</button>
-    <p class="sub" style="margin-top:14px">Quay lại tool, dán mã mới vào ô <b>Dán mã mới</b> ở khung thumbnail. Lần sau mở tool bằng mã mới này.</p>
+    <p class="sub" style="margin-top:14px">Nếu tool chưa tự mở khóa, hãy tải lại tool rồi dán mã mới này vào ô mã kích hoạt.</p>
   </div>
 </div>
 <script src="common.js"></script>
@@ -61,19 +62,34 @@
     if (!r || !r.ok) { show('bad'); $('bad').querySelector('.sub').textContent = (r && r.msg) || 'Không kiểm tra được, vui lòng thử lại.'; return; }
     if (r.status === 'paid') {
       $('newcode').textContent = r.code;
+      unlockTool(r.code);
       $('copy').onclick = function () { copyText(r.code, function (ok) { $('copy').textContent = ok ? 'Đã sao chép' : 'Hãy bấm giữ mã để sao chép'; }); };
       show('unlocked');
     } else if (r.status === 'pending') {
       setLinks(); show('pending');
+      if (!poll) poll = setInterval(function () { if (last && last.status === 'pending') check(); }, 20000);
     } else {
       $('price').textContent = r.amountText;
       $('bk-name').textContent = cfg.bankName || ''; $('bk-acc').textContent = cfg.bankAccount || '';
-      $('bk-owner').textContent = cfg.bankOwner || ''; $('bk-price').textContent = r.amountText; $('memo').textContent = r.memo;
+      $('bk-owner').textContent = cfg.bankOwner || ''; $('bk-price').textContent = r.amountText;
       $('qr').src = 'https://img.vietqr.io/image/' + (cfg.bankCode || 'TCB') + '-' + (cfg.bankAccount || '') + '-compact2.png?amount=' + r.amount +
-        '&addInfo=' + encodeURIComponent(r.memo) + '&accountName=' + encodeURIComponent(cfg.bankOwner || '');
+        '&accountName=' + encodeURIComponent(cfg.bankOwner || '');
       show('none');
     }
   }
+  // Mở khóa luôn cho tool đang mở trang này: nhớ mã mới trên trình duyệt (lần vào tool sau tự nhận) và báo về tool.
+  var sent = false;
+  function unlockTool(code) {
+    try { localStorage.setItem('pt1c_ma', code); } catch (e) {}
+    if (sent) return; sent = true;
+    try {
+      if (window.opener) {
+        window.opener.postMessage({ type: 'PT1C_SETTINGS', action: 'thumb', ok: true, settings: '', msg: '', ma: code }, '*');
+        setTimeout(function () { window.close(); }, 2500);
+      } else { $('unl-auto').textContent = 'Đã mở khóa thumbnail. Hãy quay lại tool và tải lại trang tool để dùng.'; }
+    } catch (e) {}
+  }
+  var poll = null;
   function check() {
     return callApi({ action: 'thumbstatus', ma: ma }).then(render).catch(function () { render({ ok: false, msg: 'Có lỗi kết nối, vui lòng thử lại.' }); });
   }
