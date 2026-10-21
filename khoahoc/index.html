@@ -66,6 +66,12 @@
   .row2 .btn { flex: 1; }
   .thumb { max-width: 120px; max-height: 120px; border-radius: 10px; border: 2px solid var(--line); }
   .waitnote { color: var(--muted); font-size: 18px; margin: 4px 2px; }
+
+  .toolcard { margin-bottom: 16px; }
+  .toolcard h2 { margin-bottom: 4px; }
+  .toolcard .btn { margin-top: 10px; text-decoration: none; }
+  .vidhelp { width: 100%; border-radius: 14px; margin-top: 10px; background: #000; }
+  .tabbar button { font-size: 18px; padding: 0 4px; }
 </style>
 </head>
 <body>
@@ -135,8 +141,20 @@
     </div>
   </section>
 
+  <section id="tools" class="hide">
+    <h1 class="top">Công cụ</h1>
+    <p class="muted" style="margin-top:0">Bấm <b>Mở tool</b> để làm video. Lần đầu vào tool sẽ có màn hình kích hoạt. Tool chạy bằng tài khoản Google của bạn.</p>
+    <div id="tool-list"></div>
+    <div class="card" style="margin-top:6px">
+      <h2>Hết điểm hoặc muốn đổi tài khoản Google?</h2>
+      <p class="muted">Bấm <b>Đổi tài khoản Google</b> ở tool bạn dùng, chọn email còn điểm, tool sẽ mở lại ngay.</p>
+      <button id="vid-btn" class="btn" type="button">Xem video hướng dẫn</button>
+      <video id="vid" class="vidhelp hide" controls playsinline preload="none" src="https://nambk3692.github.io/video1cham/huongdan/doi_tai_khoan.mp4"></video>
+    </div>
+  </section>
+
 </div>
-<div id="tabbar" class="tabbar hide"><button id="tab-hoc" class="on" type="button">Bài học</button><button id="tab-hoi" type="button">Hỏi đáp<span id="dotnew" class="dotnew hide"></span></button></div>
+<div id="tabbar" class="tabbar hide"><button id="tab-hoc" class="on" type="button">Bài học</button><button id="tab-cu" type="button">Công cụ</button><button id="tab-hoi" type="button">Hỏi đáp<span id="dotnew" class="dotnew hide"></span></button></div>
 
 <script>
 (function () {
@@ -329,19 +347,64 @@
 
   var HOC_IDS = ['player-box', 'list', 'load-err', 'out', 'install-android', 'install-ios', 'home-title'];
   function showTab(name) {
-    var hoi = name === 'hoi';
+    var hoc = name === 'hoc', hoi = name === 'hoi', cu = name === 'cu';
     $('chat').classList.toggle('hide', !hoi);
+    $('tools').classList.toggle('hide', !cu);
     HOC_IDS.forEach(function (id) {
       var el = $(id); if (!el) return;
-      if (hoi) { if (el.dataset.was === undefined) el.dataset.was = el.classList.contains('hide') ? '1' : '0'; el.classList.add('hide'); }
+      if (!hoc) { if (el.dataset.was === undefined) el.dataset.was = el.classList.contains('hide') ? '1' : '0'; el.classList.add('hide'); }
       else if (el.dataset.was !== undefined) { if (el.dataset.was === '0') el.classList.remove('hide'); delete el.dataset.was; }
     });
-    $('tab-hoc').classList.toggle('on', !hoi);
+    $('tab-hoc').classList.toggle('on', hoc);
     $('tab-hoi').classList.toggle('on', hoi);
+    $('tab-cu').classList.toggle('on', cu);
     if (hoi) { $('dotnew').classList.add('hide'); lastSeen = Date.now(); openStream(); renderChat(); }
+    if (cu) loadTools();
   }
   $('tab-hoc').addEventListener('click', function () { showTab('hoc'); });
   $('tab-hoi').addEventListener('click', function () { showTab('hoi'); });
+  $('tab-cu').addEventListener('click', function () { showTab('cu'); });
+
+  // ===== Công cụ (mở tool trên Google Flow) =====
+  var SITE = 'https://nambk3692.github.io/video1cham/';
+  var TOOLS = [
+    { name: 'Tạo Video 1 Chạm', desc: 'Tạo video từ ý tưởng và kịch bản của bạn.', dir: '', api: 'https://script.google.com/macros/s/AKfycbwqlgoDDfppaoqDku5BaNfEDkHWPX4J5Tp2exzKKmieLxYR1lusC_FgTTA1_fLf-0FbnQ/exec' },
+    { name: 'Edit Video 1 Chạm', desc: 'Ghép, cắt video, thêm chữ và nhạc.', dir: 'edit/', api: 'https://script.google.com/macros/s/AKfycbzIsGvKZg98AQly_Z1q-u4KLdtBic9XYYlhXTGKJzNhwdsKJd0KQck4HzFBEEbqqJJZ/exec' },
+    { name: 'Tạo Video Phong Thủy 1 Chạm', desc: 'Làm video phong thủy, tử vi, linh số.', dir: 'phongthuy/', api: 'https://script.google.com/macros/s/AKfycbwwUThduSj_h9EVy7fAioMyZqRmM6S3ngpisRHQCMGLHDW0gy4P7EAdznNsmH_3OFDdyA/exec' },
+    { name: 'Tạo Video Sức Khỏe 1 Chạm', desc: 'Làm video kiến thức sức khỏe.', dir: 'suckhoe/', api: 'https://script.google.com/macros/s/AKfycbwRVmbC_Xk7libKd4wEharKqNCzfC67A4uFo8-sliMb5mA2fggSg1xnpSZK_pajUOHe/exec' }
+  ];
+  var toolsBuilt = false;
+
+  function loadTools() {
+    if (toolsBuilt) return;
+    toolsBuilt = true;
+    var box = $('tool-list');
+    TOOLS.forEach(function (tl) {
+      var c = document.createElement('div'); c.className = 'card toolcard';
+      var h = document.createElement('h2'); h.textContent = tl.name;
+      var d = document.createElement('p'); d.className = 'muted'; d.textContent = tl.desc; d.style.margin = '4px 0 0';
+      var open = document.createElement('a'); open.className = 'btn main'; open.textContent = 'Mở tool';
+      open.target = '_blank'; open.rel = 'noopener'; open.href = SITE + tl.dir;
+      var sw = document.createElement('a'); sw.className = 'btn'; sw.textContent = 'Đổi tài khoản Google';
+      sw.target = '_blank'; sw.rel = 'noopener'; sw.href = SITE + tl.dir + 'doitaikhoan.html';
+      c.appendChild(h); c.appendChild(d); c.appendChild(open); c.appendChild(sw);
+      box.appendChild(c);
+      // Lấy link tool mới nhất để vào thẳng Google Flow (không có thì giữ link trang khách)
+      fetch(tl.api + '?api=config').then(function (r) { return r.json(); }).then(function (cfg) {
+        var link = String((cfg && cfg.toolLink) || '');
+        if (/^https:\/\/flow\.google\.com\/shared\/tool\//.test(link)) {
+          open.href = link;
+          sw.href = 'https://accounts.google.com/AccountChooser?continue=' + encodeURIComponent(link);
+        }
+      }).catch(function () {});
+    });
+    $('vid-btn').addEventListener('click', function () {
+      var v = $('vid'); var show = v.classList.contains('hide');
+      v.classList.toggle('hide', !show);
+      $('vid-btn').textContent = show ? 'Ẩn video hướng dẫn' : 'Xem video hướng dẫn';
+      if (show) { try { v.play(); } catch (e) {} } else { try { v.pause(); } catch (e) {} }
+    });
+  }
 
   function openStream() {
     if (es) return;
