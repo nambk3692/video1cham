@@ -48,6 +48,24 @@
   .steps { margin: 0; padding-left: 26px; font-size: 20px; line-height: 1.7; }
   .warn { background: #fff4d6; border: 2px solid #e0b64a; color: #4d3a00; border-radius: 14px; padding: 14px 16px; font-size: 18px; line-height: 1.5; margin-bottom: 14px; }
   .small-link { background: none; border: 0; color: var(--muted); font-size: 18px; text-decoration: underline; padding: 14px 0; cursor: pointer; width: 100%; }
+
+  body.has-tabs { padding-bottom: 92px; }
+  .tabbar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 10px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: #fff; border-top: 2px solid var(--line); z-index: 10; }
+  .tabbar button { flex: 1; min-height: 60px; border-radius: 14px; border: 2px solid var(--line); background: #fff; color: var(--text); font-size: 20px; font-weight: 700; cursor: pointer; position: relative; }
+  .tabbar button.on { border-color: var(--accent); background: #e7f4ec; color: var(--accent); }
+  .dotnew { position: absolute; top: 8px; right: 14px; width: 14px; height: 14px; border-radius: 50%; background: var(--err); }
+  .chat-list { max-height: calc(100vh - 360px); min-height: 220px; overflow-y: auto; padding: 4px 2px 12px; }
+  .bubble { max-width: 86%; padding: 12px 14px; border-radius: 16px; margin: 10px 0; font-size: 20px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
+  .bubble.me { margin-left: auto; background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+  .bubble.sup { margin-right: auto; background: var(--card); border: 2px solid var(--line); border-bottom-left-radius: 4px; }
+  .bubble img { display: block; max-width: 100%; border-radius: 10px; margin-bottom: 6px; }
+  .compose { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+  .compose textarea { width: 100%; min-height: 84px; padding: 12px 14px; border-radius: 14px; border: 2px solid var(--line); font-size: 20px; font-family: inherit; resize: none; }
+  .compose textarea:focus { outline: 3px solid var(--accent); border-color: transparent; }
+  .row2 { display: flex; gap: 10px; }
+  .row2 .btn { flex: 1; }
+  .thumb { max-width: 120px; max-height: 120px; border-radius: 10px; border: 2px solid var(--line); }
+  .waitnote { color: var(--muted); font-size: 18px; margin: 4px 2px; }
 </style>
 </head>
 <body>
@@ -100,7 +118,25 @@
     <button id="out" class="small-link" type="button">Đăng xuất</button>
   </section>
 
+  <section id="chat" class="hide">
+    <h1 class="top">Hỏi đáp</h1>
+    <p class="muted" style="margin-top:0">Gõ câu hỏi hoặc gửi ảnh chụp màn hình. Bên mình sẽ trả lời ngay trong đây. Đừng gửi mật khẩu hay số thẻ.</p>
+    <div id="chat-list" class="chat-list"></div>
+    <p id="chat-wait" class="waitnote hide">Đã nhận tin của bạn. Xin chờ một chút để có câu trả lời.</p>
+    <div class="compose">
+      <img id="pending-img" class="thumb hide" alt="">
+      <textarea id="chat-text" placeholder="Nhập câu hỏi ở đây..."></textarea>
+      <div class="row2">
+        <button id="chat-pic" class="btn" type="button">Gửi ảnh</button>
+        <button id="chat-send" class="btn main" type="button">Gửi tin</button>
+      </div>
+      <input id="chat-file" type="file" accept="image/*" class="hide">
+      <p id="chat-err" class="err"></p>
+    </div>
+  </section>
+
 </div>
+<div id="tabbar" class="tabbar hide"><button id="tab-hoc" class="on" type="button">Bài học</button><button id="tab-hoi" type="button">Hỏi đáp<span id="dotnew" class="dotnew hide"></span></button></div>
 
 <script>
 (function () {
@@ -138,7 +174,7 @@
     var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 12000);
     return fetch(CONFIG.api + '?api=khoahoc&ma=' + encodeURIComponent(code), ctl ? { signal: ctl.signal } : undefined)
       .then(function (r) { return r.json(); })
-      .then(function (j) { clearTimeout(timer); return j && j.ok ? { ok: true } : { ok: false, msg: (j && j.msg) || 'Mã không đúng hoặc đã hết hạn.' }; })
+      .then(function (j) { clearTimeout(timer); return j && j.ok ? { ok: true, name: j.name || '' } : { ok: false, msg: (j && j.msg) || 'Mã không đúng hoặc đã hết hạn.' }; })
       .catch(function () { clearTimeout(timer); return { ok: false, net: true, msg: 'Không kết nối được. Vui lòng kiểm tra mạng rồi thử lại.' }; });
   }
 
@@ -149,7 +185,10 @@
     if (inApp && !standalone) $('inapp').classList.remove('hide');
   }
 
-  function enter() {
+  function enter(name) {
+    if (name !== undefined) who.name = name;
+    who.ma = String(store('kh_ma') || '');
+    $('tabbar').classList.remove('hide'); document.body.classList.add('has-tabs');
     $('login').classList.add('hide');
     $('home').classList.remove('hide');
     loadVideos();
@@ -162,14 +201,14 @@
     $('go').disabled = true;
     verify(code).then(function (r) {
       $('go').disabled = false;
-      if (r.ok) { store('kh_ma', code.trim().toUpperCase()); enter(); }
+      if (r.ok) { store('kh_ma', code.trim().toUpperCase()); enter(r.name); }
       else $('login-err').textContent = r.msg;
     });
   }
 
   $('go').addEventListener('click', doLogin);
   $('code').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
-  $('out').addEventListener('click', function () { store('kh_ma', null); showLogin(''); $('player').innerHTML = ''; });
+  $('out').addEventListener('click', function () { store('kh_ma', null); showTab('hoc'); showLogin(''); $('player').innerHTML = ''; $('tabbar').classList.add('hide'); document.body.classList.remove('has-tabs'); });
 
   // ===== Danh sách + phát video =====
   function loadVideos() {
@@ -272,12 +311,147 @@
   });
   $('ios-close').addEventListener('click', function () { store('kh_ios_hide', '1'); $('install-ios').classList.add('hide'); });
 
+
+  // ===== Hỏi đáp (chat) =====
+  var DB = 'https://hotro-khoahoc-default-rtdb.asia-southeast1.firebasedatabase.app';
+  var who = { name: '', ma: '' };
+  var msgs = {}, imgCache = {}, es = null, pendingImg = '', sending = false, lastSeen = 0;
+
+  function chatId() {
+    var v = store('kh_chat');
+    if (!v || v.length < 24) {
+      var a = new Uint8Array(24); crypto.getRandomValues(a);
+      v = Array.prototype.map.call(a, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+      store('kh_chat', v);
+    }
+    return v;
+  }
+
+  var HOC_IDS = ['player-box', 'list', 'load-err', 'out', 'install-android', 'install-ios', 'home-title'];
+  function showTab(name) {
+    var hoi = name === 'hoi';
+    $('chat').classList.toggle('hide', !hoi);
+    HOC_IDS.forEach(function (id) {
+      var el = $(id); if (!el) return;
+      if (hoi) { if (el.dataset.was === undefined) el.dataset.was = el.classList.contains('hide') ? '1' : '0'; el.classList.add('hide'); }
+      else if (el.dataset.was !== undefined) { if (el.dataset.was === '0') el.classList.remove('hide'); delete el.dataset.was; }
+    });
+    $('tab-hoc').classList.toggle('on', !hoi);
+    $('tab-hoi').classList.toggle('on', hoi);
+    if (hoi) { $('dotnew').classList.add('hide'); lastSeen = Date.now(); openStream(); renderChat(); }
+  }
+  $('tab-hoc').addEventListener('click', function () { showTab('hoc'); });
+  $('tab-hoi').addEventListener('click', function () { showTab('hoi'); });
+
+  function openStream() {
+    if (es) return;
+    es = new EventSource(DB + '/chats/' + chatId() + '/msgs.json');
+    es.addEventListener('put', function (e) {
+      var d = JSON.parse(e.data), path = d.path || '/';
+      if (path === '/') msgs = d.data || {};
+      else {
+        var parts = path.slice(1).split('/');
+        if (parts.length === 1) { if (d.data === null) delete msgs[parts[0]]; else msgs[parts[0]] = d.data; }
+        else { msgs[parts[0]] = msgs[parts[0]] || {}; msgs[parts[0]][parts[1]] = d.data; }
+      }
+      onMsgs();
+    });
+    es.addEventListener('patch', function (e) {
+      var d = JSON.parse(e.data);
+      if ((d.path || '/') === '/') { for (var k in d.data) msgs[k] = d.data[k]; }
+      onMsgs();
+    });
+    es.onerror = function () { try { es.close(); } catch (x) {} es = null; setTimeout(openStream, 4000); };
+  }
+
+  function onMsgs() {
+    var hoiOpen = !$('chat').classList.contains('hide');
+    var newest = 0;
+    Object.keys(msgs).forEach(function (k) { var m = msgs[k]; if (m && m.from !== 'khach' && m.t > newest) newest = m.t; });
+    if (!hoiOpen && newest > lastSeen) $('dotnew').classList.remove('hide');
+    renderChat();
+  }
+
+  function renderChat() {
+    var box = $('chat-list'); if (!box) return;
+    var ids = Object.keys(msgs).filter(function (k) { return msgs[k] && msgs[k].t; })
+      .sort(function (a, b) { return msgs[a].t - msgs[b].t; });
+    box.innerHTML = '';
+    if (!ids.length) { var h = document.createElement('p'); h.className = 'muted'; h.textContent = 'Chưa có tin nhắn. Bạn cần hỗ trợ gì cứ nhắn nhé.'; box.appendChild(h); }
+    ids.forEach(function (k) {
+      var m = msgs[k], me = m.from === 'khach';
+      var b = document.createElement('div'); b.className = 'bubble ' + (me ? 'me' : 'sup');
+      if (m.hasImg) {
+        var im = document.createElement('img'); im.alt = 'Ảnh';
+        if (imgCache[k]) im.src = imgCache[k];
+        else fetch(DB + '/chats/' + chatId() + '/img/' + k + '.json').then(function (r) { return r.json(); }).then(function (s) { if (s) { imgCache[k] = s; im.src = s; } }).catch(function () {});
+        b.appendChild(im);
+      }
+      if (m.text) { var tx = document.createElement('span'); tx.textContent = m.text; b.appendChild(tx); }
+      box.appendChild(b);
+    });
+    var last = ids.length ? msgs[ids[ids.length - 1]] : null;
+    $('chat-wait').classList.toggle('hide', !(last && last.from === 'khach'));
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function put(path, body) {
+    return fetch(DB + path + '.json', { method: 'PUT', body: JSON.stringify(body) }).then(function (r) { if (!r.ok) throw new Error('http'); return r; });
+  }
+
+  function sendMsg() {
+    if (sending) return;
+    var text = $('chat-text').value.trim();
+    if (!text && !pendingImg) return;
+    sending = true; $('chat-send').disabled = true; $('chat-err').textContent = '';
+    var cid = chatId();
+    var mid = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    var t = Date.now();
+    var m = { from: 'khach', t: t };
+    if (text) m.text = text.slice(0, 2000);
+    if (pendingImg) m.hasImg = true;
+    var img = pendingImg;
+    var p = put('/chats/' + cid + '/meta', { name: (who.name || 'Khách').slice(0, 80), ma: String(who.ma || '').slice(0, 40) });
+    if (img) p = p.then(function () { return put('/chats/' + cid + '/img/' + mid, img); });
+    p.then(function () { return put('/chats/' + cid + '/msgs/' + mid, m); })
+      .then(function () { return put('/inbox/' + cid, { t: t, last: (text || 'Ảnh').slice(0, 80) }); })
+      .then(function () {
+        if (img) imgCache[mid] = img;
+        msgs[mid] = m; renderChat();
+        $('chat-text').value = ''; pendingImg = ''; $('pending-img').classList.add('hide');
+      })
+      .catch(function () { $('chat-err').textContent = 'Chưa gửi được. Vui lòng kiểm tra mạng rồi bấm Gửi tin lại.'; })
+      .then(function () { sending = false; $('chat-send').disabled = false; });
+  }
+  $('chat-send').addEventListener('click', sendMsg);
+
+  $('chat-pic').addEventListener('click', function () { $('chat-file').click(); });
+  $('chat-file').addEventListener('change', function () {
+    var f = this.files && this.files[0]; if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () {
+      var im = new Image();
+      im.onload = function () {
+        var max = 1100, w = im.width, h = im.height, s = Math.min(1, max / Math.max(w, h));
+        var c = document.createElement('canvas'); c.width = Math.round(w * s); c.height = Math.round(h * s);
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        var q = 0.75, out = c.toDataURL('image/jpeg', q);
+        while (out.length > 450000 && q > 0.3) { q -= 0.1; out = c.toDataURL('image/jpeg', q); }
+        pendingImg = out; var pi = $('pending-img'); pi.src = out; pi.classList.remove('hide');
+      };
+      im.onerror = function () { $('chat-err').textContent = 'Không đọc được ảnh này. Hãy thử ảnh khác.'; };
+      im.src = rd.result;
+    };
+    rd.readAsDataURL(f);
+    this.value = '';
+  });
+
   // ===== Khởi động =====
   var saved = store('kh_ma');
   if (saved) {
     showLogin('Đang kiểm tra mã...');
     verify(saved).then(function (r) {
-      if (r.ok || r.net) enter();   // mất mạng thoáng qua thì vẫn cho vào bằng mã đã lưu
+      if (r.ok || r.net) enter(r.name);   // mất mạng thoáng qua thì vẫn cho vào bằng mã đã lưu
       else showLogin('Mã đã hết hạn hoặc không còn hiệu lực. Vui lòng nhập lại.');
     });
   } else showLogin('');
