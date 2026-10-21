@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mở khóa thumbnail - Tạo Video Phong Thủy 1 Chạm</title>
+<link rel="stylesheet" href="style.css"></head>
+<body><div class="card">
+  <div id="bad" class="hide">
+    <h2>Liên kết không hợp lệ</h2>
+    <p class="sub">Hãy mở tool và bấm <b>Mở khóa thumbnail</b> ngay trong tool.</p>
+  </div>
+
+  <div id="load">
+    <h2>Đang tải...</h2>
+    <p class="sub">Vui lòng chờ vài giây.</p>
+  </div>
+
+  <div id="none" class="hide">
+    <h1>Mở khóa tạo tiêu đề và thumbnail</h1>
+    <p class="sub">Chức năng thêm: tạo 4 tiêu đề và thumbnail theo mẫu, ghép chữ thumbnail vào đầu video. Phí mở khóa một lần: <b id="price" style="color:#f59e0b"></b>.</p>
+    <p class="sub" style="margin-bottom:6px">Quét mã bên dưới bằng app ngân hàng để chuyển khoản. Số tiền và nội dung đã điền sẵn.</p>
+    <img class="qr" id="qr" alt="Mã QR chuyển khoản">
+    <div class="bank">
+      Ngân hàng: <b id="bk-name"></b><br>
+      Số tài khoản: <b id="bk-acc"></b><br>
+      Chủ tài khoản: <b id="bk-owner"></b><br>
+      Số tiền: <b id="bk-price"></b><br>
+      Nội dung: <b id="memo"></b>
+    </div>
+    <p class="note"><b style="color:#f59e0b">Lưu ý:</b> nội dung chuyển khoản phải đúng như trên (mã QR đã điền sẵn).</p>
+    <p class="note">Chuyển khoản xong, bấm nút bên dưới để Nam kiểm tra và mở khóa cho bạn.</p>
+    <button class="btn main" id="paid" type="button">Tôi đã chuyển khoản</button>
+    <div id="m" class="msg"></div>
+  </div>
+
+  <div id="pending" class="hide">
+    <h2>Đang chờ xét duyệt</h2>
+    <p class="sub">Nam sẽ kiểm tra khoản chuyển khoản của bạn rồi mở khóa. Khi được duyệt, mã kích hoạt mới sẽ gửi vào email của bạn, và bạn cũng lấy được mã mới ở trang này.</p>
+    <button class="btn main" id="recheck" type="button">Kiểm tra lại</button>
+    <div id="m2" class="msg"></div>
+    <a class="btn ghost" id="zalo" href="#" target="_blank"></a>
+  </div>
+
+  <div id="unlocked" class="hide">
+    <h2>Đã mở khóa thumbnail</h2>
+    <p class="sub">Mã kích hoạt MỚI của bạn (thay cho mã cũ):</p>
+    <div class="code" id="newcode"></div>
+    <button class="btn main" id="copy" type="button">Sao chép mã</button>
+    <p class="sub" style="margin-top:14px">Quay lại tool, dán mã mới vào ô <b>Dán mã mới</b> ở khung thumbnail. Lần sau mở tool bằng mã mới này.</p>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+  // Tool mở trang này: #ma=<mã kích hoạt>. Trang hỏi trạng thái mở khóa thumbnail (Apps Script đọc cột L của Sheet).
+  var P = params(), ma = P.ma || '', cfg = {}, last = null;
+  function show(id) { ['bad', 'load', 'none', 'pending', 'unlocked'].forEach(function (x) { $(x).classList.add('hide'); }); $(id).classList.remove('hide'); window.scrollTo(0, 0); }
+  function setLinks() {
+    $('zalo').href = 'https://zalo.me/' + (cfg.phone || ''); $('zalo').textContent = 'Liên hệ Nam qua Zalo: ' + (cfg.phone || '');
+  }
+  function render(r) {
+    last = r;
+    if (!r || !r.ok) { show('bad'); $('bad').querySelector('.sub').textContent = (r && r.msg) || 'Không kiểm tra được, vui lòng thử lại.'; return; }
+    if (r.status === 'paid') {
+      $('newcode').textContent = r.code;
+      $('copy').onclick = function () { copyText(r.code, function (ok) { $('copy').textContent = ok ? 'Đã sao chép' : 'Hãy bấm giữ mã để sao chép'; }); };
+      show('unlocked');
+    } else if (r.status === 'pending') {
+      setLinks(); show('pending');
+    } else {
+      $('price').textContent = r.amountText;
+      $('bk-name').textContent = cfg.bankName || ''; $('bk-acc').textContent = cfg.bankAccount || '';
+      $('bk-owner').textContent = cfg.bankOwner || ''; $('bk-price').textContent = r.amountText; $('memo').textContent = r.memo;
+      $('qr').src = 'https://img.vietqr.io/image/' + (cfg.bankCode || 'TCB') + '-' + (cfg.bankAccount || '') + '-compact2.png?amount=' + r.amount +
+        '&addInfo=' + encodeURIComponent(r.memo) + '&accountName=' + encodeURIComponent(cfg.bankOwner || '');
+      show('none');
+    }
+  }
+  function check() {
+    return callApi({ action: 'thumbstatus', ma: ma }).then(render).catch(function () { render({ ok: false, msg: 'Có lỗi kết nối, vui lòng thử lại.' }); });
+  }
+  if (!ma) show('bad');
+  else getConfig().then(function (c) { cfg = c || {}; }, function () {}).then(check);
+
+  $('paid').addEventListener('click', function () {
+    var b = $('paid'), m = $('m');
+    b.disabled = true; b.textContent = 'Đang gửi...'; m.textContent = '';
+    callApi({ action: 'thumbpay', ma: ma }).then(function (r) {
+      if (!r || !r.ok) { m.className = 'msg err'; m.textContent = (r && r.msg) || 'Có lỗi, vui lòng thử lại.'; b.disabled = false; b.textContent = 'Tôi đã chuyển khoản'; return; }
+      render(r);
+    }).catch(function () { m.className = 'msg err'; m.textContent = 'Có lỗi kết nối, vui lòng thử lại.'; b.disabled = false; b.textContent = 'Tôi đã chuyển khoản'; });
+  });
+  $('recheck').addEventListener('click', function () {
+    var b = $('recheck'), m = $('m2');
+    b.disabled = true; b.textContent = 'Đang kiểm tra...'; m.textContent = '';
+    check().then(function () {
+      b.disabled = false; b.textContent = 'Kiểm tra lại';
+      if (last && last.ok && last.status === 'pending') { m.className = 'msg'; m.textContent = 'Chưa được duyệt. Nam sẽ duyệt sớm nhất có thể.'; }
+    });
+  });
+</script></body></html>
