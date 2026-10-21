@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Khóa học">
+<title>Khóa học</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>
+  :root {
+    --bg: #ffffff; --card: #f4f6f8; --line: #cfd6de; --text: #111418; --muted: #4a5360;
+    --accent: #0b6b3a; --accent-ink: #ffffff; --ok: #0b6b3a; --err: #c0262d;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; font-size: 20px; }
+  body { min-height: 100vh; padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 26px; margin: 0 0 8px; }
+  h2 { font-size: 22px; margin: 0; }
+  p { line-height: 1.55; }
+  .muted { color: var(--muted); font-size: 18px; }
+  .hide { display: none !important; }
+  .card { background: var(--card); border: 2px solid var(--line); border-radius: 16px; padding: 18px; }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 60px; padding: 0 20px; border-radius: 14px; border: 2px solid var(--accent); background: #fff; color: var(--accent); font-size: 20px; font-weight: 700; cursor: pointer; width: 100%; }
+  .btn.main { background: var(--accent); color: var(--accent-ink); }
+  input[type=text] { width: 100%; min-height: 64px; padding: 0 16px; border-radius: 14px; border: 2px solid var(--line); background: #fff; color: var(--text); font-size: 24px; letter-spacing: 2px; text-transform: uppercase; }
+  input[type=text]:focus { outline: 3px solid var(--accent); border-color: transparent; }
+  .err { color: var(--err); font-size: 18px; font-weight: 600; min-height: 26px; margin: 10px 0 0; }
+  .login { max-width: 460px; margin: 6vh auto 0; text-align: center; }
+  .logo { width: 88px; height: 88px; border-radius: 20px; margin: 0 auto 14px; display: block; }
+  .stack > * + * { margin-top: 14px; }
+  .top { margin-bottom: 14px; }
+  .player { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 14px; overflow: hidden; }
+  .player iframe, .player video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .now { margin: 14px 0 8px; }
+  .mod { margin-top: 22px; }
+  .mod h2 { padding: 0 2px 10px; }
+  .lesson { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; padding: 14px 16px; margin-bottom: 10px; background: var(--card); border: 2px solid var(--line); border-radius: 14px; color: var(--text); font-size: 20px; font-weight: 600; cursor: pointer; min-height: 68px; }
+  .lesson.on { border-color: var(--accent); background: #e7f4ec; }
+  .tick { flex: 0 0 auto; margin-left: auto; color: var(--ok); font-size: 18px; font-weight: 700; }
+  .install { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; border-color: var(--accent); background: #e7f4ec; }
+  .steps { margin: 0; padding-left: 26px; font-size: 20px; line-height: 1.7; }
+  .warn { background: #fff4d6; border: 2px solid #e0b64a; color: #4d3a00; border-radius: 14px; padding: 14px 16px; font-size: 18px; line-height: 1.5; margin-bottom: 14px; }
+  .small-link { background: none; border: 0; color: var(--muted); font-size: 18px; text-decoration: underline; padding: 14px 0; cursor: pointer; width: 100%; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Màn hình đăng nhập -->
+  <section id="login" class="login hide">
+    <img class="logo" src="icon-192.png" alt="">
+    <h1 id="app-name">Khóa học</h1>
+    <p class="muted">Nhập mã để xem video.</p>
+    <div class="card stack" style="text-align:left">
+      <label for="code" class="muted">Mã khóa học (có trong tin nhắn thầy/cô gửi)</label>
+      <input id="code" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Nhập mã">
+      <button id="go" class="btn main block" type="button">Vào học</button>
+      <p id="login-err" class="err"></p>
+    </div>
+    <div id="inapp" class="warn hide" style="margin-top:14px;text-align:left">
+      Bạn đang mở trong ứng dụng khác (Zalo, Facebook...). Hãy mở link bằng Chrome hoặc Safari để cài app và xem video ổn định hơn.
+    </div>
+  </section>
+
+  <!-- Màn hình học -->
+  <section id="home" class="hide">
+    <h1 id="home-title" class="top">Khóa học</h1>
+
+    <div id="install-android" class="card install hide">
+      <h2>Cài app lên điện thoại</h2>
+      <span class="muted">Có biểu tượng ngoài màn hình, bấm vào là học.</span>
+      <button id="install-btn" class="btn main" type="button">Cài đặt ứng dụng</button>
+    </div>
+    <div id="install-ios" class="card install hide">
+      <h2>Cài app lên iPhone</h2>
+      <ol class="steps">
+        <li>Bấm nút <b>Chia sẻ</b> (hình ô vuông có mũi tên) ở dưới cùng Safari.</li>
+        <li>Chọn <b>Thêm vào Màn hình chính</b>.</li>
+        <li>Bấm <b>Thêm</b>. Từ nay mở app bằng biểu tượng ngoài màn hình.</li>
+      </ol>
+      <button id="ios-close" class="small-link" type="button">Để sau</button>
+    </div>
+
+    <div id="player-box" class="hide">
+      <div id="player" class="player"></div>
+      <h2 id="now-title" class="now"></h2>
+      <p id="now-note" class="muted" style="margin:0 0 10px"></p>
+      <button id="next" class="btn main hide" type="button">Xem bài tiếp theo</button>
+    </div>
+
+    <div id="list"></div>
+    <p id="load-err" class="err"></p>
+    <button id="out" class="small-link" type="button">Đăng xuất</button>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  // ===== Cấu hình =====
+  var CONFIG = {
+    appName: 'Khóa học',
+    // Địa chỉ Apps Script kiểm tra mã (điền khi có). Để trống = chỉ chạy thử với mã DEMO.
+    api: 'https://script.google.com/macros/s/AKfycbzkV8lJV_-753BoCjMQZ0CriN8V2P5hG4pwci6rh_CJ80vZRMk0qnZVrR3m4SnI1iM/exec',
+    demoCode: 'DEMO',
+    videosUrl: 'videos.json'
+  };
+
+  function $(id) { return document.getElementById(id); }
+  function store(k, v) {
+    try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; }
+  }
+
+  var data = null, flat = [], current = -1, deferredPrompt = null;
+  var ua = navigator.userAgent;
+  var isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var inApp = /Zalo|FBAN|FBAV|FB_IAB|Instagram|Messenger|TikTok|musical_ly|Bytedance|Line\/|; wv\)/i.test(ua);
+  var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+
+  document.title = CONFIG.appName;
+  $('app-name').textContent = CONFIG.appName;
+
+  // ===== Đăng nhập =====
+  function verify(code) {
+    code = (code || '').trim().toUpperCase();
+    if (!code) return Promise.resolve({ ok: false, msg: 'Bạn chưa nhập mã.' });
+    if (!CONFIG.api) {
+      return Promise.resolve(code === CONFIG.demoCode ? { ok: true } : { ok: false, msg: 'Mã chưa đúng. (Bản thử: dùng mã ' + CONFIG.demoCode + ')' });
+    }
+    var ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 12000);
+    return fetch(CONFIG.api + '?api=khoahoc&ma=' + encodeURIComponent(code), ctl ? { signal: ctl.signal } : undefined)
+      .then(function (r) { return r.json(); })
+      .then(function (j) { clearTimeout(timer); return j && j.ok ? { ok: true } : { ok: false, msg: (j && j.msg) || 'Mã không đúng hoặc đã hết hạn.' }; })
+      .catch(function () { clearTimeout(timer); return { ok: false, net: true, msg: 'Không kết nối được. Vui lòng kiểm tra mạng rồi thử lại.' }; });
+  }
+
+  function showLogin(msg) {
+    $('home').classList.add('hide');
+    $('login').classList.remove('hide');
+    $('login-err').textContent = msg || '';
+    if (inApp && !standalone) $('inapp').classList.remove('hide');
+  }
+
+  function enter() {
+    $('login').classList.add('hide');
+    $('home').classList.remove('hide');
+    loadVideos();
+    setupInstall();
+  }
+
+  function doLogin() {
+    var code = $('code').value;
+    $('login-err').textContent = '';
+    $('go').disabled = true;
+    verify(code).then(function (r) {
+      $('go').disabled = false;
+      if (r.ok) { store('kh_ma', code.trim().toUpperCase()); enter(); }
+      else $('login-err').textContent = r.msg;
+    });
+  }
+
+  $('go').addEventListener('click', doLogin);
+  $('code').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
+  $('out').addEventListener('click', function () { store('kh_ma', null); showLogin(''); $('player').innerHTML = ''; });
+
+  // ===== Danh sách + phát video =====
+  function loadVideos() {
+    $('load-err').textContent = '';
+    fetch(CONFIG.videosUrl + '?t=' + Date.now())
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        data = d;
+        $('home-title').textContent = d.title || CONFIG.appName;
+        flat = [];
+        (d.modules || []).forEach(function (m) { (m.lessons || []).forEach(function (l) { flat.push(l); }); });
+        renderList();
+        var last = store('kh_last');
+        var idx = flat.findIndex(function (l) { return l.id === last; });
+        if (idx >= 0) play(idx, false);
+      })
+      .catch(function () { $('load-err').textContent = 'Chưa tải được danh sách bài học. Vui lòng tải lại.'; });
+  }
+
+  function watched() { try { return JSON.parse(store('kh_done') || '{}'); } catch (e) { return {}; } }
+
+  function renderList() {
+    var box = $('list'); box.innerHTML = '';
+    var done = watched(), n = 0;
+    (data.modules || []).forEach(function (m) {
+      var sec = document.createElement('div'); sec.className = 'mod';
+      var h = document.createElement('h2'); h.textContent = m.name; sec.appendChild(h);
+      (m.lessons || []).forEach(function (l) {
+        var i = n++;
+        var b = document.createElement('button'); b.type = 'button';
+        b.className = 'lesson' + (done[l.id] ? ' done' : '') + (i === current ? ' on' : '');
+        var t = document.createElement('span'); t.textContent = l.title;
+        b.appendChild(t);
+        if (done[l.id]) { var k = document.createElement('span'); k.className = 'tick'; k.textContent = '✓ Đã xem'; b.appendChild(k); }
+        b.addEventListener('click', function () { play(i, true); });
+        sec.appendChild(b);
+      });
+      box.appendChild(sec);
+    });
+  }
+
+  function embedFor(l) {
+    var p = $('player'); p.innerHTML = '';
+    var url = l.url || '';
+    if (l.type === 'youtube') {
+      var f = document.createElement('iframe');
+      f.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(url) + '?rel=0&modestbranding=1&playsinline=1';
+      f.allow = 'accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true; p.appendChild(f);
+    } else if (l.type === 'vimeo') {
+      var v = document.createElement('iframe');
+      v.src = 'https://player.vimeo.com/video/' + encodeURIComponent(url);
+      v.allow = 'autoplay; fullscreen; picture-in-picture'; v.allowFullscreen = true; p.appendChild(v);
+    } else if (l.type === 'mp4') {
+      var m = document.createElement('video');
+      m.src = url; m.controls = true; m.playsInline = true; m.setAttribute('controlsList', 'nodownload');
+      m.addEventListener('ended', function () { markDone(l.id); });
+      p.appendChild(m);
+    } else {
+      var f2 = document.createElement('iframe'); f2.src = url; f2.allowFullscreen = true; p.appendChild(f2);
+    }
+  }
+
+  function markDone(id) {
+    var d = watched(); d[id] = 1; store('kh_done', JSON.stringify(d)); renderList();
+  }
+
+  function play(i, scroll) {
+    if (i < 0 || i >= flat.length) return;
+    current = i;
+    var l = flat[i];
+    store('kh_last', l.id);
+    $('player-box').classList.remove('hide');
+    $('now-title').textContent = l.title;
+    $('now-note').textContent = l.note || '';
+    $('now-note').classList.toggle('hide', !l.note);
+    embedFor(l);
+    $('next').classList.toggle('hide', i >= flat.length - 1);
+    renderList();
+    if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  $('next').addEventListener('click', function () { markDone(flat[current].id); play(current + 1, true); });
+
+  // ===== Cài app =====
+  function setupInstall() {
+    if (standalone) return;
+    if (isIOS && !inApp && store('kh_ios_hide') !== '1') $('install-ios').classList.remove('hide');
+    if (deferredPrompt) $('install-android').classList.remove('hide');
+  }
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault(); deferredPrompt = e;
+    if (!$('home').classList.contains('hide') && !standalone) $('install-android').classList.remove('hide');
+  });
+  window.addEventListener('appinstalled', function () { $('install-android').classList.add('hide'); deferredPrompt = null; });
+  $('install-btn').addEventListener('click', function () {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function () { deferredPrompt = null; $('install-android').classList.add('hide'); });
+  });
+  $('ios-close').addEventListener('click', function () { store('kh_ios_hide', '1'); $('install-ios').classList.add('hide'); });
+
+  // ===== Khởi động =====
+  var saved = store('kh_ma');
+  if (saved) {
+    showLogin('Đang kiểm tra mã...');
+    verify(saved).then(function (r) {
+      if (r.ok || r.net) enter();   // mất mạng thoáng qua thì vẫn cho vào bằng mã đã lưu
+      else showLogin('Mã đã hết hạn hoặc không còn hiệu lực. Vui lòng nhập lại.');
+    });
+  } else showLogin('');
+
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  }
+})();
+</script>
+</body>
+</html>
