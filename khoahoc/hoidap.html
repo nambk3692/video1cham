@@ -37,6 +37,7 @@
 </style>
 </head>
 <body>
+<button id="back" class="btn main hide" type="button" style="flex:0 0 auto;width:100%;min-height:54px;border-radius:0;border:0;font-size:20px">← Về tool</button>
 
 <div id="gate" class="hide">
   <p>Nhập mã của bạn để được hỗ trợ:</p>
@@ -62,6 +63,15 @@
 
 <script>
 (function () {
+  // Nút to "Về tool": đóng khung hỏi để quay lại đúng tab tool đang làm dở
+  var backBtn = document.getElementById('back');
+  if (/(^|[#&])tool=/.test(location.hash)) {
+    backBtn.classList.remove('hide');
+    backBtn.addEventListener('click', function () {
+      window.close();
+      setTimeout(function () { if (history.length > 1) history.back(); }, 300);
+    });
+  }
 
   var DB = 'https://hotro-khoahoc-default-rtdb.asia-southeast1.firebasedatabase.app';
   var COURSE_API = 'https://script.google.com/macros/s/AKfycbzkV8lJV_-753BoCjMQZ0CriN8V2P5hG4pwci6rh_CJ80vZRMk0qnZVrR3m4SnI1iM/exec';
