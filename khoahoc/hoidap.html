@@ -62,9 +62,7 @@
 
 <script>
 (function () {
-  var vv = window.visualViewport;
-  function fit() { if (vv) { document.body.style.height = vv.height + 'px'; window.scrollTo(0, 0); } }
-  if (vv) { vv.addEventListener('resize', fit); vv.addEventListener('scroll', fit); fit(); }
+
   var DB = 'https://hotro-khoahoc-default-rtdb.asia-southeast1.firebasedatabase.app';
   var COURSE_API = 'https://script.google.com/macros/s/AKfycbzkV8lJV_-753BoCjMQZ0CriN8V2P5hG4pwci6rh_CJ80vZRMk0qnZVrR3m4SnI1iM/exec';
   var TOOL_NAMES = { tv1c: 'Tạo Video 1 Chạm', ed1c: 'Edit Video 1 Chạm', pt: 'Phong Thủy', sk: 'Sức Khỏe' };
