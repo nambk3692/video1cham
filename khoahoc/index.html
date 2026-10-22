@@ -332,7 +332,8 @@
     current = i;
     var l = flat[i];
     store('kh_last', l.id);
-    $('player-box').classList.remove('hide');
+    // Đang ở tab khác (Công cụ / Hỏi đáp) thì chỉ ghi nhớ, chưa hiện khung video
+    if ($('player-box').dataset.was !== undefined) $('player-box').dataset.was = '0'; else $('player-box').classList.remove('hide');
     $('now-title').textContent = l.title;
     $('now-note').textContent = l.note || '';
     $('now-note').classList.toggle('hide', !l.note);
