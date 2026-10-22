@@ -92,7 +92,7 @@
 </style>
 </head>
 <body>
-<div id="fromtool" class="hide"><button id="fromtool-btn" class="btn main" type="button">← Về tool</button></div>
+<div id="fromtool" class="hide"><button id="fromtool-btn" class="btn main" type="button">Về tool →</button></div>
 <div class="wrap">
 
   <!-- Màn hình đăng nhập -->
@@ -228,7 +228,10 @@
     $('home').classList.remove('hide');
     loadVideos();
     setupInstall();
-    if (/(^|[#&])tab=cu/.test(location.hash)) showTab('cu');
+    if (/(^|[#&])from=tool/.test(location.hash)) {
+      var lastTab = store('kh_tab') || (/(^|[#&])tab=cu/.test(location.hash) ? 'cu' : 'hoc');
+      if (lastTab === 'hoi' || lastTab === 'cu') showTab(lastTab);
+    } else if (/(^|[#&])tab=cu/.test(location.hash)) showTab('cu');
   }
 
   function doLogin() {
@@ -301,12 +304,24 @@
     } else if (l.type === 'mp4') {
       var m = document.createElement('video');
       m.src = url; m.controls = true; m.playsInline = true; m.setAttribute('controlsList', 'nodownload');
-      m.addEventListener('ended', function () { markDone(l.id); });
+      m.addEventListener('ended', function () { markDone(l.id); savePos(l.id, 0); });
+      // Nhớ chỗ đang xem dở: lần sau mở lại bài này tự tua tới đúng chỗ
+      m.addEventListener('loadedmetadata', function () {
+        var t = readPos()[l.id];
+        if (t && t > 2 && m.duration && t < m.duration - 3) m.currentTime = t;
+      });
+      var lastSave = 0;
+      m.addEventListener('timeupdate', function () { var n = Date.now(); if (n - lastSave > 3000) { lastSave = n; savePos(l.id, m.currentTime); } });
+      m.addEventListener('pause', function () { if (!m.ended) savePos(l.id, m.currentTime); });
+      document.addEventListener('visibilitychange', function () { if (document.hidden && !m.ended && m.currentTime > 0) savePos(l.id, m.currentTime); });
       p.appendChild(m);
     } else {
       var f2 = document.createElement('iframe'); f2.src = url; f2.allowFullscreen = true; p.appendChild(f2);
     }
   }
+
+  function readPos() { try { return JSON.parse(store('kh_pos') || '{}') || {}; } catch (e) { return {}; } }
+  function savePos(id, sec) { var d = readPos(); if (sec > 0) d[id] = Math.floor(sec); else delete d[id]; store('kh_pos', JSON.stringify(d)); }
 
   function markDone(id) {
     var d = watched(); d[id] = 1; store('kh_done', JSON.stringify(d)); renderList();
@@ -376,6 +391,7 @@
     var hoc = name === 'hoc', hoi = name === 'hoi', cu = name === 'cu';
     $('chat').classList.toggle('hide', !hoi);
     document.body.classList.toggle('chatmode', hoi);
+    store('kh_tab', name);
     if (!hoi) { document.body.classList.remove('tabs-off'); $('chat-tabs').textContent = '▼'; }
     fitChat();
     $('tools').classList.toggle('hide', !cu);
