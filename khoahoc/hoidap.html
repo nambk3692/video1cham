@@ -38,7 +38,7 @@
 <body>
 <header>
   <h1>Hỏi trợ lý</h1>
-  <p>Gõ câu hỏi hoặc gửi ảnh màn hình. Tool của bạn vẫn mở nguyên, không bị mất việc.</p>
+  <p>Gõ câu hỏi hoặc gửi ảnh màn hình để được trả lời.</p>
 </header>
 
 <div id="gate" class="hide">
@@ -51,7 +51,6 @@
 <div id="main" class="hide" style="display:flex;flex-direction:column;flex:1;min-height:0">
   <div id="list"></div>
   <div class="compose">
-    <p id="wait" class="muted hide" style="margin:0">Đã nhận tin của bạn. Xin chờ một chút để có câu trả lời.</p>
     <img id="pending" class="thumb hide" alt="">
     <textarea id="text" placeholder="Nhập câu hỏi ở đây..."></textarea>
     <div class="row">
@@ -60,7 +59,6 @@
       <button id="send" class="btn main" type="button">Gửi tin</button>
     </div>
     <input id="file" type="file" accept="image/*" class="hide">
-    <p id="shotnote" class="note hide">Nút "Chụp màn hình" gửi ảnh toàn bộ màn hình của bạn. Hãy tắt các cửa sổ riêng tư. Đừng gửi mật khẩu hay số thẻ.</p>
     <p id="err" class="err"></p>
   </div>
 </div>
@@ -134,7 +132,6 @@
       box.appendChild(b);
     });
     var last = ids.length ? msgs[ids[ids.length - 1]] : null;
-    $('wait').classList.toggle('hide', !(last && last.from === 'khach'));
     box.scrollTop = box.scrollHeight;
   }
 
@@ -194,7 +191,7 @@
   // ----- Chụp màn hình (chỉ máy tính): chia sẻ một lần, chụp nhiều lần không hỏi lại -----
   var stream = null;
   var canShot = !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) && !/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if (canShot) { $('shot').classList.remove('hide'); $('shotnote').classList.remove('hide'); }
+  if (canShot) { $('shot').classList.remove('hide'); }
 
   function startShare() {
     return navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: 'monitor' }, audio: false, monitorTypeSurfaces: 'include', selfBrowserSurface: 'exclude' })
