@@ -104,6 +104,10 @@
   #guide .btn.stuck { border-color: #c2570c; color: #c2570c; }
   #guide .btn.big { min-height: 72px; font-size: 24px; }
   #tab-hd { flex: 1.35; }
+  #guide input.glink { width: 100%; min-height: 64px; padding: 0 14px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font-size: 20px; margin: 8px 0 12px; }
+  #guide input.glink:focus { outline: 3px solid var(--accent); border-color: transparent; }
+  #guide a.btn { text-decoration: none; margin: 10px 0 4px; }
+  #guide .btn.act { background: #1a56db; border-color: #1a56db; color: #fff; }
   #guide .gdev { display: flex; flex-direction: column; gap: 14px; }
 </style>
 </head>
@@ -516,6 +520,18 @@
     box.appendChild(mk('h2', 'gtitle', s.t));
     if (s.img) { var im = mk('img', 'gimg'); im.src = s.img; im.alt = ''; box.appendChild(im); }
     (s.d || []).forEach(function (line) { box.appendChild(mk('p', 'gtext', line)); });
+    if (s.btn) {
+      var ab = mk('a', 'btn act big', s.btn.t); ab.href = s.btn.u; ab.target = '_blank'; ab.rel = 'noopener'; box.appendChild(ab);
+    }
+    if (s.paste) {
+      var inp = mk('input', 'glink'); inp.type = 'url'; inp.placeholder = 'Dán link kích hoạt vào đây'; inp.autocomplete = 'off'; inp.autocapitalize = 'off'; inp.spellcheck = false;
+      var ob = gBtn('Mở link', 'act big', function () {
+        var u = inp.value.trim();
+        if (!/^https?:\/\/\S+$/i.test(u)) { inp.style.borderColor = '#c0262d'; inp.placeholder = 'Chưa đúng link, dán lại giúp em'; return; }
+        window.open(u, '_blank', 'noopener');
+      });
+      box.appendChild(inp); box.appendChild(ob);
+    }
     var b = mk('div', 'gbtns');
     b.appendChild(gBtn('Xong, bước tiếp', 'main big', function () {
       st.i++; if (st.i >= n) st.done = true; writeHd(st); renderGuide(); window.scrollTo(0, 0);
