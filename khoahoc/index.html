@@ -69,7 +69,10 @@
 
   /* Hỏi đáp: khung cố định, chỉ danh sách tin nhắn cuộn, ô nhập đứng yên */
   body.chatmode { position: fixed; top: 0; left: 0; right: 0; height: 100vh; height: 100dvh; overflow: hidden; overscroll-behavior: none; }
-  body.chatmode .wrap { height: 100%; display: flex; flex-direction: column; padding-bottom: 6px; }
+  body.chatmode { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+  body.chatmode .wrap { height: 100%; display: flex; flex-direction: column; padding-top: 10px; padding-bottom: 0; }
+  body.chatmode #chat-err:empty { display: none; }
+  body.chatmode .compose { margin-top: 4px; }
   body.chatmode #chat { flex: 1; min-height: 0; display: flex; flex-direction: column; }
   body.chatmode #chat > h1, body.chatmode #chat > p, body.chatmode .compose { flex-shrink: 0; }
   body.chatmode .compose textarea { min-height: 64px; }
@@ -133,13 +136,11 @@
   </section>
 
   <section id="chat" class="hide">
-    <h1 class="top">Hỏi đáp</h1>
-    <p class="muted" style="margin-top:0">Gõ câu hỏi hoặc gửi ảnh màn hình để được trả lời.</p>
     <div id="chat-list" class="chat-list"></div>
     <p id="chat-wait" class="waitnote hide">Đã nhận tin của bạn. Xin chờ một chút để có câu trả lời.</p>
     <div class="compose">
       <img id="pending-img" class="thumb hide" alt="">
-      <textarea id="chat-text" placeholder="Nhập câu hỏi ở đây..."></textarea>
+      <textarea id="chat-text" placeholder="Gõ câu hỏi hoặc gửi ảnh màn hình để được trả lời."></textarea>
       <div class="row2">
         <button id="chat-pic" class="btn" type="button">Gửi ảnh</button>
         <button id="chat-send" class="btn main" type="button">Gửi tin</button>
