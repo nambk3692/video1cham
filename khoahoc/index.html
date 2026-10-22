@@ -86,10 +86,11 @@
 
   #tool-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
   .toolcard { margin: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 14px; padding: 14px; border: 3px solid var(--tc); background: var(--tcbg); }
-  .toolcard h2 { margin: 0; font-size: 20px; line-height: 1.25; color: var(--tc); }
+  .toolcard h2 { margin: 0; font-size: 20px; line-height: 1.25; color: var(--tc); text-align: center; }
+  .ln { display: block; }
   .toolcard .btn { margin: 0; text-decoration: none; background: var(--tc); border-color: var(--tc); color: #fff; min-height: 52px; font-size: 19px; }
   #doitk-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
-  #doitk-list .btn { background: #fff; border-color: var(--tc); color: var(--tc); min-height: 56px; font-size: 17px; padding: 6px 8px; text-align: center; text-decoration: none; }
+  #doitk-list .btn { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.25; background: #fff; border-color: var(--tc); color: var(--tc); min-height: 56px; font-size: 17px; padding: 6px 8px; text-align: center; text-decoration: none; }
   .vidhelp { width: 100%; border-radius: 14px; margin-top: 10px; background: #000; }
   .tabbar button { font-size: 18px; padding: 0 4px; }
 </style>
@@ -173,10 +174,7 @@
     <div id="tool-list"></div>
     <div class="card" style="margin-top:6px">
       <h2>Đổi tài khoản khi hết credit</h2>
-      <p class="muted">Chọn tool bạn đang dùng, rồi chọn email còn credit. Tool sẽ mở lại ngay.</p>
       <div id="doitk-list"></div>
-      <button id="vid-btn" class="btn" type="button">Xem video hướng dẫn</button>
-      <video id="vid" class="vidhelp hide" controls playsinline preload="none" src="https://nambk3692.github.io/video1cham/huongdan/doi_tai_khoan.mp4"></video>
     </div>
   </section>
 
@@ -439,10 +437,10 @@
   // ===== Công cụ (mở tool trên Google Flow) =====
   var SITE = 'https://nambk3692.github.io/video1cham/';
   var TOOLS = [
-    { name: 'Tạo Video', color: '#d97706', bg: '#fff7e6', dir: '', api: 'https://script.google.com/macros/s/AKfycbwqlgoDDfppaoqDku5BaNfEDkHWPX4J5Tp2exzKKmieLxYR1lusC_FgTTA1_fLf-0FbnQ/exec' },
-    { name: 'Edit Video', color: '#2563eb', bg: '#eaf1ff', dir: 'edit/', api: 'https://script.google.com/macros/s/AKfycbzIsGvKZg98AQly_Z1q-u4KLdtBic9XYYlhXTGKJzNhwdsKJd0KQck4HzFBEEbqqJJZ/exec' },
-    { name: 'Tạo Video Phong Thủy', color: '#ea580c', bg: '#fff0e6', dir: 'phongthuy/', api: 'https://script.google.com/macros/s/AKfycbwwUThduSj_h9EVy7fAioMyZqRmM6S3ngpisRHQCMGLHDW0gy4P7EAdznNsmH_3OFDdyA/exec' },
-    { name: 'Tạo Video Sức Khỏe', color: '#059669', bg: '#e7f6ef', dir: 'suckhoe/', api: 'https://script.google.com/macros/s/AKfycbwRVmbC_Xk7libKd4wEharKqNCzfC67A4uFo8-sliMb5mA2fggSg1xnpSZK_pajUOHe/exec' }
+    { name: 'Tạo Video', l: ['Tạo Video'], color: '#d97706', bg: '#fff7e6', dir: '', api: 'https://script.google.com/macros/s/AKfycbwqlgoDDfppaoqDku5BaNfEDkHWPX4J5Tp2exzKKmieLxYR1lusC_FgTTA1_fLf-0FbnQ/exec' },
+    { name: 'Edit Video', l: ['Edit Video'], color: '#2563eb', bg: '#eaf1ff', dir: 'edit/', api: 'https://script.google.com/macros/s/AKfycbzIsGvKZg98AQly_Z1q-u4KLdtBic9XYYlhXTGKJzNhwdsKJd0KQck4HzFBEEbqqJJZ/exec' },
+    { name: 'Tạo Video Phong Thủy', l: ['Tạo Video', 'Phong Thủy'], color: '#ea580c', bg: '#fff0e6', dir: 'phongthuy/', api: 'https://script.google.com/macros/s/AKfycbwwUThduSj_h9EVy7fAioMyZqRmM6S3ngpisRHQCMGLHDW0gy4P7EAdznNsmH_3OFDdyA/exec' },
+    { name: 'Tạo Video Sức Khỏe', l: ['Tạo Video', 'Sức Khỏe'], color: '#059669', bg: '#e7f6ef', dir: 'suckhoe/', api: 'https://script.google.com/macros/s/AKfycbwRVmbC_Xk7libKd4wEharKqNCzfC67A4uFo8-sliMb5mA2fggSg1xnpSZK_pajUOHe/exec' }
   ];
   var toolsBuilt = false;
 
@@ -453,11 +451,12 @@
     TOOLS.forEach(function (tl) {
       var c = document.createElement('div'); c.className = 'card toolcard';
       c.style.setProperty('--tc', tl.color); c.style.setProperty('--tcbg', tl.bg);
-      var h = document.createElement('h2'); h.textContent = tl.name;
+      var h = document.createElement('h2');
+      tl.l.forEach(function (t) { var sp = document.createElement('span'); sp.className = 'ln'; sp.textContent = t; h.appendChild(sp); });
       var open = document.createElement('a'); open.className = 'btn main'; open.textContent = 'Mở tool';
       open.target = '_blank'; open.rel = 'noopener'; open.href = SITE + tl.dir;
       c.appendChild(h); c.appendChild(open);
-      var sw = document.createElement('a'); sw.className = 'btn'; sw.textContent = 'Đổi tài khoản ' + tl.name;
+      var sw = document.createElement('a'); sw.className = 'btn'; ['Đổi tài khoản'].concat(tl.l).forEach(function (t) { var sp = document.createElement('span'); sp.className = 'ln'; sp.textContent = t; sw.appendChild(sp); });
       sw.style.setProperty('--tc', tl.color); sw.target = '_blank'; sw.rel = 'noopener'; sw.href = SITE + tl.dir + 'doitaikhoan.html';
       $('doitk-list').appendChild(sw);
       box.appendChild(c);
@@ -469,12 +468,6 @@
           sw.href = 'https://accounts.google.com/AccountChooser?continue=' + encodeURIComponent(link);
         }
       }).catch(function () {});
-    });
-    $('vid-btn').addEventListener('click', function () {
-      var v = $('vid'); var show = v.classList.contains('hide');
-      v.classList.toggle('hide', !show);
-      $('vid-btn').textContent = show ? 'Ẩn video hướng dẫn' : 'Xem video hướng dẫn';
-      if (show) { try { v.play(); } catch (e) {} } else { try { v.pause(); } catch (e) {} }
     });
   }
 
