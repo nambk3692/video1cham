@@ -456,7 +456,7 @@
       var open = document.createElement('a'); open.className = 'btn main'; open.textContent = 'Mở tool';
       open.target = '_blank'; open.rel = 'noopener'; open.href = SITE + tl.dir;
       c.appendChild(h); c.appendChild(open);
-      var sw = document.createElement('a'); sw.className = 'btn'; ['Đổi tài khoản'].concat(tl.l).forEach(function (t) { var sp = document.createElement('span'); sp.className = 'ln'; sp.textContent = t; sw.appendChild(sp); });
+      var sw = document.createElement('a'); sw.className = 'btn'; ['Đổi Tài Khoản'].concat(tl.l).forEach(function (t) { var sp = document.createElement('span'); sp.className = 'ln'; sp.textContent = t; sw.appendChild(sp); });
       sw.style.setProperty('--tc', tl.color); sw.target = '_blank'; sw.rel = 'noopener'; sw.href = SITE + tl.dir + 'doitaikhoan.html';
       $('doitk-list').appendChild(sw);
       box.appendChild(c);
