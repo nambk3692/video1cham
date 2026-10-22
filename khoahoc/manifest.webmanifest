@@ -1,6 +1,6 @@
 {
-  "name": "Khóa học",
-  "short_name": "Khóa học",
+  "name": "Nam Huệ",
+  "short_name": "Nam Huệ",
   "description": "Xem lại các video khóa học và được hỗ trợ ngay trong app",
   "start_url": "./index.html",
   "scope": "./",
