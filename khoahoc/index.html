@@ -77,6 +77,9 @@
   body.chatmode #chat > h1, body.chatmode #chat > p, body.chatmode .compose { flex-shrink: 0; }
   body.chatmode .compose textarea { min-height: 64px; }
   body.tabs-off .tabbar { display: none; }
+  #fromtool { position: fixed; top: 0; left: 0; right: 0; z-index: 20; padding: 8px 12px; background: #fff; border-bottom: 2px solid var(--line); }
+  #fromtool .btn { min-height: 50px; font-size: 18px; }
+  body.from-tool { padding-top: calc(66px + env(safe-area-inset-top)); }
   body.chatmode.tabs-off { padding-bottom: env(safe-area-inset-bottom); }
   body.chatmode.tabs-off .wrap { padding-bottom: 10px; }
   body.chatmode .chat-list { flex: 1; min-height: 0; max-height: none; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
@@ -89,6 +92,7 @@
 </style>
 </head>
 <body>
+<div id="fromtool" class="hide"><button id="fromtool-btn" class="btn main" type="button">← Về tool</button></div>
 <div class="wrap">
 
   <!-- Màn hình đăng nhập -->
@@ -390,6 +394,14 @@
     this.textContent = off ? '▲' : '▼';
     fitChat();
   });
+  // Mở từ trong tool (trang Hỏi trợ lý): hiện nút to "Về tool"
+  if (/(^|[#&])from=tool/.test(location.hash)) {
+    $('fromtool').classList.remove('hide'); document.body.classList.add('from-tool');
+    $('fromtool-btn').addEventListener('click', function () {
+      window.close();
+      setTimeout(function () { if (history.length > 1) history.back(); }, 300);
+    });
+  }
   $('tab-hoc').addEventListener('click', function () { showTab('hoc'); });
   $('tab-hoi').addEventListener('click', function () { showTab('hoi'); });
   $('tab-cu').addEventListener('click', function () { showTab('cu'); });
