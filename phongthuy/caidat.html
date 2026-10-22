@@ -47,7 +47,8 @@
     $('msg').textContent = (res && res.msg) || 'Có lỗi, vui lòng thử lại.';
     var msg = {
       type: 'PT1C_SETTINGS', action: P.a, ok: ok,
-      settings: (res && res.settings) || '', msg: (res && res.msg) || '', ma: ok && P.a === 'login' ? ma : ''
+      settings: (res && res.settings) || '', msg: (res && res.msg) || '', ma: ok && P.a === 'login' ? ma : '',
+      trialLeftMs: (res && typeof res.trialLeftMs === 'number') ? res.trialLeftMs : null
     };
     function send(session) {
       try {
@@ -64,7 +65,7 @@
   }
   if (P.a !== 'save' && P.a !== 'load' && P.a !== 'login') done({ ok: false, msg: 'Liên kết không hợp lệ.' });
   else if (!ma) done({ ok: false, msg: P.a === 'login' ? 'Trình duyệt này chưa lưu mã kích hoạt. Hãy dán mã vào tool một lần.' : 'Liên kết không hợp lệ.' });
-  else callApi(P.a === 'save' ? { action: 'luucaidat', ma: ma, caidat: P.s } : { action: 'docaidat', ma: ma })
+  else callApi(P.a === 'save' ? { action: 'luucaidat', ma: ma, caidat: P.s } : { action: 'docaidat', ma: ma, tt: P.t === '1' ? 1 : 0 })
     .then(function (res) {
       // Sheet trả về mã MỚI NHẤT của dòng khách (vd sau khi Nam chọn "Đã thanh toán" thì đó là mã vĩnh viễn):
       // dùng mã mới và nhớ lại, khách không phải dán lại.
