@@ -84,9 +84,10 @@
   body.chatmode.tabs-off .wrap { padding-bottom: 10px; }
   body.chatmode .chat-list { flex: 1; min-height: 0; max-height: none; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 
-  .toolcard { margin-bottom: 16px; }
-  .toolcard h2 { margin-bottom: 4px; }
-  .toolcard .btn { margin-top: 10px; text-decoration: none; }
+  #tool-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .toolcard { margin: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 14px; padding: 14px; border: 3px solid var(--tc); background: var(--tcbg); }
+  .toolcard h2 { margin: 0; font-size: 20px; line-height: 1.25; color: var(--tc); }
+  .toolcard .btn { margin: 0; text-decoration: none; background: var(--tc); border-color: var(--tc); color: #fff; min-height: 52px; font-size: 19px; }
   .vidhelp { width: 100%; border-radius: 14px; margin-top: 10px; background: #000; }
   .tabbar button { font-size: 18px; padding: 0 4px; }
 </style>
@@ -160,11 +161,10 @@
 
   <section id="tools" class="hide">
     <h1 class="top">Công cụ</h1>
-    <p class="muted" style="margin-top:0">Bấm <b>Mở tool</b> để làm video. Lần đầu vào tool sẽ có màn hình kích hoạt. Tool chạy bằng tài khoản Google của bạn.</p>
     <div id="tool-list"></div>
     <div class="card" style="margin-top:6px">
-      <h2>Hết điểm hoặc muốn đổi tài khoản Google?</h2>
-      <p class="muted">Bấm <b>Đổi tài khoản Google</b> ở tool bạn dùng, chọn email còn điểm, tool sẽ mở lại ngay.</p>
+      <h2>Hết điểm?</h2>
+      <p class="muted">Trong tool, bấm nút <b>Đổi tài khoản</b> ở góc dưới bên phải, chọn email còn điểm.</p>
       <button id="vid-btn" class="btn" type="button">Xem video hướng dẫn</button>
       <video id="vid" class="vidhelp hide" controls playsinline preload="none" src="https://nambk3692.github.io/video1cham/huongdan/doi_tai_khoan.mp4"></video>
     </div>
@@ -427,10 +427,10 @@
   // ===== Công cụ (mở tool trên Google Flow) =====
   var SITE = 'https://nambk3692.github.io/video1cham/';
   var TOOLS = [
-    { name: 'Tạo Video 1 Chạm', desc: 'Tạo video từ ý tưởng và kịch bản của bạn.', dir: '', api: 'https://script.google.com/macros/s/AKfycbwqlgoDDfppaoqDku5BaNfEDkHWPX4J5Tp2exzKKmieLxYR1lusC_FgTTA1_fLf-0FbnQ/exec' },
-    { name: 'Edit Video 1 Chạm', desc: 'Ghép, cắt video, thêm chữ và nhạc.', dir: 'edit/', api: 'https://script.google.com/macros/s/AKfycbzIsGvKZg98AQly_Z1q-u4KLdtBic9XYYlhXTGKJzNhwdsKJd0KQck4HzFBEEbqqJJZ/exec' },
-    { name: 'Tạo Video Phong Thủy 1 Chạm', desc: 'Làm video phong thủy, tử vi, linh số.', dir: 'phongthuy/', api: 'https://script.google.com/macros/s/AKfycbwwUThduSj_h9EVy7fAioMyZqRmM6S3ngpisRHQCMGLHDW0gy4P7EAdznNsmH_3OFDdyA/exec' },
-    { name: 'Tạo Video Sức Khỏe 1 Chạm', desc: 'Làm video kiến thức sức khỏe.', dir: 'suckhoe/', api: 'https://script.google.com/macros/s/AKfycbwRVmbC_Xk7libKd4wEharKqNCzfC67A4uFo8-sliMb5mA2fggSg1xnpSZK_pajUOHe/exec' }
+    { name: 'Tạo Video', color: '#d97706', bg: '#fff7e6', dir: '', api: 'https://script.google.com/macros/s/AKfycbwqlgoDDfppaoqDku5BaNfEDkHWPX4J5Tp2exzKKmieLxYR1lusC_FgTTA1_fLf-0FbnQ/exec' },
+    { name: 'Edit Video', color: '#2563eb', bg: '#eaf1ff', dir: 'edit/', api: 'https://script.google.com/macros/s/AKfycbzIsGvKZg98AQly_Z1q-u4KLdtBic9XYYlhXTGKJzNhwdsKJd0KQck4HzFBEEbqqJJZ/exec' },
+    { name: 'Tạo Video Phong Thủy', color: '#ea580c', bg: '#fff0e6', dir: 'phongthuy/', api: 'https://script.google.com/macros/s/AKfycbwwUThduSj_h9EVy7fAioMyZqRmM6S3ngpisRHQCMGLHDW0gy4P7EAdznNsmH_3OFDdyA/exec' },
+    { name: 'Tạo Video Sức Khỏe', color: '#059669', bg: '#e7f6ef', dir: 'suckhoe/', api: 'https://script.google.com/macros/s/AKfycbwRVmbC_Xk7libKd4wEharKqNCzfC67A4uFo8-sliMb5mA2fggSg1xnpSZK_pajUOHe/exec' }
   ];
   var toolsBuilt = false;
 
@@ -440,20 +440,17 @@
     var box = $('tool-list');
     TOOLS.forEach(function (tl) {
       var c = document.createElement('div'); c.className = 'card toolcard';
+      c.style.setProperty('--tc', tl.color); c.style.setProperty('--tcbg', tl.bg);
       var h = document.createElement('h2'); h.textContent = tl.name;
-      var d = document.createElement('p'); d.className = 'muted'; d.textContent = tl.desc; d.style.margin = '4px 0 0';
       var open = document.createElement('a'); open.className = 'btn main'; open.textContent = 'Mở tool';
       open.target = '_blank'; open.rel = 'noopener'; open.href = SITE + tl.dir;
-      var sw = document.createElement('a'); sw.className = 'btn'; sw.textContent = 'Đổi tài khoản Google';
-      sw.target = '_blank'; sw.rel = 'noopener'; sw.href = SITE + tl.dir + 'doitaikhoan.html';
-      c.appendChild(h); c.appendChild(d); c.appendChild(open); c.appendChild(sw);
+      c.appendChild(h); c.appendChild(open);
       box.appendChild(c);
       // Lấy link tool mới nhất để vào thẳng Google Flow (không có thì giữ link trang khách)
       fetch(tl.api + '?api=config').then(function (r) { return r.json(); }).then(function (cfg) {
         var link = String((cfg && cfg.toolLink) || '');
         if (/^https:\/\/flow\.google\.com\/shared\/tool\//.test(link)) {
           open.href = link;
-          sw.href = 'https://accounts.google.com/AccountChooser?continue=' + encodeURIComponent(link);
         }
       }).catch(function () {});
     });
