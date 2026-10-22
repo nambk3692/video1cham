@@ -99,6 +99,13 @@
 <div class="wrap">
 
   <!-- Màn hình đăng nhập -->
+  <!-- Đã có mã lưu sẵn: chỉ hiện "Đang vào..." chứ không hiện ô nhập mã -->
+  <section id="boot" class="login hide">
+    <img class="logo" src="icon-192.png" alt="">
+    <h1>Nam Huệ</h1>
+    <p class="muted" style="font-size:22px">Đang vào...</p>
+  </section>
+
   <section id="login" class="login hide">
     <img class="logo" src="icon-192.png" alt="">
     <h1 id="app-name">Nam Huệ</h1>
@@ -217,6 +224,7 @@
   }
 
   function showLogin(msg) {
+    $('boot').classList.add('hide');
     $('home').classList.add('hide');
     $('login').classList.remove('hide');
     $('login-err').textContent = msg || '';
@@ -227,6 +235,7 @@
     if (name !== undefined) who.name = name;
     who.ma = String(store('kh_ma') || '');
     $('tabbar').classList.remove('hide'); document.body.classList.add('has-tabs');
+    $('boot').classList.add('hide');
     $('login').classList.add('hide');
     $('home').classList.remove('hide');
     loadVideos();
@@ -575,7 +584,7 @@
   // ===== Khởi động =====
   var saved = store('kh_ma');
   if (saved) {
-    showLogin('Đang kiểm tra mã...');
+    $('boot').classList.remove('hide');
     verify(saved).then(function (r) {
       if (r.ok || r.net) enter(r.name);   // mất mạng thoáng qua thì vẫn cho vào bằng mã đã lưu
       else showLogin('Mã đã hết hạn hoặc không còn hiệu lực. Vui lòng nhập lại.');
