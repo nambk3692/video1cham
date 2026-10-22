@@ -1,0 +1,25 @@
+{
+  "guides": [
+    {
+      "id": "veo3",
+      "title": "Kích hoạt tài khoản Veo 3 Pro",
+      "intro": "Làm lần lượt từng bước. Xong bước nào bấm nút xanh để sang bước tiếp.",
+      "steps": [
+        { "t": "Mở một trang bất kỳ, bấm dấu ba chấm", "d": ["Mở Chrome, bấm vào một bài báo bất kỳ.", "Bấm dấu ba chấm ở góc phải phía trên."], "img": "huongdan_veo3/dt1.jpg", "only": "dt" },
+        { "t": "Bật \"Trang cho máy tính\"", "d": ["Kéo menu xuống, tìm dòng \"Trang cho máy tính\".", "Bấm vào ô vuông bên phải để bật lên."], "img": "huongdan_veo3/dt2.jpg", "only": "dt" },
+        { "t": "Mở một tab mới trên Chrome", "d": ["Phải dùng trình duyệt Chrome.", "Bấm dấu + để mở tab mới."], "img": "huongdan_veo3/s_tabmoi.svg" },
+        { "t": "Bấm vào hình đại diện", "d": ["Bấm vào hình tròn ở góc phải phía trên."], "img": "huongdan_veo3/s_avatar.svg" },
+        { "t": "Chọn \"Thêm tài khoản khác\"", "d": ["Bấm mũi tên xuống để mở danh sách tài khoản.", "Kéo xuống cuối, bấm \"Thêm tài khoản khác\" (tiếng Anh: Add another account)."], "img": "huongdan_veo3/s_themtk.svg" },
+        { "t": "Chọn \"Dùng một tài khoản khác\"", "d": ["Bấm dòng \"Dùng một tài khoản khác\" ở gần cuối (tiếng Anh: Use another account)."], "img": "huongdan_veo3/s_dungtk.svg" },
+        { "t": "Nhập email đã mua Veo", "d": ["Gõ email đã mua Veo, rồi bấm \"Tiếp\" (tiếng Anh: Next)."], "img": "huongdan_veo3/s_email.svg" },
+        { "t": "Nhập mật khẩu", "d": ["Gõ mật khẩu của email đó, rồi bấm \"Tiếp\".", "Nếu hiện câu hỏi thêm, bấm \"Không phải bây giờ\" (tiếng Anh: Not now). Không gửi mật khẩu cho ai."], "img": "huongdan_veo3/s_matkhau.svg" },
+        { "t": "Dán link kích hoạt", "d": ["Mở tab mới. Sao chép link kích hoạt đã được gửi cho anh/chị, dán vào ô địa chỉ ở trên cùng, bấm Enter."], "img": "huongdan_veo3/s_danlink.svg" },
+        { "t": "Chọn đúng email đã mua", "d": ["Bấm hình đại diện ở góc phải phía trên.", "Chọn đúng email vừa đăng nhập ở bước trước."], "img": "huongdan_veo3/s_dungemail.svg" },
+        { "t": "Bấm \"Kích hoạt gói\"", "d": ["Bấm nút \"Kích hoạt gói\" ở góc phải bên dưới.", "Xong là tài khoản đã lên gói Pro."], "img": "huongdan_veo3/s_kichhoat.svg" },
+        { "t": "Kiểm tra tài khoản", "d": ["Mở tab mới, gõ: labs.google/fx/tools/flow rồi bấm Enter.", "Bấm vào dòng đầu tiên hiện ra."], "img": "huongdan_veo3/s_kiemtra.svg" },
+        { "t": "Xem email và số credit", "d": ["Bấm hình đại diện ở góc phải.", "Đúng email đã mua và đủ 1050 credit là xong.", "Sai email thì bấm \"Chuyển đổi tài khoản\" và chọn lại đúng email."], "img": "huongdan_veo3/s_credit.svg" }
+      ],
+      "done": "Tài khoản Veo 3 Pro của anh/chị đã sẵn sàng. Bây giờ vào tool và làm video như bình thường."
+    }
+  ]
+}

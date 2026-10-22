@@ -92,7 +92,19 @@
   #doitk-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
   #doitk-list .btn { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.05; background: #fff; border-color: var(--tc); color: var(--tc); min-height: 56px; font-size: 15px; padding: 6px 4px; white-space: nowrap; text-align: center; text-decoration: none; }
   .vidhelp { width: 100%; border-radius: 14px; margin-top: 10px; background: #000; }
-  .tabbar button { font-size: 18px; padding: 0 4px; }
+  .tabbar button { font-size: 16px; padding: 0 2px; }
+  #guide .gcard { margin-bottom: 14px; display: flex; flex-direction: column; gap: 12px; }
+  #guide .gbar { height: 10px; background: #dfe5ee; border-radius: 6px; overflow: hidden; margin: 6px 0 14px; }
+  #guide .gbar i { display: block; height: 100%; background: var(--accent); }
+  #guide .gstep { font-size: 18px; color: var(--muted); font-weight: 700; margin: 0; }
+  #guide h2.gtitle { font-size: 26px; line-height: 1.3; margin: 4px 0 12px; }
+  #guide .gimg { display: block; width: 100%; max-height: 40vh; object-fit: contain; background: #eef1f5; border-radius: 14px; margin-bottom: 14px; }
+  #guide .gtext { font-size: 22px; line-height: 1.55; margin: 0 0 8px; }
+  #guide .gbtns { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+  #guide .btn.stuck { border-color: #c2570c; color: #c2570c; }
+  #guide .btn.big { min-height: 72px; font-size: 24px; }
+  #tab-hd { flex: 1.35; font-size: 15px; }
+  #guide .gdev { display: flex; flex-direction: column; gap: 14px; }
 </style>
 </head>
 <body>
@@ -169,6 +181,10 @@
     </div>
   </section>
 
+  <section id="guide" class="hide">
+    <div id="g-body"></div>
+  </section>
+
   <section id="tools" class="hide">
     <h1 class="top" style="text-align:center">Công cụ</h1>
     <div id="tool-list"></div>
@@ -179,7 +195,7 @@
   </section>
 
 </div>
-<div id="tabbar" class="tabbar hide"><button id="tab-hoc" class="on" type="button">Bài học</button><button id="tab-cu" type="button">Công cụ</button><button id="tab-hoi" type="button">Hỏi đáp<span id="dotnew" class="dotnew hide"></span></button></div>
+<div id="tabbar" class="tabbar hide"><button id="tab-hd" type="button">Hướng dẫn</button><button id="tab-hoc" class="on" type="button">Bài học</button><button id="tab-cu" type="button">Công cụ</button><button id="tab-hoi" type="button">Hỏi đáp<span id="dotnew" class="dotnew hide"></span></button></div>
 
 <script>
 (function () {
@@ -240,8 +256,12 @@
     setupInstall();
     if (/(^|[#&])from=tool/.test(location.hash)) {
       var lastTab = store('kh_tab') || (/(^|[#&])tab=cu/.test(location.hash) ? 'cu' : 'hoc');
-      if (lastTab === 'hoi' || lastTab === 'cu') showTab(lastTab);
+      if (lastTab === 'hoi' || lastTab === 'cu' || lastTab === 'hd') showTab(lastTab);
     } else if (/(^|[#&])tab=cu/.test(location.hash)) showTab('cu');
+    else {
+      var hs = readHd();
+      if (!store('kh_hd_seen') || (hs && hs.g && !hs.done)) { store('kh_hd_seen', '1'); showTab('hd'); }
+    }
   }
 
   function doLogin() {
@@ -399,13 +419,15 @@
 
   var HOC_IDS = ['player-box', 'list', 'load-err', 'out', 'install-android', 'install-ios', 'home-title'];
   function showTab(name) {
-    var hoc = name === 'hoc', hoi = name === 'hoi', cu = name === 'cu';
+    var hoc = name === 'hoc', hoi = name === 'hoi', cu = name === 'cu', hd = name === 'hd';
     $('chat').classList.toggle('hide', !hoi);
     document.body.classList.toggle('chatmode', hoi);
     store('kh_tab', name);
     if (!hoi) { document.body.classList.remove('tabs-off'); $('chat-tabs').textContent = '▼'; }
     fitChat();
     $('tools').classList.toggle('hide', !cu);
+    $('guide').classList.toggle('hide', !hd);
+    $('tab-hd').classList.toggle('on', hd);
     HOC_IDS.forEach(function (id) {
       var el = $(id); if (!el) return;
       if (!hoc) { if (el.dataset.was === undefined) el.dataset.was = el.classList.contains('hide') ? '1' : '0'; el.classList.add('hide'); }
@@ -416,6 +438,7 @@
     $('tab-cu').classList.toggle('on', cu);
     if (hoi) { $('dotnew').classList.add('hide'); lastSeen = Date.now(); openStream(); renderChat(); }
     if (cu) loadTools();
+    if (hd) loadGuides();
   }
   $('chat-tabs').addEventListener('click', function () {
     var off = document.body.classList.toggle('tabs-off');
@@ -433,6 +456,81 @@
   $('tab-hoc').addEventListener('click', function () { showTab('hoc'); });
   $('tab-hoi').addEventListener('click', function () { showTab('hoi'); });
   $('tab-cu').addEventListener('click', function () { showTab('cu'); });
+  $('tab-hd').addEventListener('click', function () { showTab('hd'); });
+
+
+  // ===== Hướng dẫn từng bước =====
+  var GUIDES = null, hdCtx = '', hdCtxT = 0;
+  function readHd() { try { return JSON.parse(store('kh_hd') || 'null'); } catch (e) { return null; } }
+  function writeHd(o) { store('kh_hd', o ? JSON.stringify(o) : null); }
+  function loadGuides() {
+    if (GUIDES) { renderGuide(); return; }
+    $('g-body').innerHTML = '<p class="muted">Đang tải...</p>';
+    fetch('huongdan.json?t=' + Date.now(), { cache: 'no-cache' }).then(function (r) { return r.json(); })
+      .then(function (j) { GUIDES = j.guides || []; renderGuide(); })
+      .catch(function () { $('g-body').innerHTML = '<p class="err">Chưa tải được hướng dẫn. Kiểm tra mạng rồi mở lại.</p>'; });
+  }
+  function gById(id) { return (GUIDES || []).filter(function (g) { return g.id === id; })[0]; }
+  function gSteps(g, dev) { return g.steps.filter(function (s) { return !s.only || s.only === dev; }); }
+  function mk(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+  function gBtn(text, cls, fn) { var b = mk('button', 'btn ' + (cls || ''), text); b.type = 'button'; b.addEventListener('click', fn); return b; }
+  function renderGuide() {
+    var box = $('g-body'); box.innerHTML = '';
+    var st = readHd();
+    var g = st && st.g ? gById(st.g) : null;
+    if (!g) {
+      box.appendChild(mk('h1', 'top', 'Hướng dẫn'));
+      (GUIDES || []).forEach(function (gg) {
+        var c = mk('div', 'card gcard');
+        c.appendChild(mk('h2', '', gg.title));
+        c.appendChild(mk('p', 'muted', gg.intro || ''));
+        c.appendChild(gBtn('Bắt đầu', 'main big', function () { writeHd({ g: gg.id, dev: '', i: 0 }); renderGuide(); }));
+        box.appendChild(c);
+      });
+      return;
+    }
+    if (!st.dev) {
+      box.appendChild(mk('h1', 'top', g.title));
+      box.appendChild(mk('p', 'gtext', 'Anh/chị đang dùng gì để làm?'));
+      var dv = mk('div', 'gdev');
+      dv.appendChild(gBtn('Điện thoại', 'main big', function () { st.dev = 'dt'; st.i = 0; writeHd(st); renderGuide(); }));
+      dv.appendChild(gBtn('Máy tính', 'big', function () { st.dev = 'mt'; st.i = 0; writeHd(st); renderGuide(); }));
+      box.appendChild(dv);
+      box.appendChild(gBtn('Thôi, quay lại', 'stuck', function () { writeHd(null); renderGuide(); })).style.marginTop = '18px';
+      return;
+    }
+    var steps = gSteps(g, st.dev), n = steps.length;
+    if (st.done || st.i >= n) {
+      box.appendChild(mk('h1', 'top', 'Xong rồi ạ!'));
+      box.appendChild(mk('p', 'gtext', g.done || ''));
+      var bt = mk('div', 'gbtns');
+      bt.appendChild(gBtn('Mở công cụ', 'main big', function () { showTab('cu'); }));
+      bt.appendChild(gBtn('Xem lại từ đầu', '', function () { st.i = 0; st.done = false; writeHd(st); renderGuide(); }));
+      bt.appendChild(gBtn('Về danh sách hướng dẫn', '', function () { writeHd(null); renderGuide(); }));
+      box.appendChild(bt);
+      return;
+    }
+    var s = steps[st.i];
+    box.appendChild(mk('p', 'gstep', 'Bước ' + (st.i + 1) + ' trên ' + n));
+    var bar = mk('div', 'gbar'); var fill = mk('i'); fill.style.width = Math.round((st.i / n) * 100) + '%'; bar.appendChild(fill); box.appendChild(bar);
+    box.appendChild(mk('h2', 'gtitle', s.t));
+    if (s.img) { var im = mk('img', 'gimg'); im.src = s.img; im.alt = ''; box.appendChild(im); }
+    (s.d || []).forEach(function (line) { box.appendChild(mk('p', 'gtext', line)); });
+    var b = mk('div', 'gbtns');
+    b.appendChild(gBtn('Xong, bước tiếp', 'main big', function () {
+      st.i++; if (st.i >= n) st.done = true; writeHd(st); renderGuide(); window.scrollTo(0, 0);
+    }));
+    b.appendChild(gBtn('Tôi không làm được bước này', 'stuck', function () {
+      hdCtx = 'Hướng dẫn "' + g.title + '", bước ' + (st.i + 1) + '/' + n + ' "' + s.t + '", khách dùng ' + (st.dev === 'dt' ? 'điện thoại' : 'máy tính');
+      hdCtxT = Date.now();
+      showTab('hoi');
+      $('chat-text').value = 'Em không làm được bước ' + (st.i + 1) + ': ' + s.t;
+      sendMsg();
+    }));
+    if (st.i > 0) b.appendChild(gBtn('← Quay lại bước trước', '', function () { st.i--; writeHd(st); renderGuide(); window.scrollTo(0, 0); }));
+    else b.appendChild(gBtn('← Chọn lại điện thoại / máy tính', '', function () { st.dev = ''; writeHd(st); renderGuide(); }));
+    box.appendChild(b);
+  }
 
   // ===== Công cụ (mở tool trên Google Flow) =====
   var SITE = 'https://nambk3692.github.io/video1cham/';
@@ -545,7 +643,7 @@
     if (text) m.text = text.slice(0, 2000);
     if (pendingImg) m.hasImg = true;
     var img = pendingImg;
-    var p = put('/chats/' + cid + '/meta', { name: (who.name || 'Khách').slice(0, 80), ma: String(who.ma || '').slice(0, 40), dev: devKind() });
+    var p = put('/chats/' + cid + '/meta', { name: (who.name || 'Khách').slice(0, 80), ma: String(who.ma || '').slice(0, 40), dev: devKind(), hd: (hdCtx && Date.now() - hdCtxT < 1800000) ? hdCtx.slice(0, 200) : '' });
     if (img) p = p.then(function () { return put('/chats/' + cid + '/img/' + mid, img); });
     p.then(function () { return put('/chats/' + cid + '/msgs/' + mid, m); })
       .then(function () { return put('/inbox/' + cid, { t: t, last: (text || 'Ảnh').slice(0, 80) }); })
