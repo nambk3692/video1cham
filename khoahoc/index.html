@@ -88,6 +88,8 @@
   .toolcard { margin: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 14px; padding: 14px; border: 3px solid var(--tc); background: var(--tcbg); }
   .toolcard h2 { margin: 0; font-size: 20px; line-height: 1.25; color: var(--tc); }
   .toolcard .btn { margin: 0; text-decoration: none; background: var(--tc); border-color: var(--tc); color: #fff; min-height: 52px; font-size: 19px; }
+  #doitk-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+  #doitk-list .btn { background: #fff; border-color: var(--tc); color: var(--tc); min-height: 56px; font-size: 17px; padding: 6px 8px; text-align: center; text-decoration: none; }
   .vidhelp { width: 100%; border-radius: 14px; margin-top: 10px; background: #000; }
   .tabbar button { font-size: 18px; padding: 0 4px; }
 </style>
@@ -163,8 +165,9 @@
     <h1 class="top">Công cụ</h1>
     <div id="tool-list"></div>
     <div class="card" style="margin-top:6px">
-      <h2>Hết điểm?</h2>
-      <p class="muted">Trong tool, bấm nút <b>Đổi tài khoản</b> ở góc dưới bên phải, chọn email còn điểm.</p>
+      <h2>Đổi tài khoản khi hết credit</h2>
+      <p class="muted">Chọn tool bạn đang dùng, rồi chọn email còn credit. Tool sẽ mở lại ngay.</p>
+      <div id="doitk-list"></div>
       <button id="vid-btn" class="btn" type="button">Xem video hướng dẫn</button>
       <video id="vid" class="vidhelp hide" controls playsinline preload="none" src="https://nambk3692.github.io/video1cham/huongdan/doi_tai_khoan.mp4"></video>
     </div>
@@ -445,12 +448,16 @@
       var open = document.createElement('a'); open.className = 'btn main'; open.textContent = 'Mở tool';
       open.target = '_blank'; open.rel = 'noopener'; open.href = SITE + tl.dir;
       c.appendChild(h); c.appendChild(open);
+      var sw = document.createElement('a'); sw.className = 'btn'; sw.textContent = 'Đổi tài khoản ' + tl.name;
+      sw.style.setProperty('--tc', tl.color); sw.target = '_blank'; sw.rel = 'noopener'; sw.href = SITE + tl.dir + 'doitaikhoan.html';
+      $('doitk-list').appendChild(sw);
       box.appendChild(c);
       // Lấy link tool mới nhất để vào thẳng Google Flow (không có thì giữ link trang khách)
       fetch(tl.api + '?api=config').then(function (r) { return r.json(); }).then(function (cfg) {
         var link = String((cfg && cfg.toolLink) || '');
         if (/^https:\/\/flow\.google\.com\/shared\/tool\//.test(link)) {
           open.href = link;
+          sw.href = 'https://accounts.google.com/AccountChooser?continue=' + encodeURIComponent(link);
         }
       }).catch(function () {});
     });
