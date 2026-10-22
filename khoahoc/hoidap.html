@@ -145,7 +145,13 @@
     box.scrollTop = box.scrollHeight;
   }
 
-  function send(textOverride) {
+  function devKind() {
+    var ua = navigator.userAgent || '', touch = (navigator.maxTouchPoints || 0) > 1;
+    var phone = /Android.*Mobile|iPhone|iPod/i.test(ua) || (touch && Math.min(screen.width, screen.height) < 600);
+    var tablet = !phone && (/iPad|Android/i.test(ua) || (/Macintosh/i.test(ua) && touch));
+    return phone ? 'dt' : (tablet ? 'mtb' : 'mt');
+  }
+    function send(textOverride) {
     if (sending) return;
     var text = (textOverride !== undefined ? textOverride : $('text').value).trim();
     if (!text && !pendingImg) return;
@@ -158,7 +164,7 @@
     if (pendingImg) m.hasImg = true;
     var img = pendingImg;
     var name = 'Khách' + (who.tool ? ' ' + TOOL_NAMES[who.tool] : '');
-    var meta = { name: name.slice(0, 80), ma: who.ma.slice(0, 40) };
+    var meta = { name: name.slice(0, 80), ma: who.ma.slice(0, 40), dev: devKind() };
     if (who.tool) meta.tool = who.tool;
     var p = put('/chats/' + cid + '/meta', meta);
     if (img) p = p.then(function () { return put('/chats/' + cid + '/img/' + mid, img); });
