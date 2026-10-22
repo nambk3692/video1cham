@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -67,6 +67,14 @@
   .thumb { max-width: 120px; max-height: 120px; border-radius: 10px; border: 2px solid var(--line); }
   .waitnote { color: var(--muted); font-size: 18px; margin: 4px 2px; }
 
+  /* Hỏi đáp: khung cố định, chỉ danh sách tin nhắn cuộn, ô nhập đứng yên */
+  body.chatmode { position: fixed; top: 0; left: 0; right: 0; height: 100vh; height: 100dvh; overflow: hidden; overscroll-behavior: none; }
+  body.chatmode .wrap { height: 100%; display: flex; flex-direction: column; padding-bottom: 6px; }
+  body.chatmode #chat { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  body.chatmode #chat > h1, body.chatmode #chat > p, body.chatmode .compose { flex-shrink: 0; }
+  body.chatmode .compose textarea { min-height: 64px; }
+  body.chatmode .chat-list { flex: 1; min-height: 0; max-height: none; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+
   .toolcard { margin-bottom: 16px; }
   .toolcard h2 { margin-bottom: 4px; }
   .toolcard .btn { margin-top: 10px; text-decoration: none; }
@@ -126,7 +134,7 @@
 
   <section id="chat" class="hide">
     <h1 class="top">Hỏi đáp</h1>
-    <p class="muted" style="margin-top:0">Gõ câu hỏi hoặc gửi ảnh chụp màn hình. Bên mình sẽ trả lời ngay trong đây. Đừng gửi mật khẩu hay số thẻ.</p>
+    <p class="muted" style="margin-top:0">Gõ câu hỏi hoặc gửi ảnh màn hình để được trả lời.</p>
     <div id="chat-list" class="chat-list"></div>
     <p id="chat-wait" class="waitnote hide">Đã nhận tin của bạn. Xin chờ một chút để có câu trả lời.</p>
     <div class="compose">
@@ -345,10 +353,19 @@
     return v;
   }
 
+  // Giữ khung chat khít vùng nhìn thấy khi bàn phím mở (iPhone)
+  function fitChat() {
+    var vv = window.visualViewport;
+    if (document.body.classList.contains('chatmode')) { if (vv) { document.body.style.height = vv.height + 'px'; window.scrollTo(0, 0); } }
+    else document.body.style.height = '';
+  }
+  if (window.visualViewport) { window.visualViewport.addEventListener('resize', fitChat); window.visualViewport.addEventListener('scroll', fitChat); }
+
   var HOC_IDS = ['player-box', 'list', 'load-err', 'out', 'install-android', 'install-ios', 'home-title'];
   function showTab(name) {
     var hoc = name === 'hoc', hoi = name === 'hoi', cu = name === 'cu';
     $('chat').classList.toggle('hide', !hoi);
+    document.body.classList.toggle('chatmode', hoi); fitChat();
     $('tools').classList.toggle('hide', !cu);
     HOC_IDS.forEach(function (id) {
       var el = $(id); if (!el) return;
