@@ -90,7 +90,7 @@
   .ln { display: block; }
   .toolcard .btn { margin: 0; text-decoration: none; background: var(--tc); border-color: var(--tc); color: #fff; min-height: 52px; font-size: 19px; }
   #doitk-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
-  #doitk-list .btn { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.25; background: #fff; border-color: var(--tc); color: var(--tc); min-height: 56px; font-size: 17px; padding: 6px 8px; text-align: center; text-decoration: none; }
+  #doitk-list .btn { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.25; background: #fff; border-color: var(--tc); color: var(--tc); min-height: 56px; font-size: 15px; padding: 6px 4px; white-space: nowrap; text-align: center; text-decoration: none; }
   .vidhelp { width: 100%; border-radius: 14px; margin-top: 10px; background: #000; }
   .tabbar button { font-size: 18px; padding: 0 4px; }
 </style>
@@ -439,8 +439,8 @@
   var TOOLS = [
     { name: 'Tạo Video', l: ['Tạo Video'], color: '#d97706', bg: '#fff7e6', dir: '', api: 'https://script.google.com/macros/s/AKfycbwqlgoDDfppaoqDku5BaNfEDkHWPX4J5Tp2exzKKmieLxYR1lusC_FgTTA1_fLf-0FbnQ/exec' },
     { name: 'Edit Video', l: ['Edit Video'], color: '#2563eb', bg: '#eaf1ff', dir: 'edit/', api: 'https://script.google.com/macros/s/AKfycbzIsGvKZg98AQly_Z1q-u4KLdtBic9XYYlhXTGKJzNhwdsKJd0KQck4HzFBEEbqqJJZ/exec' },
-    { name: 'Tạo Video Phong Thủy', l: ['Tạo Video', 'Phong Thủy'], color: '#ea580c', bg: '#fff0e6', dir: 'phongthuy/', api: 'https://script.google.com/macros/s/AKfycbwwUThduSj_h9EVy7fAioMyZqRmM6S3ngpisRHQCMGLHDW0gy4P7EAdznNsmH_3OFDdyA/exec' },
-    { name: 'Tạo Video Sức Khỏe', l: ['Tạo Video', 'Sức Khỏe'], color: '#059669', bg: '#e7f6ef', dir: 'suckhoe/', api: 'https://script.google.com/macros/s/AKfycbwRVmbC_Xk7libKd4wEharKqNCzfC67A4uFo8-sliMb5mA2fggSg1xnpSZK_pajUOHe/exec' }
+    { name: 'Tạo Video Phong Thủy', l: ['Tạo Video', 'Phong Thủy'], b: ['Đổi Tài Khoản Tạo', 'Video Phong Thủy'], color: '#ea580c', bg: '#fff0e6', dir: 'phongthuy/', api: 'https://script.google.com/macros/s/AKfycbwwUThduSj_h9EVy7fAioMyZqRmM6S3ngpisRHQCMGLHDW0gy4P7EAdznNsmH_3OFDdyA/exec' },
+    { name: 'Tạo Video Sức Khỏe', l: ['Tạo Video', 'Sức Khỏe'], b: ['Đổi Tài Khoản Tạo', 'Video Sức Khỏe'], color: '#059669', bg: '#e7f6ef', dir: 'suckhoe/', api: 'https://script.google.com/macros/s/AKfycbwRVmbC_Xk7libKd4wEharKqNCzfC67A4uFo8-sliMb5mA2fggSg1xnpSZK_pajUOHe/exec' }
   ];
   var toolsBuilt = false;
 
@@ -456,7 +456,7 @@
       var open = document.createElement('a'); open.className = 'btn main'; open.textContent = 'Mở tool';
       open.target = '_blank'; open.rel = 'noopener'; open.href = SITE + tl.dir;
       c.appendChild(h); c.appendChild(open);
-      var sw = document.createElement('a'); sw.className = 'btn'; ['Đổi Tài Khoản'].concat(tl.l).forEach(function (t) { var sp = document.createElement('span'); sp.className = 'ln'; sp.textContent = t; sw.appendChild(sp); });
+      var sw = document.createElement('a'); sw.className = 'btn'; (tl.b || ['Đổi Tài Khoản'].concat(tl.l)).forEach(function (t) { var sp = document.createElement('span'); sp.className = 'ln'; sp.textContent = t; sw.appendChild(sp); });
       sw.style.setProperty('--tc', tl.color); sw.target = '_blank'; sw.rel = 'noopener'; sw.href = SITE + tl.dir + 'doitaikhoan.html';
       $('doitk-list').appendChild(sw);
       box.appendChild(c);
