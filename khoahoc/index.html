@@ -228,6 +228,7 @@
     $('home').classList.remove('hide');
     loadVideos();
     setupInstall();
+    if (/(^|[#&])tab=cu/.test(location.hash)) showTab('cu');
   }
 
   function doLogin() {
