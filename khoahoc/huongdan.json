@@ -8,21 +8,10 @@
         {
           "t": "Làm trên trang Google",
           "d": [
-            "Xem trước 3 việc này. Rồi dán link và bấm Mở link."
-          ],
-          "items": [
-            {
-              "img": "huongdan_veo3/s_chrome_boqua.svg",
-              "t": "Hiện bảng \"Đăng nhập vào Chrome\": bấm chữ Bỏ qua."
-            },
-            {
-              "img": "huongdan_veo3/s_dungtk.svg",
-              "t": "Chọn email đã mua Veo. Chưa có: bấm \"Dùng một tài khoản khác\"."
-            },
-            {
-              "img": "huongdan_veo3/s_kichhoat.svg",
-              "t": "Bấm nút xanh \"Kích hoạt gói\"."
-            }
+            "Sẽ làm 3 việc này trên trang Google:",
+            "1. Hiện bảng \"Đăng nhập vào Chrome\": bấm chữ Bỏ qua.",
+            "2. Chọn email đã mua Veo. Chưa có: bấm \"Dùng một tài khoản khác\".",
+            "3. Bấm nút xanh \"Kích hoạt gói\"."
           ],
           "paste": true
         },
@@ -43,14 +32,14 @@
             "Bấm nút xanh, rồi bấm hình tròn góc phải."
           ],
           "note": "Đúng email và đủ 1050 credit là xong. Sai email: bấm \"Chuyển đổi tài khoản\".",
-          "img": "huongdan_veo3/s_credit.svg",
           "btn": {
             "t": "Mở trang kiểm tra",
             "u": "https://labs.google/fx/tools/flow"
           }
         }
       ],
-      "done": "Tài khoản Veo 3 Pro của anh/chị đã sẵn sàng. Bây giờ vào tool và làm video như bình thường."
+      "done": "Tài khoản Veo 3 Pro của anh/chị đã sẵn sàng. Bây giờ vào tool và làm video như bình thường.",
+      "youtube": "KWmYM8XyN94"
     }
   ]
 }

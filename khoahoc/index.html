@@ -116,6 +116,8 @@
   #guide .glink:focus { outline: 3px solid var(--accent); border-color: transparent; }
   #guide a.btn { text-decoration: none; margin: 10px 0 4px; }
   #guide .btn.act { background: #1a56db; border-color: #1a56db; color: #fff; }
+  #guide .gplayer { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 14px; overflow: hidden; margin-bottom: 10px; }
+  #guide .gplayer iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
   #guide .gvwrap { margin-bottom: 4px; }
   #guide .gvideo { width: 100%; border-radius: 14px; background: #000; max-height: 70vh; }
   #guide .gdev { display: flex; flex-direction: column; gap: 14px; }
@@ -490,16 +492,30 @@
   function gBtn(text, cls, fn) { var b = mk('button', 'btn ' + (cls || ''), text); b.type = 'button'; b.addEventListener('click', fn); return b; }
   function videoToggle(g) {
     var w = mk('div', 'gvwrap');
-    if (!g.video) return w;
-    var vbox = mk('video', 'gvideo hide'); vbox.src = g.video; vbox.controls = true; vbox.setAttribute('playsinline', ''); vbox.preload = 'none';
+    if (!g.youtube && !g.video) return w;
+    var holder = mk('div', 'gplayer hide');
+    var made = false;
     var vb = gBtn('▶ Xem video hướng dẫn', 'act', function () {
-      var show = vbox.classList.contains('hide');
-      vbox.classList.toggle('hide', !show);
+      var show = holder.classList.contains('hide');
+      holder.classList.toggle('hide', !show);
       vb.textContent = show ? 'Ẩn video' : '▶ Xem video hướng dẫn';
-      if (show) { try { vbox.play(); } catch (e) {} } else { try { vbox.pause(); } catch (e) {} }
+      if (show && !made) {
+        made = true;
+        if (g.youtube) {
+          var fr = document.createElement('iframe');
+          fr.src = 'https://www.youtube-nocookie.com/embed/' + g.youtube + '?rel=0&playsinline=1';
+          fr.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen');
+          fr.setAttribute('allowfullscreen', ''); fr.title = 'Video hướng dẫn';
+          holder.appendChild(fr);
+        } else {
+          var vd = mk('video', 'gvideo'); vd.src = g.video; vd.controls = true; vd.setAttribute('playsinline', ''); holder.appendChild(vd);
+        }
+      } else if (!show) {
+        holder.innerHTML = ''; made = false;
+      }
     });
     vb.style.minHeight = '52px'; vb.style.fontSize = '18px'; vb.style.marginBottom = '10px';
-    w.appendChild(vb); w.appendChild(vbox);
+    w.appendChild(vb); w.appendChild(holder);
     return w;
   }
   function renderGuide() {
@@ -522,6 +538,7 @@
           });
           c.appendChild(vb); c.appendChild(vbox);
         }
+        if (gg.youtube || gg.video) c.appendChild(videoToggle(gg));
         c.appendChild(gBtn('Làm từng bước', 'main big', function () { writeHd({ g: gg.id, dev: (devKind() === 'mt') ? 'mt' : 'dt', i: 0 }); renderGuide(); }));
         box.appendChild(c);
       });
