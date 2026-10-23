@@ -6,47 +6,27 @@
       "intro": "Làm từng bước, xong bấm nút xanh.",
       "steps": [
         {
-          "t": "Đăng nhập email đã mua Veo",
-          "d": [
-            "Bấm nút xanh. Thấy email đã mua Veo thì chọn nó. Chưa thấy thì gõ email vào, bấm Tiếp."
-          ],
-          "note": "Hiện bảng \"Đăng nhập vào Chrome\": bấm \"Bỏ qua\". Hiện \"Dùng một tài khoản khác\": bấm vào đó.",
-          "img": "huongdan_veo3/s_email.svg",
-          "btn": {
-            "t": "Mở trang đăng nhập Google",
-            "u": "https://accounts.google.com/AccountChooser?hl=vi&continue=https%3A%2F%2Fmyaccount.google.com%2F"
-          }
-        },
-        {
-          "t": "Nhập mật khẩu (nếu được hỏi)",
-          "d": [
-            "Google hỏi mật khẩu thì gõ vào, bấm Tiếp."
-          ],
-          "note": "Hiện câu hỏi thêm: bấm \"Không phải bây giờ\".",
-          "img": "huongdan_veo3/s_matkhau.svg"
-        },
-        {
           "t": "Dán link kích hoạt",
           "d": [
             "Dán link vào ô, bấm Mở link."
           ],
-          "note": "Chọn đúng email mua Veo. Hiện bảng \"Đăng nhập vào Chrome\": bấm \"Bỏ qua\", rồi gõ email.",
           "img": "huongdan_veo3/s_danlink.svg",
           "paste": true
         },
         {
-          "t": "Kiểm tra đúng email",
+          "t": "Chọn email đã mua Veo",
           "d": [
-            "Bấm hình tròn góc phải trên, xem đúng email chưa."
+            "Google hiện danh sách email. Bấm chọn email đã mua Veo."
           ],
-          "note": "Sai thì bấm email đúng để đổi.",
-          "img": "huongdan_veo3/s_dungemail.svg"
+          "note": "Chưa có email đó: bấm \"Dùng một tài khoản khác\", gõ email, bấm Tiếp, gõ mật khẩu, bấm Tiếp. Hiện bảng \"Đăng nhập vào Chrome\": bấm \"Bỏ qua\".",
+          "img": "huongdan_veo3/s_dungtk.svg"
         },
         {
           "t": "Bấm \"Kích hoạt gói\"",
           "d": [
             "Bấm nút xanh ở góc phải dưới."
           ],
+          "note": "Hiện trang khác, không thấy nút: bấm \"Không làm được\" bên dưới.",
           "img": "huongdan_veo3/s_kichhoat.svg"
         },
         {
