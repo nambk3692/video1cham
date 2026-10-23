@@ -170,6 +170,7 @@
   #guide .linkbtn.btn.big { flex-direction: column; gap: 2px; min-height: 58px; padding: 6px 12px; background: #EFE3C2; border: 1px solid #D8C58F; color: #17453B; }
   #guide .linkbtn .lb1 { font-size: 17px; font-weight: 700; }
   #guide .linkbtn .lb2 { font-size: 13px; font-weight: 500; color: #5C5D52; }
+  #guide .gcard:nth-of-type(n) h2 { display: block; background: #D9B45B; color: #0F2F28; border-radius: 14px; padding: 10px 8px; font-size: clamp(11px, 3.2vw, 16px); letter-spacing: .4px; font-weight: 700; text-align: center; white-space: nowrap; }
   #guide .linkcap { color: var(--muted); }
   #guide .gbar i { background: var(--gold); }
   #guide .gcard .btn.big { min-height: 58px; font-size: 20px; }
@@ -652,9 +653,7 @@
       box.appendChild(mk('h1', 'top', 'Hướng dẫn'));
       (GUIDES || []).forEach(function (gg) {
         var c = mk('div', 'card gcard');
-        var h2 = mk('h2', ''); var mt = /^Bước (\d+):\s*([\s\S]*)$/.exec(gg.title || '');
-        if (mt) { h2.appendChild(mk('span', 'stepnum', 'Bước ' + mt[1])); h2.appendChild(mk('span', 'steptx', mt[2])); } else h2.textContent = gg.title;
-        c.appendChild(h2);
+        c.appendChild(mk('h2', '', String(gg.title || '').replace(/\s*\n\s*/g, ' ')));
         if (gg.youtube || gg.video) c.appendChild(videoToggle(gg));
         (gg.videos || []).forEach(function (v) { c.appendChild(videoToggle({ video: v.u, label: v.t })); });
         if (gg.link) linkBox(c, gg.link);
