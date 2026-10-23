@@ -6,24 +6,6 @@
       "intro": "Làm lần lượt từng bước. Xong bước nào bấm nút xanh để sang bước tiếp.",
       "steps": [
         {
-          "t": "Mở một trang bất kỳ, bấm dấu ba chấm",
-          "d": [
-            "Mở Chrome, bấm vào một bài báo bất kỳ.",
-            "Bấm dấu ba chấm ở góc phải phía trên."
-          ],
-          "img": "huongdan_veo3/dt1.jpg",
-          "only": "dt"
-        },
-        {
-          "t": "Bật \"Trang cho máy tính\"",
-          "d": [
-            "Kéo menu xuống, tìm dòng \"Trang cho máy tính\".",
-            "Bấm vào ô vuông bên phải để bật lên."
-          ],
-          "img": "huongdan_veo3/dt2.jpg",
-          "only": "dt"
-        },
-        {
           "t": "Email đã mua Veo đã có trong điện thoại chưa?",
           "d": [
             "Nếu anh/chị đã từng đăng nhập email đó trên máy này rồi, bấm nút xanh để bỏ qua phần đăng nhập."
