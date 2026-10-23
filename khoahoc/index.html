@@ -526,16 +526,15 @@
     w.appendChild(vb); w.appendChild(holder);
     return w;
   }
-  function pasteBox(c) {
-    var inp = mk('input', 'glink'); inp.type = 'url'; inp.placeholder = 'Dán link kích hoạt Veo 3 Pro ở đây'; inp.autocomplete = 'off'; inp.autocapitalize = 'off'; inp.spellcheck = false;
-    var ob = gBtn('Mở link kích hoạt', 'act big', function () {
-      var u = inp.value.trim();
-      if (!/^https?:\/\/\S+$/i.test(u)) { inp.style.borderColor = '#c0262d'; inp.value = ''; inp.placeholder = 'Chưa đúng link, dán lại giúp em'; return; }
-      var go = u;
-      try { if (/(^|\.)google\.com$/.test(new URL(u).hostname)) go = 'https://accounts.google.com/AccountChooser?continue=' + encodeURIComponent(u); } catch (e) {}
-      window.open(go, '_blank', 'noopener');
-    });
-    c.appendChild(inp); c.appendChild(ob);
+  // Android: mở thẳng bằng Chrome (không phải khung nhỏ trong app); máy không có Chrome thì tự mở link thường. iPhone/máy tính: link thường.
+  function chromeUrl(u) {
+    try {
+      if (/Android/i.test(navigator.userAgent)) {
+        var x = new URL(u);
+        return 'intent://' + x.host + x.pathname + x.search + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(u) + ';end';
+      }
+    } catch (e) {}
+    return u;
   }
   function renderGuide() {
     var box = $('g-body'); box.innerHTML = '';
@@ -549,8 +548,7 @@
         c.appendChild(mk('h2', '', gg.title));
         if (gg.youtube || gg.video) c.appendChild(videoToggle(gg));
         (gg.videos || []).forEach(function (v) { c.appendChild(videoToggle({ video: v.u, label: v.t })); });
-        if (gg.paste) pasteBox(c);
-        if (gg.tool) { var ta = mk('a', 'btn act big', gg.tool.t); ta.href = gg.tool.u; ta.target = '_blank'; ta.rel = 'noopener'; c.appendChild(ta); }
+        if (gg.tool) { var ta = mk('a', 'btn act big', gg.tool.t); var cu = chromeUrl(gg.tool.u); ta.href = cu; if (cu === gg.tool.u) { ta.target = '_blank'; ta.rel = 'noopener'; } c.appendChild(ta); }
         c.appendChild(gBtn('Trợ lý hỗ trợ', 'main big', function () { startGuided(gg.assist || ('Tôi muốn được hỗ trợ: ' + gg.title), gg.mode); }));
         box.appendChild(c);
       });
