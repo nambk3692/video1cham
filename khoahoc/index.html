@@ -29,7 +29,7 @@
   .card { background: var(--card); border: 2px solid var(--line); border-radius: 16px; padding: 18px; }
   .btn { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 60px; padding: 0 20px; border-radius: 14px; border: 2px solid var(--accent); background: #fff; color: var(--accent); font-size: 20px; font-weight: 700; cursor: pointer; width: 100%; }
   .btn.main { background: var(--accent); color: var(--accent-ink); }
-  input[type=text] { width: 100%; min-height: 64px; padding: 0 16px; border-radius: 14px; border: 2px solid var(--line); background: #fff; color: var(--text); font-size: 24px; letter-spacing: 2px; text-transform: uppercase; }
+  input[type=text] { width: 100%; min-height: 64px; padding: 0 16px; border-radius: 14px; border: 2px solid var(--line); background: #fff; color: var(--text); font-size: 24px; letter-spacing: 1px; }
   input[type=text]:focus { outline: 3px solid var(--accent); border-color: transparent; }
   .err { color: var(--err); font-size: 18px; font-weight: 600; min-height: 26px; margin: 10px 0 0; }
   .login { max-width: 460px; margin: 6vh auto 0; text-align: center; }
@@ -152,11 +152,11 @@
   <section id="login" class="login hide">
     <img class="logo" src="icon-192.png" alt="">
     <h1 id="app-name">Tạo Video 1 Chạm</h1>
-    <p class="muted">Nhập mã để xem video.</p>
+    <p class="muted">Nhập mã kích hoạt để vào.</p>
     <div class="card stack" style="text-align:left">
-      <label for="code" class="muted">Mã khóa học (có trong tin nhắn thầy/cô gửi)</label>
-      <input id="code" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Nhập mã">
-      <button id="go" class="btn main block" type="button">Vào học</button>
+      <label for="code" class="muted">Mã kích hoạt tool (mã đã gửi qua email khi mua hoặc dùng thử)</label>
+      <input id="code" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Dán mã kích hoạt vào đây">
+      <button id="go" class="btn main block" type="button">Vào app</button>
       <p id="login-err" class="err"></p>
     </div>
     <div id="inapp" class="warn hide" style="margin-top:14px;text-align:left">
@@ -253,18 +253,65 @@
   $('app-name').textContent = CONFIG.appName;
 
   // ===== Đăng nhập =====
-  function verify(code) {
-    code = (code || '').trim().toUpperCase();
-    if (!code) return Promise.resolve({ ok: false, msg: 'Bạn chưa nhập mã.' });
-    if (!CONFIG.api) {
-      return Promise.resolve(code === CONFIG.demoCode ? { ok: true } : { ok: false, msg: 'Mã chưa đúng. (Bản thử: dùng mã ' + CONFIG.demoCode + ')' });
-    }
+  // Mã kích hoạt tool (phân biệt chữ hoa/thường, KHÔNG đổi chữ): hỏi Apps Script của từng tool xem mã có trong Sheet không.
+  var TOOL_APIS = {
+    tv1c: 'https://script.google.com/macros/s/AKfycbwqlgoDDfppaoqDku5BaNfEDkHWPX4J5Tp2exzKKmieLxYR1lusC_FgTTA1_fLf-0FbnQ/exec',
+    ed1c: 'https://script.google.com/macros/s/AKfycbzIsGvKZg98AQly_Z1q-u4KLdtBic9XYYlhXTGKJzNhwdsKJd0KQck4HzFBEEbqqJJZ/exec',
+    pt: 'https://script.google.com/macros/s/AKfycbwwUThduSj_h9EVy7fAioMyZqRmM6S3ngpisRHQCMGLHDW0gy4P7EAdznNsmH_3OFDdyA/exec',
+    sk: 'https://script.google.com/macros/s/AKfycbwRVmbC_Xk7libKd4wEharKqNCzfC67A4uFo8-sliMb5mA2fggSg1xnpSZK_pajUOHe/exec'
+  };
+  var MSG_NET = 'Không kết nối được. Vui lòng kiểm tra mạng rồi thử lại.';
+  var MSG_BAD = 'Mã chưa đúng hoặc đã hết hạn. Vui lòng kiểm tra lại mã.';
+
+  // Tên khách nằm sẵn trong mã (đoạn thứ hai, base64): dùng để chào, không có thì để trống
+  function nameFromCode(code) {
+    try {
+      var b = String(code).split('.')[1] || '';
+      b = b.replace(/-/g, '+').replace(/_/g, '/'); while (b.length % 4) b += '=';
+      return decodeURIComponent(escape(atob(b))).slice(0, 60);
+    } catch (e) { return ''; }
+  }
+
+  function verifyTool(key, code) {
+    var ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 20000);
+    return fetch(TOOL_APIS[key], { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'docaidat', ma: code }), signal: ctl ? ctl.signal : undefined })
+      .then(function (r) { return r.json(); })
+      .then(function (j) { clearTimeout(timer); return j && j.ok ? { ok: true, tool: key } : { ok: false }; })
+      .catch(function () { clearTimeout(timer); return { net: true }; });
+  }
+
+  // Mã khóa học cũ (bản thử): vẫn cho vào nếu khách nhập, nhưng không còn là cách chính
+  function verifyCourse(code) {
     var ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
     var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 12000);
-    return fetch(CONFIG.api + '?api=khoahoc&ma=' + encodeURIComponent(code), ctl ? { signal: ctl.signal } : undefined)
+    return fetch(CONFIG.api + '?api=khoahoc&ma=' + encodeURIComponent(code.toUpperCase()), ctl ? { signal: ctl.signal } : undefined)
       .then(function (r) { return r.json(); })
-      .then(function (j) { clearTimeout(timer); return j && j.ok ? { ok: true, name: j.name || '' } : { ok: false, msg: (j && j.msg) || 'Mã không đúng hoặc đã hết hạn.' }; })
-      .catch(function () { clearTimeout(timer); return { ok: false, net: true, msg: 'Không kết nối được. Vui lòng kiểm tra mạng rồi thử lại.' }; });
+      .then(function (j) { clearTimeout(timer); return j && j.ok ? { ok: true, name: j.name || '', tool: '' } : { ok: false, msg: MSG_BAD }; })
+      .catch(function () { clearTimeout(timer); return { ok: false, net: true, msg: MSG_NET }; });
+  }
+
+  function verify(code, tool) {
+    code = (code || '').trim().split('~')[0];
+    if (!code) return Promise.resolve({ ok: false, msg: 'Bạn chưa nhập mã.' });
+    var keys = (tool && TOOL_APIS[tool]) ? [tool] : Object.keys(TOOL_APIS);
+    return new Promise(function (resolve) {
+      var pending = keys.length, nets = 0, done = false;
+      keys.forEach(function (k) {
+        verifyTool(k, code).then(function (r) {
+          if (done) return;
+          if (r.ok) { done = true; resolve({ ok: true, tool: k, name: nameFromCode(code) }); return; }
+          if (r.net) nets++;
+          if (--pending > 0) return;
+          done = true;
+          if (tool) { resolve(nets ? { ok: false, net: true, msg: MSG_NET } : { ok: false, msg: MSG_BAD }); return; }
+          verifyCourse(code).then(function (cr) {
+            if (cr.ok) resolve(cr);
+            else resolve(nets ? { ok: false, net: true, msg: MSG_NET } : cr);
+          });
+        });
+      });
+    });
   }
 
   function showLogin(msg) {
@@ -278,6 +325,7 @@
   function enter(name) {
     if (name !== undefined) who.name = name;
     who.ma = String(store('kh_ma') || '');
+    who.tool = String(store('kh_tool') || '');
     $('tabbar').classList.remove('hide'); document.body.classList.add('has-tabs');
     $('boot').classList.add('hide');
     $('login').classList.add('hide');
@@ -300,14 +348,14 @@
     $('go').disabled = true;
     verify(code).then(function (r) {
       $('go').disabled = false;
-      if (r.ok) { store('kh_ma', code.trim().toUpperCase()); enter(r.name); }
+      if (r.ok) { store('kh_ma', code.trim().split('~')[0]); store('kh_tool', r.tool || ''); enter(r.name); }
       else $('login-err').textContent = r.msg;
     });
   }
 
   $('go').addEventListener('click', doLogin);
   $('code').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
-  $('out').addEventListener('click', function () { store('kh_ma', null); showTab('hoc'); showLogin(''); $('player').innerHTML = ''; $('tabbar').classList.add('hide'); document.body.classList.remove('has-tabs'); });
+  $('out').addEventListener('click', function () { store('kh_ma', null); store('kh_tool', null); showTab('hoc'); showLogin(''); $('player').innerHTML = ''; $('tabbar').classList.add('hide'); document.body.classList.remove('has-tabs'); });
 
   // ===== Danh sách + phát video =====
   function loadVideos() {
@@ -426,7 +474,7 @@
 
   // ===== Hỏi đáp (chat) =====
   var DB = 'https://hotro-khoahoc-default-rtdb.asia-southeast1.firebasedatabase.app';
-  var who = { name: '', ma: '' };
+  var who = { name: '', ma: '', tool: '' };
   var msgs = {}, imgCache = {}, es = null, pendingImg = '', sending = false, lastSeen = 0;
 
   function chatId() {
@@ -756,7 +804,7 @@
     if (text) m.text = text.slice(0, 2000);
     if (pendingImg) m.hasImg = true;
     var img = pendingImg;
-    var p = put('/chats/' + cid + '/meta', { name: (who.name || 'Khách').slice(0, 80), ma: String(who.ma || '').slice(0, 40), dev: devKind(), hd: isGuided() ? (store('kh_mode') || 'KICHHOAT_DAN') : ((hdCtx && Date.now() - hdCtxT < 1800000) ? hdCtx.slice(0, 200) : '') });
+    var p = put('/chats/' + cid + '/meta', { name: (who.name || 'Khách').slice(0, 80), ma: String(who.ma || '').slice(0, 300), tool: who.tool || '', dev: devKind(), hd: isGuided() ? (store('kh_mode') || 'KICHHOAT_DAN') : ((hdCtx && Date.now() - hdCtxT < 1800000) ? hdCtx.slice(0, 200) : '') });
     if (img) p = p.then(function () { return put('/chats/' + cid + '/img/' + mid, img); });
     p.then(function () { return put('/chats/' + cid + '/msgs/' + mid, m); })
       .then(function () { return put('/inbox/' + cid, { t: t, last: (text || 'Ảnh').slice(0, 80) }); })
@@ -795,7 +843,8 @@
   var saved = store('kh_ma');
   if (saved) {
     $('boot').classList.remove('hide');
-    verify(saved).then(function (r) {
+    verify(saved, store('kh_tool')).then(function (r) {
+      if (r.ok && r.tool && !store('kh_tool')) store('kh_tool', r.tool);
       if (r.ok || r.net) enter(r.name);   // mất mạng thoáng qua thì vẫn cho vào bằng mã đã lưu
       else showLogin('Mã đã hết hạn hoặc không còn hiệu lực. Vui lòng nhập lại.');
     });

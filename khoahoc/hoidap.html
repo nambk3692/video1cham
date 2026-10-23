@@ -86,9 +86,9 @@
   // Mã và tên tool: ưu tiên lấy từ đường dẫn (#tool=sk&ma=...), không có thì lấy mã khóa học đã nhớ.
   var q = {};
   location.hash.slice(1).split('&').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) { try { q[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1)); } catch (e) {} } });
-  var who = { tool: TOOL_NAMES[q.tool] ? q.tool : '', ma: String(q.ma || '').split('~')[0].trim().toUpperCase() };
+  var who = { tool: TOOL_NAMES[q.tool] ? q.tool : '', ma: String(q.ma || '').split('~')[0].trim() };
   if (who.ma) { store('hd_ma', who.ma); store('hd_tool', who.tool); }
-  else { who.ma = String(store('hd_ma') || store('kh_ma') || '').toUpperCase(); who.tool = store('hd_tool') || ''; }
+  else { who.ma = String(store('hd_ma') || store('kh_ma') || ''); who.tool = store('hd_tool') || store('kh_tool') || ''; }
   history.replaceState(null, '', location.pathname + location.search); // xóa mã khỏi thanh địa chỉ
 
   var msgs = {}, imgCache = {}, es = null, pendingImg = '', sending = false;
@@ -164,7 +164,7 @@
     if (pendingImg) m.hasImg = true;
     var img = pendingImg;
     var name = 'Khách' + (who.tool ? ' ' + TOOL_NAMES[who.tool] : '');
-    var meta = { name: name.slice(0, 80), ma: who.ma.slice(0, 40), dev: devKind() };
+    var meta = { name: name.slice(0, 80), ma: who.ma.slice(0, 300), dev: devKind() };
     if (who.tool) meta.tool = who.tool;
     var p = put('/chats/' + cid + '/meta', meta);
     if (img) p = p.then(function () { return put('/chats/' + cid + '/img/' + mid, img); });
@@ -243,7 +243,7 @@
   else {
     $('gate').classList.remove('hide');
     $('gate-go').addEventListener('click', function () {
-      var code = $('gate-code').value.trim().toUpperCase();
+      var code = $('gate-code').value.trim().split('~')[0];
       if (!code) { $('gate-err').textContent = 'Bạn chưa nhập mã.'; return; }
       who.ma = code; store('hd_ma', code); start();
     });
