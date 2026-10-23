@@ -95,6 +95,9 @@
   .tabbar button { font-size: 14px; padding: 0 2px; text-transform: uppercase; }
   #guide .gcard { margin-bottom: 14px; display: flex; flex-direction: column; gap: 12px; }
   #guide .gcard h2, #guide h1.top { text-align: center; text-transform: uppercase; white-space: pre-line; }
+  #guide .linkbox { background: #fff; border: 2px dashed #7a8594; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px; text-align: center; }
+  #guide .linkcap { font-size: 16px; color: var(--muted); }
+  #guide .linkurl { font-size: 18px; font-weight: 700; word-break: break-all; -webkit-user-select: all; user-select: all; }
   #guide .gcard { box-shadow: 0 8px 20px rgba(17, 20, 24, .13), 0 2px 4px rgba(17, 20, 24, .08); }
   #guide .gcard:nth-of-type(3n+1) { background: #f6cf6e; border-color: #c8901a; } #guide .gcard:nth-of-type(3n+1) h2 { color: #6a4000; }
   #guide .gcard:nth-of-type(3n+2) { background: #f7b8a2; border-color: #d9704f; } #guide .gcard:nth-of-type(3n+2) h2 { color: #7a2310; }
@@ -526,6 +529,23 @@
     w.appendChild(vb); w.appendChild(holder);
     return w;
   }
+  // Khung "Link vào tool": hiện link + nút Sao chép link (chép nguyên https://... để dán vào Chrome)
+  function linkBox(c, lk) {
+    var box = mk('div', 'linkbox');
+    box.appendChild(mk('div', 'linkcap', lk.t));
+    box.appendChild(mk('div', 'linkurl', lk.u.replace(/^https?:\/\//, '')));
+    var cb = gBtn('Sao chép link', 'act big', function () {
+      var done = function () { cb.textContent = 'Đã sao chép ✓'; setTimeout(function () { cb.textContent = 'Sao chép link'; }, 2500); };
+      var fb = function () {
+        var ta = document.createElement('textarea'); ta.value = lk.u; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        try { if (document.execCommand('copy')) done(); } catch (e) {}
+        document.body.removeChild(ta);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(lk.u).then(done, fb); else fb();
+    });
+    box.appendChild(cb); c.appendChild(box);
+  }
   function renderGuide() {
     var box = $('g-body'); box.innerHTML = '';
     var st = readHd();
@@ -538,6 +558,7 @@
         c.appendChild(mk('h2', '', gg.title));
         if (gg.youtube || gg.video) c.appendChild(videoToggle(gg));
         (gg.videos || []).forEach(function (v) { c.appendChild(videoToggle({ video: v.u, label: v.t })); });
+        if (gg.link) linkBox(c, gg.link);
         if (gg.tool) { var ta = mk('a', 'btn act big', gg.tool.t); ta.href = gg.tool.u; ta.target = '_blank'; ta.rel = 'noopener'; c.appendChild(ta); }
         c.appendChild(gBtn('Trợ lý hỗ trợ', 'main big', function () { startGuided(gg.assist || ('Tôi muốn được hỗ trợ: ' + gg.title), gg.mode); }));
         box.appendChild(c);
