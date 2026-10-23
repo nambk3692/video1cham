@@ -167,8 +167,8 @@
   #guide .gcard .btn.main.big { background: #C0262D; border: 1.5px solid #C0262D; color: #FFF3E0; font-weight: 700; }
   #guide .linkbox { background: #FFF7E6; border: 1.5px dashed #C8A04A; color: #1E2B25; }
   #guide .linkbox .btn.big { background: #EFE3C2; border: 1px solid #D8C58F; color: #17453B; font-weight: 600; }
-  #guide .linkbtn.btn.big { flex-direction: column; gap: 0; min-height: 44px; padding: 4px 12px; background: #2D6154; border: 1px solid #3F7767; color: #EDE5CC; }
-  #guide .linkbtn .lb1 { font-size: 15px; font-weight: 600; }
+  #guide .linkbtn.btn.big { flex-direction: row; gap: 0; min-height: 44px; padding: 4px 12px; background: #2D6154; border: 1px solid #3F7767; color: #EDE5CC; }
+  #guide .linkbtn .lb1 { font-size: clamp(12px, 3.6vw, 16px); font-weight: 600; white-space: nowrap; }
   #guide .linkbtn .lb2 { font-size: 11.5px; font-weight: 400; color: #B9C9BF; }
   #guide .gcard { padding: 12px; }
   #guide .gcard:nth-of-type(n) h2 { display: block; background: #FFFFFF; border: 0; color: #17453B; border-radius: 12px; padding: 11px 4px; font-size: clamp(12px, 3.6vw, 20px); letter-spacing: 0; font-weight: 800; text-align: center; white-space: nowrap; }
@@ -631,10 +631,11 @@
   // Nút "Sao chép link" gọn: dòng trên là việc làm, dòng dưới là tên link (chép nguyên https://... để dán vào Chrome)
   function linkBox(c, lk) {
     var cb = mk('button', 'btn act big linkbtn'); cb.type = 'button';
-    var l1 = mk('span', 'lb1', 'Sao chép link'), l2 = mk('span', 'lb2', lk.t);
-    cb.appendChild(l1); cb.appendChild(l2);
+    var label = 'Sao chép ' + lk.t.charAt(0).toLowerCase() + lk.t.slice(1);
+    var l1 = mk('span', 'lb1', label);
+    cb.appendChild(l1);
     cb.addEventListener('click', function () {
-      var done = function () { l1.textContent = 'Đã sao chép ✓'; setTimeout(function () { l1.textContent = 'Sao chép link'; }, 2500); };
+      var done = function () { l1.textContent = 'Đã sao chép ✓'; setTimeout(function () { l1.textContent = label; }, 2500); };
       var fb = function () {
         var ta = document.createElement('textarea'); ta.value = lk.u; ta.style.position = 'fixed'; ta.style.opacity = '0';
         document.body.appendChild(ta); ta.select();
