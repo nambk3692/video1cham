@@ -98,6 +98,7 @@
   #guide .gbar i { display: block; height: 100%; background: var(--accent); }
   #guide .gstep { font-size: 18px; color: var(--muted); font-weight: 700; margin: 0; }
   #guide h2.gtitle { font-size: 26px; line-height: 1.25; margin: 2px 0 12px; }
+  #guide .gimg.tall { max-height: 46vh; }
   #guide .gimg { display: block; width: 100%; max-height: 30vh; object-fit: contain; background: #eef1f5; border-radius: 14px; margin-bottom: 14px; }
   #guide .gtext { font-size: 22px; line-height: 1.55; margin: 0 0 8px; }
   #guide .gbtns { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
@@ -522,7 +523,7 @@
     box.appendChild(mk('p', 'gstep', 'Bước ' + (st.i + 1) + ' trên ' + n));
     var bar = mk('div', 'gbar'); var fill = mk('i'); fill.style.width = Math.round((st.i / n) * 100) + '%'; bar.appendChild(fill); box.appendChild(bar);
     box.appendChild(mk('h2', 'gtitle', s.t));
-    if (s.img && (!s.imgDev || s.imgDev === st.dev)) { var im = mk('img', 'gimg'); im.src = s.img; im.alt = ''; box.appendChild(im); }
+    if (s.img && (!s.imgDev || s.imgDev === st.dev)) { var im = mk('img', 'gimg' + (s.tall ? ' tall' : '')); im.src = s.img; im.alt = ''; box.appendChild(im); }
     (s.d || []).forEach(function (line) { box.appendChild(mk('p', 'gtext', line)); });
     if (s.note) box.appendChild(mk('p', 'gnote', s.note));
     if (s.btn) {

@@ -13,11 +13,20 @@
           "imgDev": "mt"
         },
         {
+          "t": "Hiện bảng \"Đăng nhập vào Chrome\"?",
+          "d": [
+            "Bấm chữ Bỏ qua ở dưới cùng."
+          ],
+          "note": "Không hiện bảng này thì bấm \"Xong, bước tiếp\" luôn. Đừng bấm nút xanh đậm.",
+          "img": "huongdan_veo3/s_chrome_boqua.svg",
+          "tall": true
+        },
+        {
           "t": "Chọn email đã mua Veo",
           "d": [
             "Google hiện danh sách email. Bấm chọn email đã mua Veo."
           ],
-          "note": "Chưa có email đó: bấm \"Dùng một tài khoản khác\", gõ email, bấm Tiếp, gõ mật khẩu, bấm Tiếp. Hiện bảng \"Đăng nhập vào Chrome\": bấm \"Bỏ qua\".",
+          "note": "Chưa có email đó: bấm \"Dùng một tài khoản khác\", gõ email, bấm Tiếp, gõ mật khẩu, bấm Tiếp.",
           "img": "huongdan_veo3/s_dungtk.svg"
         },
         {
