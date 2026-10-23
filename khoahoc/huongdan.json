@@ -6,48 +6,31 @@
       "intro": "Làm từng bước, xong bấm nút xanh.",
       "steps": [
         {
-          "t": "Đăng nhập email đã mua Veo",
+          "t": "Mở tab ẩn danh",
           "d": [
-            "Bấm nút xanh. Chọn email đã mua Veo trong danh sách."
+            "Bấm dấu ba chấm trong Chrome, chọn \"Tab ẩn danh mới\"."
           ],
-          "note": "Hiện bảng \"Đăng nhập vào Chrome\" như hình: bấm chữ \"Bỏ qua\". Chưa có email đó: bấm \"Dùng một tài khoản khác\", gõ email, bấm Tiếp, gõ mật khẩu, bấm Tiếp.",
-          "img": "huongdan_veo3/s_chrome_boqua.svg",
-          "tall": true,
-          "btn": {
-            "t": "Mở trang đăng nhập Google",
-            "u": "https://accounts.google.com/AccountChooser?hl=vi&continue=https%3A%2F%2Fmyaccount.google.com%2F"
-          }
+          "img": "huongdan_veo3/s_andanh.svg",
+          "tall": true
         },
         {
           "t": "Dán link kích hoạt",
-          "d": [],
-          "note": "Google hỏi chọn email: chọn lại đúng email vừa đăng nhập.",
-          "img": "huongdan_veo3/s_danlink.svg",
-          "imgDev": "mt",
-          "paste": true
+          "d": [
+            "Sao chép link kích hoạt, dán vào ô địa chỉ trên cùng, bấm Enter."
+          ],
+          "note": "Google hỏi đăng nhập: gõ email đã mua Veo, bấm Tiếp, gõ mật khẩu, bấm Tiếp. Hiện câu hỏi thêm: bấm \"Không phải bây giờ\".",
+          "img": "huongdan_veo3/s_danlink.svg"
         },
         {
           "t": "Bấm \"Kích hoạt gói\"",
           "d": [
             "Bấm nút xanh ở góc phải dưới."
           ],
-          "note": "Hiện trang khác, không thấy nút: bấm \"Hỏi trợ lý\" bên dưới.",
+          "note": "Xong rồi thì đóng tab ẩn danh.",
           "img": "huongdan_veo3/s_kichhoat.svg"
-        },
-        {
-          "t": "Kiểm tra tài khoản",
-          "d": [
-            "Bấm nút xanh, rồi bấm hình tròn góc phải."
-          ],
-          "note": "Đúng email và đủ 1050 credit là xong. Sai email: bấm \"Chuyển đổi tài khoản\".",
-          "img": "huongdan_veo3/s_credit.svg",
-          "btn": {
-            "t": "Mở trang kiểm tra",
-            "u": "https://labs.google/fx/tools/flow"
-          }
         }
       ],
-      "done": "Tài khoản Veo 3 Pro của anh/chị đã sẵn sàng. Bây giờ vào tool và làm video như bình thường."
+      "done": "Tài khoản đã kích hoạt xong. Đóng tab ẩn danh, rồi vào tool bằng Chrome bình thường như mọi khi."
     }
   ]
 }
