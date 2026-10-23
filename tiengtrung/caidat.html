@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cài đặt - Tạo Video Tiếng Trung 1 Chạm</title>
+<link rel="stylesheet" href="style.css"></head>
+<body><div class="card">
+  <h2 id="h">Đang xử lý...</h2>
+  <p class="sub" id="msg">Trang này sẽ tự đóng, bạn quay lại tool nhé.</p>
+  <button class="btn main hide" id="close" type="button">Đóng trang này</button>
+</div>
+<script src="common.js"></script>
+<script>
+  // Tool mở trang này: #a=save|load|login&ma=<mã kích hoạt>&s=<mã cài đặt khi lưu>. Kết quả trả về tool bằng postMessage.
+  // Mã kích hoạt được nhớ ngay trên trình duyệt này (localStorage của trang github.io, không đi đâu khác),
+  // lần sau tool chỉ cần mở trang với a=login là lấy lại được mã.
+  var P = params();
+  var KEY = 'sk1c_ma';
+  function getSaved() { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
+  function setSaved(v) { try { if (v) localStorage.setItem(KEY, v); else localStorage.removeItem(KEY); } catch (e) {} }
+  var ma = P.a === 'login' ? getSaved() : (P.ma || '');
+  // Bản lưu tiến độ do trang luu.html ghi (IndexedDB 'sk1c_session' của trang này)
+  function loadSession() {
+    return new Promise(function (res, rej) {
+      try {
+        var r = indexedDB.open('sk1c_session', 1);
+        r.onupgradeneeded = function () { r.result.createObjectStore('kv'); };
+        r.onerror = function () { rej(r.error); };
+        r.onsuccess = function () {
+          var db = r.result, t = db.transaction('kv', 'readonly'), st = t.objectStore('kv'), q = st.getAll(), k = st.getAllKeys();
+          t.oncomplete = function () {
+            var meta = null, vids = [];
+            k.result.forEach(function (key, i) {
+              if (key === 'meta') meta = q.result[i];
+              else if (String(key).indexOf('v:') === 0) vids.push({ id: String(key).slice(2), mime: q.result[i].mime, buffer: q.result[i].buffer });
+            });
+            res(meta && meta.json ? { json: meta.json, savedAt: meta.savedAt || 0, videos: vids } : null);
+          };
+          t.onerror = function () { rej(t.error); };
+        };
+      } catch (e) { rej(e); }
+    });
+  }
+  function done(res) {
+    var ok = !!(res && res.ok);
+    var titles = { save: 'Đã lưu cài đặt', load: 'Đã nạp cài đặt', login: 'Đã nhận diện mã kích hoạt' };
+    $('h').textContent = ok ? (titles[P.a] || 'Xong') : 'Chưa xử lý được';
+    $('msg').textContent = (res && res.msg) || 'Có lỗi, vui lòng thử lại.';
+    var msg = {
+      type: 'PT1C_SETTINGS', action: P.a, ok: ok,
+      settings: (res && res.settings) || '', msg: (res && res.msg) || '', ma: ok && P.a === 'login' ? ma : ''
+    };
+    function send(session) {
+      try {
+        var transfer = [];
+        if (session) { msg.session = session; (session.videos || []).forEach(function (v) { if (v.buffer) transfer.push(v.buffer); }); }
+        if (window.opener) window.opener.postMessage(msg, '*', transfer);
+      } catch (e) {}
+      if (ok) setTimeout(function () { window.close(); }, session ? 1500 : 900);
+      else { $('close').classList.remove('hide'); $('close').onclick = function () { window.close(); }; }
+    }
+    // Khi vào tool (login) trả luôn bản lưu tiến độ lần trước (nếu có) để tool khôi phục sau F5/sập
+    if (ok && P.a === 'login') loadSession().then(send, function () { send(null); });
+    else send(null);
+  }
+  if (P.a !== 'save' && P.a !== 'load' && P.a !== 'login') done({ ok: false, msg: 'Liên kết không hợp lệ.' });
+  else if (!ma) done({ ok: false, msg: P.a === 'login' ? 'Trình duyệt này chưa lưu mã kích hoạt. Hãy dán mã vào tool một lần.' : 'Liên kết không hợp lệ.' });
+  else callApi(P.a === 'save' ? { action: 'luucaidat', ma: ma, caidat: P.s } : { action: 'docaidat', ma: ma })
+    .then(function (res) {
+      // Sheet trả về mã MỚI NHẤT của dòng khách (vd sau khi Nam chọn "Đã thanh toán" thì đó là mã vĩnh viễn):
+      // dùng mã mới và nhớ lại, khách không phải dán lại.
+      if (res && res.ok && res.code) ma = res.code;
+      if ((P.a === 'load' || P.a === 'login') && res && res.ok) setSaved(ma);   // mã đúng: nhớ lại cho lần sau
+      if (P.a === 'login' && !(res && res.ok)) setSaved('');                    // mã không còn trên Sheet: quên
+      done(res);
+    })
+    .catch(function () { done({ ok: false, msg: 'Có lỗi kết nối, vui lòng thử lại.' }); });
+</script></body></html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đổi tài khoản Google - Tạo Video Tiếng Trung 1 Chạm</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .lbl{font-size:13px;color:#9a9aa2;margin-top:14px;line-height:1.5}
+  h3{font-size:15px;margin:20px 0 4px}
+</style></head>
+<body><div class="card">
+  <h2>Đổi tài khoản Google</h2>
+  <p class="sub">Tài khoản hiện tại hết điểm? Chọn một tài khoản Google khác để mở lại tool.</p>
+
+  <h3>Chọn theo email</h3>
+  <p class="lbl" style="margin-top:0">Bấm nút bên dưới, Google hiện <b>danh sách email</b> các tài khoản trên trình duyệt này. Bấm đúng email còn điểm (tài khoản ghi "Đã đăng xuất" sẽ hỏi mật khẩu; chưa có thì chọn "Sử dụng một tài khoản khác" để đăng nhập). Tool sẽ mở ra bằng tài khoản đó.</p>
+  <a class="btn main" id="choose" href="#" style="display:none">Chọn tài khoản</a>
+  <p class="sub" id="err" style="display:none">Không tải được link tool, hãy thử lại sau ít phút.</p>
+
+  <p class="lbl">Sau khi tool mở lại, nhập lại mã kích hoạt (cài đặt đã lưu sẽ tự nạp lại). Muốn kiểm tra tài khoản và số điểm còn lại: trong Google Flow, bấm ảnh đại diện góc phải phía trên.</p>
+</div>
+<script src="common.js"></script>
+<script>
+
+  // Video hướng dẫn: đặt mã video vào YT_ID khi chính thức; thử bằng ?yt=MÃ_VIDEO trên link.
+  var YT_ID = '';
+  (function () {
+    var m = location.search.match(/[?&]yt=([\w-]{6,20})/);
+    var id = m ? m[1] : YT_ID;
+    if (!id) return;
+    var sub = document.querySelector('.card .sub');
+    var w = document.createElement('div');
+    w.style.cssText = 'position:relative;padding-top:56.25%;margin:14px 0;border-radius:12px;overflow:hidden;background:#000';
+    var f = document.createElement('iframe');
+    f.src = 'https://www.youtube.com/embed/' + id;
+    f.title = 'Video hướng dẫn đổi tài khoản';
+    f.setAttribute('allowfullscreen', '');
+    f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    f.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:0';
+    w.appendChild(f);
+    if (sub && sub.parentNode) sub.parentNode.insertBefore(w, sub.nextSibling);
+  })();
+  getConfig().then(function (c) {
+    if (!/\/shared\/tool\//.test(String(c.toolLink || ''))) throw new Error('no link');
+    var a = $('choose');
+    a.href = 'https://accounts.google.com/AccountChooser?continue=' + encodeURIComponent(c.toolLink);
+    a.style.display = 'block';
+  }).catch(function () { $('err').style.display = 'block'; });
+</script></body></html>
