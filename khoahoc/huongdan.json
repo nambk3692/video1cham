@@ -6,13 +6,8 @@
       "intro": "Làm từng bước, xong bấm nút xanh.",
       "steps": [
         {
-          "t": "Làm trên trang Google",
-          "d": [
-            "Sẽ làm 3 việc này trên trang Google:",
-            "1. Hiện bảng \"Đăng nhập vào Chrome\": bấm chữ Bỏ qua.",
-            "2. Chọn email đã mua Veo. Chưa có: bấm \"Dùng một tài khoản khác\".",
-            "3. Bấm nút xanh \"Kích hoạt gói\"."
-          ],
+          "t": "Dán link kích hoạt",
+          "d": [],
           "paste": true
         },
         {
