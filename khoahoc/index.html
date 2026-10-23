@@ -221,6 +221,7 @@
     <div class="card" style="margin-top:6px">
       <h2 style="text-align:center">Đổi tài khoản khi hết credit</h2>
       <div id="doitk-list"></div>
+      <button id="doitk-help" class="btn main" type="button" style="width:100%;min-height:60px;font-size:22px;margin-top:4px">Trợ lý hỗ trợ</button>
     </div>
   </section>
 
@@ -759,6 +760,7 @@
 
   function isGuided() { return Date.now() - Number(store('kh_guided') || 0) < 3 * 3600 * 1000; }
   function startGuided(text, mode) { store('kh_guided', String(Date.now())); store('kh_mode', mode || 'KICHHOAT_DAN'); showTab('hoi'); $('chat-text').value = text; sendMsg(); }
+  $('doitk-help').addEventListener('click', function () { startGuided('Tôi muốn được hướng dẫn đổi tài khoản Google khi hết credit', 'DOITK_DAN'); });
   function renderChat() {
     var box = $('chat-list'); if (!box) return;
     var ids = Object.keys(msgs).filter(function (k) { return msgs[k] && msgs[k].t; })
