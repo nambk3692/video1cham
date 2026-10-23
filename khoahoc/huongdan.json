@@ -2,7 +2,7 @@
   "guides": [
     {
       "id": "veo3",
-      "title": "Kích hoạt Veo 3 Pro",
+      "title": "Bước 1: Kích hoạt Veo 3 Pro",
       "intro": "",
       "steps": [],
       "done": "Tài khoản Veo 3 Pro của anh/chị đã sẵn sàng. Bây giờ vào tool và làm video như bình thường.",
@@ -12,7 +12,7 @@
     },
     {
       "id": "vaotool_sk",
-      "title": "Vào tool Sức Khỏe",
+      "title": "Bước 2: Vào tool Sức Khỏe",
       "intro": "",
       "steps": [],
       "done": "",
@@ -26,7 +26,7 @@
     },
     {
       "id": "sk",
-      "title": "Cách tạo video sức khỏe",
+      "title": "Bước 3: Tạo video sức khỏe",
       "intro": "",
       "steps": [],
       "done": "",
