@@ -160,8 +160,8 @@
   .toolcard .btn { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
   #doitk-list .btn { --tc: #17453B !important; background: var(--card); border: 1.5px solid var(--gold-line); color: var(--accent); }
   #guide .gcard, #guide .gcard:nth-of-type(n) { background: #17453B; border: 1px solid #0F2F28; box-shadow: 0 6px 16px rgba(15, 47, 40, .30); }
-  #guide .gcard h2, #guide .gcard:nth-of-type(n) h2 { display: flex; align-items: center; justify-content: center; gap: 12px; color: #F7EBD3; font-size: clamp(12px, 3.8vw, 18px); letter-spacing: 1px; font-weight: 600; }
-  #guide .stepnum { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%; background: #D9B45B; color: #0F2F28; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; letter-spacing: 0; }
+  #guide .gcard h2, #guide .gcard:nth-of-type(n) h2 { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #F7EBD3; font-size: clamp(12px, 3.8vw, 18px); letter-spacing: 1px; font-weight: 600; }
+  #guide .stepnum { flex: 0 0 auto; height: 28px; padding: 0 16px; border-radius: 14px; background: #D9B45B; color: #0F2F28; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
   #guide .steptx { text-align: center; white-space: nowrap; }
   #guide .btn.act { background: #D9B45B; border-color: #D9B45B; color: #0F2F28; font-weight: 700; }
   #guide .gcard .btn.main.big { background: #C0262D; border: 1.5px solid #C0262D; color: #FFF3E0; font-weight: 700; }
@@ -650,7 +650,7 @@
       (GUIDES || []).forEach(function (gg) {
         var c = mk('div', 'card gcard');
         var h2 = mk('h2', ''); var mt = /^Bước (\d+):\s*([\s\S]*)$/.exec(gg.title || '');
-        if (mt) { h2.appendChild(mk('span', 'stepnum', mt[1])); h2.appendChild(mk('span', 'steptx', mt[2])); } else h2.textContent = gg.title;
+        if (mt) { h2.appendChild(mk('span', 'stepnum', 'Bước ' + mt[1])); h2.appendChild(mk('span', 'steptx', mt[2])); } else h2.textContent = gg.title;
         c.appendChild(h2);
         if (gg.youtube || gg.video) c.appendChild(videoToggle(gg));
         (gg.videos || []).forEach(function (v) { c.appendChild(videoToggle({ video: v.u, label: v.t })); });
