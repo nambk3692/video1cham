@@ -534,11 +534,7 @@
         if (gg.youtube || gg.video) c.appendChild(videoToggle(gg));
         (gg.videos || []).forEach(function (v) { c.appendChild(videoToggle({ video: v.u, label: v.t })); });
         if (gg.tool) { var ta = mk('a', 'btn act big', gg.tool.t); ta.href = gg.tool.u; ta.target = '_blank'; ta.rel = 'noopener'; c.appendChild(ta); }
-        var ab = gBtn('', 'main big', function () { startGuided(gg.assist || ('Tôi muốn được hỗ trợ: ' + gg.title), gg.mode); });
-        ab.style.flexDirection = 'column'; ab.style.gap = '4px'; ab.style.padding = '10px 14px'; ab.style.textAlign = 'center';
-        var a1 = mk('span', '', 'Trợ lý hỗ trợ'); var a2 = mk('span', '', 'Chụp màn hình gửi cho trợ lý để được hướng dẫn từng bước');
-        a2.style.fontSize = '16px'; a2.style.fontWeight = '500'; a2.style.lineHeight = '1.3';
-        ab.appendChild(a1); ab.appendChild(a2); c.appendChild(ab);
+        c.appendChild(gBtn('Trợ lý hỗ trợ', 'main big', function () { startGuided(gg.assist || ('Tôi muốn được hỗ trợ: ' + gg.title), gg.mode); }));
         box.appendChild(c);
       });
       return;

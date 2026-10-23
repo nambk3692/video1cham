@@ -22,16 +22,7 @@
       },
       "assist": "Tôi muốn được hướng dẫn tạo video sức khỏe",
       "mode": "HUONGDAN_SK",
-      "videos": [
-        {
-          "t": "▶ Phần 1: Viết bài và tạo ảnh",
-          "u": "huongdan_veo3/suckhoe1.mp4"
-        },
-        {
-          "t": "▶ Phần 2: Làm video và ghép phim",
-          "u": "huongdan_veo3/suckhoe2.mp4"
-        }
-      ]
+      "video": "huongdan_veo3/suckhoe.mp4"
     }
   ]
 }
