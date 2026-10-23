@@ -24,9 +24,19 @@
           "only": "dt"
         },
         {
-          "t": "Đăng nhập email đã mua Veo (nếu máy chưa có)",
+          "t": "Email đã mua Veo đã có trong điện thoại chưa?",
           "d": [
-            "Email đã mua Veo đã có sẵn trong máy (đã đăng nhập từ trước)? Bấm \"Xong, bước tiếp\" hai lần để bỏ qua bước này và bước sau.",
+            "Nếu anh/chị đã từng đăng nhập email đó trên máy này rồi, bấm nút xanh để bỏ qua phần đăng nhập."
+          ],
+          "ask": {
+            "yes": "Có sẵn rồi, bỏ qua",
+            "no": "Chưa có, cần đăng nhập",
+            "skip": 2
+          }
+        },
+        {
+          "t": "Đăng nhập email đã mua Veo",
+          "d": [
             "Bấm nút xanh bên dưới. Trang đăng nhập của Google sẽ mở ra.",
             "Gõ email đã mua Veo, rồi bấm \"Tiếp\" (tiếng Anh: Next).",
             "Nếu Google báo \"đã đăng nhập với số lượng tài khoản tối đa\": mở Chrome, bấm dấu ba chấm, chọn \"Tab ẩn danh mới\", gõ accounts.google.com rồi đăng nhập email đã mua trong tab ẩn danh. Các bước sau làm luôn trong tab ẩn danh đó (dán link kích hoạt thẳng vào ô địa chỉ). Không rõ thì bấm \"Tôi không làm được bước này\"."

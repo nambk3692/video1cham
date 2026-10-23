@@ -535,7 +535,10 @@
       box.appendChild(inp); box.appendChild(ob);
     }
     var b = mk('div', 'gbtns');
-    b.appendChild(gBtn('Xong, bước tiếp', 'main big', function () {
+    if (s.ask) {
+      b.appendChild(gBtn(s.ask.yes, 'main big', function () { st.i += s.ask.skip + 1; if (st.i >= n) st.done = true; writeHd(st); renderGuide(); window.scrollTo(0, 0); }));
+      b.appendChild(gBtn(s.ask.no, 'big', function () { st.i++; writeHd(st); renderGuide(); window.scrollTo(0, 0); }));
+    } else b.appendChild(gBtn('Xong, bước tiếp', 'main big', function () {
       st.i++; if (st.i >= n) st.done = true; writeHd(st); renderGuide(); window.scrollTo(0, 0);
     }));
     b.appendChild(gBtn('Tôi không làm được bước này', 'stuck', function () {
