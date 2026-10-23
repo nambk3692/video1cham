@@ -97,10 +97,13 @@
   #guide .gbar { height: 10px; background: #dfe5ee; border-radius: 6px; overflow: hidden; margin: 6px 0 14px; }
   #guide .gbar i { display: block; height: 100%; background: var(--accent); }
   #guide .gstep { font-size: 18px; color: var(--muted); font-weight: 700; margin: 0; }
-  #guide h2.gtitle { font-size: 26px; line-height: 1.3; margin: 4px 0 12px; }
-  #guide .gimg { display: block; width: 100%; max-height: 40vh; object-fit: contain; background: #eef1f5; border-radius: 14px; margin-bottom: 14px; }
+  #guide h2.gtitle { font-size: 26px; line-height: 1.25; margin: 2px 0 12px; }
+  #guide .gimg { display: block; width: 100%; max-height: 30vh; object-fit: contain; background: #eef1f5; border-radius: 14px; margin-bottom: 14px; }
   #guide .gtext { font-size: 22px; line-height: 1.55; margin: 0 0 8px; }
   #guide .gbtns { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+  #guide .gnote { font-size: 17px; line-height: 1.45; color: var(--muted); background: var(--card); border-radius: 12px; padding: 10px 14px; margin: 4px 0 8px; }
+  #guide .grow2 { display: flex; gap: 10px; margin-top: 4px; }
+  #guide .btn.small2 { min-height: 52px; font-size: 17px; padding: 0 8px; font-weight: 600; }
   #guide .btn.stuck { border-color: #c2570c; color: #c2570c; }
   #guide .btn.big { min-height: 72px; font-size: 24px; }
   #tab-hd { flex: 1.35; }
@@ -520,6 +523,7 @@
     box.appendChild(mk('h2', 'gtitle', s.t));
     if (s.img) { var im = mk('img', 'gimg'); im.src = s.img; im.alt = ''; box.appendChild(im); }
     (s.d || []).forEach(function (line) { box.appendChild(mk('p', 'gtext', line)); });
+    if (s.note) box.appendChild(mk('p', 'gnote', s.note));
     if (s.btn) {
       var ab = mk('a', 'btn act big', s.btn.t); ab.href = s.btn.u; ab.target = '_blank'; ab.rel = 'noopener'; box.appendChild(ab);
     }
@@ -541,15 +545,17 @@
     } else b.appendChild(gBtn('Xong, bước tiếp', 'main big', function () {
       st.i++; if (st.i >= n) st.done = true; writeHd(st); renderGuide(); window.scrollTo(0, 0);
     }));
-    b.appendChild(gBtn('Tôi không làm được bước này', 'stuck', function () {
+    var row2 = mk('div', 'grow2');
+    if (st.i > 0) row2.appendChild(gBtn('← Quay lại', 'small2', function () { st.i--; writeHd(st); renderGuide(); window.scrollTo(0, 0); }));
+    else row2.appendChild(gBtn('← Chọn lại', 'small2', function () { st.dev = ''; writeHd(st); renderGuide(); }));
+    row2.appendChild(gBtn('Không làm được', 'small2 stuck', function () {
       hdCtx = 'Hướng dẫn "' + g.title + '", bước ' + (st.i + 1) + '/' + n + ' "' + s.t + '", khách dùng ' + (st.dev === 'dt' ? 'điện thoại' : 'máy tính');
       hdCtxT = Date.now();
       showTab('hoi');
       $('chat-text').value = 'Em không làm được bước ' + (st.i + 1) + ': ' + s.t;
       sendMsg();
     }));
-    if (st.i > 0) b.appendChild(gBtn('← Quay lại bước trước', '', function () { st.i--; writeHd(st); renderGuide(); window.scrollTo(0, 0); }));
-    else b.appendChild(gBtn('← Chọn lại điện thoại / máy tính', '', function () { st.dev = ''; writeHd(st); renderGuide(); }));
+    b.appendChild(row2);
     box.appendChild(b);
   }
 

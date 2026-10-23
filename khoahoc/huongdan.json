@@ -3,26 +3,23 @@
     {
       "id": "veo3",
       "title": "Kích hoạt tài khoản Veo 3 Pro",
-      "intro": "Làm lần lượt từng bước. Xong bước nào bấm nút xanh để sang bước tiếp.",
+      "intro": "Làm từng bước, xong bấm nút xanh.",
       "steps": [
         {
-          "t": "Email đã mua Veo đã có trong điện thoại chưa?",
-          "d": [
-            "Nếu anh/chị đã từng đăng nhập email đó trên máy này rồi, bấm nút xanh để bỏ qua phần đăng nhập."
-          ],
+          "t": "Email mua Veo đã có trong máy chưa?",
+          "d": [],
           "ask": {
-            "yes": "Có sẵn rồi, bỏ qua",
-            "no": "Chưa có, cần đăng nhập",
+            "yes": "Có rồi, bỏ qua",
+            "no": "Chưa có",
             "skip": 2
           }
         },
         {
-          "t": "Đăng nhập email đã mua Veo",
+          "t": "Đăng nhập email mua Veo",
           "d": [
-            "Bấm nút xanh bên dưới. Trang đăng nhập của Google sẽ mở ra.",
-            "Gõ email đã mua Veo, rồi bấm \"Tiếp\" (tiếng Anh: Next).",
-            "Nếu Google báo \"đã đăng nhập với số lượng tài khoản tối đa\": mở Chrome, bấm dấu ba chấm, chọn \"Tab ẩn danh mới\", gõ accounts.google.com rồi đăng nhập email đã mua trong tab ẩn danh. Các bước sau làm luôn trong tab ẩn danh đó (dán link kích hoạt thẳng vào ô địa chỉ). Không rõ thì bấm \"Tôi không làm được bước này\"."
+            "Bấm nút xanh, gõ email, bấm Tiếp."
           ],
+          "note": "Hiện bảng \"Đăng nhập vào Chrome\": bấm \"Bỏ qua\".",
           "img": "huongdan_veo3/s_email.svg",
           "btn": {
             "t": "Mở trang đăng nhập Google",
@@ -32,43 +29,41 @@
         {
           "t": "Nhập mật khẩu",
           "d": [
-            "Gõ mật khẩu của email đó, rồi bấm \"Tiếp\".",
-            "Nếu hiện câu hỏi thêm, bấm \"Không phải bây giờ\" (tiếng Anh: Not now). Không gửi mật khẩu cho ai."
+            "Gõ mật khẩu, bấm Tiếp."
           ],
+          "note": "Hiện câu hỏi thêm: bấm \"Không phải bây giờ\".",
           "img": "huongdan_veo3/s_matkhau.svg"
         },
         {
           "t": "Dán link kích hoạt",
           "d": [
-            "Sao chép link kích hoạt đã được gửi cho anh/chị, dán vào ô bên dưới, rồi bấm nút \"Mở link\".",
-            "Google sẽ hiện danh sách email: chọn đúng email đã mua Veo."
+            "Dán link vào ô, bấm Mở link."
           ],
+          "note": "Chọn đúng email mua Veo. Hiện bảng \"Đăng nhập vào Chrome\": bấm \"Bỏ qua\", rồi gõ email.",
           "img": "huongdan_veo3/s_danlink.svg",
           "paste": true
         },
         {
           "t": "Kiểm tra đúng email",
           "d": [
-            "Bấm hình đại diện ở góc phải phía trên, xem có đúng email đã mua Veo không.",
-            "Sai thì bấm vào email đúng để đổi."
+            "Bấm hình tròn góc phải trên, xem đúng email chưa."
           ],
+          "note": "Sai thì bấm email đúng để đổi.",
           "img": "huongdan_veo3/s_dungemail.svg"
         },
         {
           "t": "Bấm \"Kích hoạt gói\"",
           "d": [
-            "Bấm nút \"Kích hoạt gói\" ở góc phải bên dưới.",
-            "Xong là tài khoản đã lên gói Pro."
+            "Bấm nút xanh ở góc phải dưới."
           ],
           "img": "huongdan_veo3/s_kichhoat.svg"
         },
         {
           "t": "Kiểm tra tài khoản",
           "d": [
-            "Bấm nút xanh bên dưới để mở trang kiểm tra, rồi bấm hình đại diện ở góc phải.",
-            "Đúng email đã mua và đủ 1050 credit là xong.",
-            "Sai email thì bấm \"Chuyển đổi tài khoản\" và chọn lại đúng email."
+            "Bấm nút xanh, rồi bấm hình tròn góc phải."
           ],
+          "note": "Đúng email và đủ 1050 credit là xong. Sai email: bấm \"Chuyển đổi tài khoản\".",
           "img": "huongdan_veo3/s_credit.svg",
           "btn": {
             "t": "Mở trang kiểm tra",
