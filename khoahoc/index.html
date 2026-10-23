@@ -113,6 +113,7 @@
   #guide .glink:focus { outline: 3px solid var(--accent); border-color: transparent; }
   #guide a.btn { text-decoration: none; margin: 10px 0 4px; }
   #guide .btn.act { background: #1a56db; border-color: #1a56db; color: #fff; }
+  #guide .gvwrap { margin-bottom: 4px; }
   #guide .gvideo { width: 100%; border-radius: 14px; background: #000; max-height: 70vh; }
   #guide .gdev { display: flex; flex-direction: column; gap: 14px; }
 </style>
@@ -484,6 +485,20 @@
   function gSteps(g, dev) { return g.steps.filter(function (s) { return !s.only || s.only === dev; }); }
   function mk(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
   function gBtn(text, cls, fn) { var b = mk('button', 'btn ' + (cls || ''), text); b.type = 'button'; b.addEventListener('click', fn); return b; }
+  function videoToggle(g) {
+    var w = mk('div', 'gvwrap');
+    if (!g.video) return w;
+    var vbox = mk('video', 'gvideo hide'); vbox.src = g.video; vbox.controls = true; vbox.setAttribute('playsinline', ''); vbox.preload = 'none';
+    var vb = gBtn('▶ Xem video hướng dẫn', 'act', function () {
+      var show = vbox.classList.contains('hide');
+      vbox.classList.toggle('hide', !show);
+      vb.textContent = show ? 'Ẩn video' : '▶ Xem video hướng dẫn';
+      if (show) { try { vbox.play(); } catch (e) {} } else { try { vbox.pause(); } catch (e) {} }
+    });
+    vb.style.minHeight = '52px'; vb.style.fontSize = '18px'; vb.style.marginBottom = '10px';
+    w.appendChild(vb); w.appendChild(vbox);
+    return w;
+  }
   function renderGuide() {
     var box = $('g-body'); box.innerHTML = '';
     var st = readHd();
@@ -511,6 +526,7 @@
     }
     if (!st.dev) {
       box.appendChild(mk('h1', 'top', g.title));
+      box.appendChild(videoToggle(g));
       box.appendChild(mk('p', 'gtext', 'Anh/chị đang dùng gì để làm?'));
       var dv = mk('div', 'gdev');
       dv.appendChild(gBtn('Điện thoại', 'main big', function () { st.dev = 'dt'; st.i = 0; writeHd(st); renderGuide(); }));
@@ -531,6 +547,7 @@
       return;
     }
     var s = steps[st.i];
+    box.appendChild(videoToggle(g));
     box.appendChild(mk('p', 'gstep', 'Bước ' + (st.i + 1) + ' trên ' + n));
     var bar = mk('div', 'gbar'); var fill = mk('i'); fill.style.width = Math.round((st.i / n) * 100) + '%'; bar.appendChild(fill); box.appendChild(bar);
     box.appendChild(mk('h2', 'gtitle', s.t));
