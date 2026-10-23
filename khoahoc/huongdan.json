@@ -34,7 +34,7 @@
           "d": [
             "Bấm nút xanh ở góc phải dưới."
           ],
-          "note": "Hiện trang khác, không thấy nút: bấm \"Không làm được\" bên dưới.",
+          "note": "Hiện trang khác, không thấy nút: bấm \"Hỏi trợ lý\" bên dưới.",
           "img": "huongdan_veo3/s_kichhoat.svg"
         },
         {
@@ -50,7 +50,8 @@
           }
         }
       ],
-      "done": "Tài khoản Veo 3 Pro của anh/chị đã sẵn sàng. Bây giờ vào tool và làm video như bình thường."
+      "done": "Tài khoản Veo 3 Pro của anh/chị đã sẵn sàng. Bây giờ vào tool và làm video như bình thường.",
+      "video": "huongdan_veo3/kichhoat.mp4"
     }
   ]
 }
