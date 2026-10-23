@@ -6,28 +6,36 @@
       "intro": "Làm từng bước, xong bấm nút xanh.",
       "steps": [
         {
-          "t": "Dán link kích hoạt",
-          "d": [],
-          "img": "huongdan_veo3/s_danlink.svg",
-          "imgDev": "mt",
+          "t": "Làm trên trang Google",
+          "d": [
+            "Xem trước 3 việc này. Rồi dán link và bấm Mở link."
+          ],
+          "items": [
+            {
+              "img": "huongdan_veo3/s_chrome_boqua.svg",
+              "t": "Hiện bảng \"Đăng nhập vào Chrome\": bấm chữ Bỏ qua."
+            },
+            {
+              "img": "huongdan_veo3/s_dungtk.svg",
+              "t": "Chọn email đã mua Veo. Chưa có: bấm \"Dùng một tài khoản khác\"."
+            },
+            {
+              "img": "huongdan_veo3/s_kichhoat.svg",
+              "t": "Bấm nút xanh \"Kích hoạt gói\"."
+            }
+          ],
           "paste": true
         },
         {
-          "t": "Chọn email đã mua Veo",
+          "t": "Đã bấm \"Kích hoạt gói\" chưa?",
           "d": [
-            "Google hiện danh sách email. Bấm chọn email đã mua Veo."
+            "Làm xong trên trang Google thì quay lại đây."
           ],
-          "note": "Hiện bảng \"Đăng nhập vào Chrome\" như hình: bấm chữ \"Bỏ qua\". Chưa có email đó: bấm \"Dùng một tài khoản khác\", gõ email, bấm Tiếp, gõ mật khẩu, bấm Tiếp.",
-          "img": "huongdan_veo3/s_chrome_boqua.svg",
-          "tall": true
-        },
-        {
-          "t": "Bấm \"Kích hoạt gói\"",
-          "d": [
-            "Bấm nút xanh ở góc phải dưới."
-          ],
-          "note": "Hiện trang khác, không thấy nút: bấm \"Hỏi trợ lý\" bên dưới.",
-          "img": "huongdan_veo3/s_kichhoat.svg"
+          "ask": {
+            "yes": "Rồi, xong",
+            "no": "Chưa được, hỏi trợ lý",
+            "help": true
+          }
         },
         {
           "t": "Kiểm tra tài khoản",

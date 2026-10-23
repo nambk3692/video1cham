@@ -103,6 +103,9 @@
   #guide .gtext { font-size: 22px; line-height: 1.55; margin: 0 0 8px; }
   #guide .gbtns { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
   #guide .gnote { font-size: 17px; line-height: 1.45; color: var(--muted); background: var(--card); border-radius: 12px; padding: 10px 14px; margin: 4px 0 8px; }
+  #guide .gitem { display: flex; align-items: center; gap: 12px; background: var(--card); border-radius: 14px; padding: 10px; margin-bottom: 10px; }
+  #guide .gitem img { width: 34%; max-height: 150px; object-fit: contain; border-radius: 10px; background: #eef1f5; flex: 0 0 auto; }
+  #guide .gitext { font-size: 20px; line-height: 1.35; }
   #guide .grow2 { display: flex; gap: 10px; margin-top: 4px; }
   #guide .btn.small2 { min-height: 52px; font-size: 17px; padding: 0 8px; font-weight: 600; }
   #guide .btn.stuck { border-color: #c2570c; color: #c2570c; }
@@ -553,6 +556,12 @@
     box.appendChild(mk('h2', 'gtitle', s.t));
     if (s.img && (!s.imgDev || s.imgDev === st.dev)) { var im = mk('img', 'gimg' + (s.tall ? ' tall' : '')); im.src = s.img; im.alt = ''; box.appendChild(im); }
     (s.d || []).forEach(function (line) { box.appendChild(mk('p', 'gtext', line)); });
+    (s.items || []).forEach(function (it, ix) {
+      var row = mk('div', 'gitem');
+      var im2 = mk('img'); im2.src = it.img; im2.alt = '';
+      var tx = mk('div', 'gitext'); tx.appendChild(mk('b', '', (ix + 1) + '. ')); tx.appendChild(document.createTextNode(it.t));
+      row.appendChild(im2); row.appendChild(tx); box.appendChild(row);
+    });
     if (s.note) box.appendChild(mk('p', 'gnote', s.note));
     if (s.btn) {
       var ab = mk('a', 'btn act big', s.btn.t); ab.href = s.btn.u; ab.target = '_blank'; ab.rel = 'noopener'; box.appendChild(ab);
@@ -569,22 +578,24 @@
       box.appendChild(inp); box.appendChild(ob);
     }
     var b = mk('div', 'gbtns');
+    var help = function () {
+      hdCtx = 'Hướng dẫn "' + g.title + '", bước ' + (st.i + 1) + '/' + n + ' "' + s.t + '", khách dùng ' + (st.dev === 'dt' ? 'điện thoại' : 'máy tính');
+      hdCtxT = Date.now();
+      showTab('hoi');
+      $('chat-text').value = 'Em không làm được bước ' + (st.i + 1) + ': ' + s.t;
+      sendMsg();
+    };
     if (s.ask) {
-      b.appendChild(gBtn(s.ask.yes, 'main big', function () { st.i += s.ask.skip + 1; if (st.i >= n) st.done = true; writeHd(st); renderGuide(); window.scrollTo(0, 0); }));
-      b.appendChild(gBtn(s.ask.no, 'big', function () { st.i++; writeHd(st); renderGuide(); window.scrollTo(0, 0); }));
+      b.appendChild(gBtn(s.ask.yes, 'main big', function () { st.i += (s.ask.skip || 0) + 1; if (st.i >= n) st.done = true; writeHd(st); renderGuide(); window.scrollTo(0, 0); }));
+      if (s.ask.help) b.appendChild(gBtn(s.ask.no, 'stuck big', help));
+      else b.appendChild(gBtn(s.ask.no, 'big', function () { st.i++; writeHd(st); renderGuide(); window.scrollTo(0, 0); }));
     } else b.appendChild(gBtn('Xong, bước tiếp', 'main big', function () {
       st.i++; if (st.i >= n) st.done = true; writeHd(st); renderGuide(); window.scrollTo(0, 0);
     }));
     var row2 = mk('div', 'grow2');
     if (st.i > 0) row2.appendChild(gBtn('← Quay lại', 'small2', function () { st.i--; writeHd(st); renderGuide(); window.scrollTo(0, 0); }));
     else row2.appendChild(gBtn('← Chọn lại', 'small2', function () { st.dev = ''; writeHd(st); renderGuide(); }));
-    row2.appendChild(gBtn('Hỏi trợ lý', 'small2 stuck', function () {
-      hdCtx = 'Hướng dẫn "' + g.title + '", bước ' + (st.i + 1) + '/' + n + ' "' + s.t + '", khách dùng ' + (st.dev === 'dt' ? 'điện thoại' : 'máy tính');
-      hdCtxT = Date.now();
-      showTab('hoi');
-      $('chat-text').value = 'Em không làm được bước ' + (st.i + 1) + ': ' + s.t;
-      sendMsg();
-    }));
+    row2.appendChild(gBtn('Hỏi trợ lý', 'small2 stuck', help));
     b.appendChild(row2);
     box.appendChild(b);
   }
