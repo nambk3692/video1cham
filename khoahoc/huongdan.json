@@ -28,7 +28,7 @@
           "d": [
             "Bấm nút xanh bên dưới. Trang đăng nhập của Google sẽ mở ra.",
             "Gõ email đã mua Veo, rồi bấm \"Tiếp\" (tiếng Anh: Next).",
-            "Nếu Google báo \"đã đăng nhập với số lượng tài khoản tối đa\": bấm chữ \"Tại đây\" trong thông báo để đăng xuất hết, rồi bấm lại nút xanh phía trên và đăng nhập email đã mua."
+            "Nếu Google báo \"đã đăng nhập với số lượng tài khoản tối đa\": mở Chrome, bấm dấu ba chấm, chọn \"Tab ẩn danh mới\", gõ accounts.google.com rồi đăng nhập email đã mua trong tab ẩn danh. Các bước sau làm luôn trong tab ẩn danh đó (dán link kích hoạt thẳng vào ô địa chỉ). Không rõ thì bấm \"Tôi không làm được bước này\"."
           ],
           "img": "huongdan_veo3/s_email.svg",
           "btn": {
