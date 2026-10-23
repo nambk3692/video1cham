@@ -11,6 +11,20 @@
       "mode": "KICHHOAT_DAN"
     },
     {
+      "id": "vaotool_sk",
+      "title": "Vào tool Sức Khỏe (lần đầu, kích hoạt, dùng thử, mua)",
+      "intro": "",
+      "steps": [],
+      "done": "",
+      "tool": {
+        "t": "Mở tool Sức Khỏe",
+        "u": "https://nambk3692.github.io/video1cham/suckhoe/"
+      },
+      "assist": "Tôi muốn được hướng dẫn vào tool Sức Khỏe lần đầu (kích hoạt, dùng thử hoặc mua)",
+      "mode": "HUONGDAN_SK",
+      "video": "huongdan_veo3/vaotool_sk.mp4"
+    },
+    {
       "id": "sk",
       "title": "Hướng dẫn tạo video sức khỏe",
       "intro": "",
