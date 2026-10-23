@@ -522,12 +522,13 @@
           });
           c.appendChild(vb); c.appendChild(vbox);
         }
-        c.appendChild(gBtn('Làm từng bước', 'main big', function () { writeHd({ g: gg.id, dev: '', i: 0 }); renderGuide(); }));
+        c.appendChild(gBtn('Làm từng bước', 'main big', function () { writeHd({ g: gg.id, dev: (devKind() === 'mt') ? 'mt' : 'dt', i: 0 }); renderGuide(); }));
         box.appendChild(c);
       });
       return;
     }
-    if (!st.dev) {
+    if (!st.dev) { st.dev = (devKind() === 'mt') ? 'mt' : 'dt'; writeHd(st); }
+    if (false) {
       box.appendChild(mk('h1', 'top', g.title));
       box.appendChild(videoToggle(g));
       box.appendChild(mk('p', 'gtext', 'Anh/chị đang dùng gì để làm?'));
@@ -594,7 +595,7 @@
     }));
     var row2 = mk('div', 'grow2');
     if (st.i > 0) row2.appendChild(gBtn('← Quay lại', 'small2', function () { st.i--; writeHd(st); renderGuide(); window.scrollTo(0, 0); }));
-    else row2.appendChild(gBtn('← Chọn lại', 'small2', function () { st.dev = ''; writeHd(st); renderGuide(); }));
+    else row2.appendChild(gBtn('← Danh sách', 'small2', function () { writeHd(null); renderGuide(); }));
     row2.appendChild(gBtn('Hỏi trợ lý', 'small2 stuck', help));
     b.appendChild(row2);
     box.appendChild(b);
