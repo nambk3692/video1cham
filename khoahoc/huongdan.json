@@ -6,28 +6,25 @@
       "intro": "Làm từng bước, xong bấm nút xanh.",
       "steps": [
         {
+          "t": "Đăng nhập email đã mua Veo",
+          "d": [
+            "Bấm nút xanh. Chọn email đã mua Veo trong danh sách."
+          ],
+          "note": "Hiện bảng \"Đăng nhập vào Chrome\" như hình: bấm chữ \"Bỏ qua\". Chưa có email đó: bấm \"Dùng một tài khoản khác\", gõ email, bấm Tiếp, gõ mật khẩu, bấm Tiếp.",
+          "img": "huongdan_veo3/s_chrome_boqua.svg",
+          "tall": true,
+          "btn": {
+            "t": "Mở trang đăng nhập Google",
+            "u": "https://accounts.google.com/AccountChooser?hl=vi&continue=https%3A%2F%2Fmyaccount.google.com%2F"
+          }
+        },
+        {
           "t": "Dán link kích hoạt",
           "d": [],
+          "note": "Google hỏi chọn email: chọn lại đúng email vừa đăng nhập.",
           "img": "huongdan_veo3/s_danlink.svg",
-          "paste": true,
-          "imgDev": "mt"
-        },
-        {
-          "t": "Hiện bảng \"Đăng nhập vào Chrome\"?",
-          "d": [
-            "Bấm chữ Bỏ qua ở dưới cùng."
-          ],
-          "note": "Không hiện bảng này thì bấm \"Xong, bước tiếp\" luôn. Đừng bấm nút xanh đậm.",
-          "img": "huongdan_veo3/s_chrome_boqua.svg",
-          "tall": true
-        },
-        {
-          "t": "Chọn email đã mua Veo",
-          "d": [
-            "Google hiện danh sách email. Bấm chọn email đã mua Veo."
-          ],
-          "note": "Chưa có email đó: bấm \"Dùng một tài khoản khác\", gõ email, bấm Tiếp, gõ mật khẩu, bấm Tiếp.",
-          "img": "huongdan_veo3/s_dungtk.svg"
+          "imgDev": "mt",
+          "paste": true
         },
         {
           "t": "Bấm \"Kích hoạt gói\"",
