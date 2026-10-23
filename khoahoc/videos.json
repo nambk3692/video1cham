@@ -1,18 +1,4 @@
 {
-  "title": "Khóa học thử",
-  "modules": [
-    {
-      "name": "Phần 1 - Bắt đầu",
-      "lessons": [
-        { "id": "b1", "title": "Bài 1: Giới thiệu", "type": "mp4", "url": "bai1.mp4", "note": "Đây là video demo để thử app. Khi có video thật, tớ sẽ thay vào." },
-        { "id": "b2", "title": "Bài 2: Cách vào tool", "type": "mp4", "url": "bai2.mp4" }
-      ]
-    },
-    {
-      "name": "Phần 2 - Nâng cao",
-      "lessons": [
-        { "id": "b3", "title": "Bài 3: Mẹo sử dụng", "type": "mp4", "url": "bai3.mp4" }
-      ]
-    }
-  ]
+  "title": "Khóa học",
+  "modules": []
 }
