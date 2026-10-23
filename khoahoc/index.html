@@ -167,6 +167,9 @@
   #guide .gcard .btn.main.big { background: #C0262D; border: 1.5px solid #C0262D; color: #FFF3E0; font-weight: 700; }
   #guide .linkbox { background: #FFF7E6; border: 1.5px dashed #C8A04A; color: #1E2B25; }
   #guide .linkbox .btn.big { background: #EFE3C2; border: 1px solid #D8C58F; color: #17453B; font-weight: 600; }
+  #guide .linkbtn.btn.big { flex-direction: column; gap: 2px; min-height: 58px; padding: 6px 12px; background: #EFE3C2; border: 1px solid #D8C58F; color: #17453B; }
+  #guide .linkbtn .lb1 { font-size: 17px; font-weight: 700; }
+  #guide .linkbtn .lb2 { font-size: 13px; font-weight: 500; color: #5C5D52; }
   #guide .linkcap { color: var(--muted); }
   #guide .gbar i { background: var(--gold); }
   #guide .gcard .btn.big { min-height: 58px; font-size: 20px; }
@@ -623,13 +626,13 @@
     w.appendChild(vb); w.appendChild(holder);
     return w;
   }
-  // Khung "Link vào tool": hiện link + nút Sao chép link (chép nguyên https://... để dán vào Chrome)
+  // Nút "Sao chép link" gọn: dòng trên là việc làm, dòng dưới là tên link (chép nguyên https://... để dán vào Chrome)
   function linkBox(c, lk) {
-    var box = mk('div', 'linkbox');
-    box.appendChild(mk('div', 'linkcap', lk.t));
-    box.appendChild(mk('div', 'linkurl', lk.u.replace(/^https?:\/\//, '')));
-    var cb = gBtn('Sao chép link', 'act big', function () {
-      var done = function () { cb.textContent = 'Đã sao chép ✓'; setTimeout(function () { cb.textContent = 'Sao chép link'; }, 2500); };
+    var cb = mk('button', 'btn act big linkbtn'); cb.type = 'button';
+    var l1 = mk('span', 'lb1', 'Sao chép link'), l2 = mk('span', 'lb2', lk.t);
+    cb.appendChild(l1); cb.appendChild(l2);
+    cb.addEventListener('click', function () {
+      var done = function () { l1.textContent = 'Đã sao chép ✓'; setTimeout(function () { l1.textContent = 'Sao chép link'; }, 2500); };
       var fb = function () {
         var ta = document.createElement('textarea'); ta.value = lk.u; ta.style.position = 'fixed'; ta.style.opacity = '0';
         document.body.appendChild(ta); ta.select();
@@ -638,7 +641,7 @@
       };
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(lk.u).then(done, fb); else fb();
     });
-    box.appendChild(cb); c.appendChild(box);
+    c.appendChild(cb);
   }
   function renderGuide() {
     var box = $('g-body'); box.innerHTML = '';
