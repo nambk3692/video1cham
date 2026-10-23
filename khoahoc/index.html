@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#F4EFE4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,8 +14,8 @@
 <link rel="icon" href="icon-192.png">
 <style>
   :root {
-    --bg: #ffffff; --card: #f4f6f8; --line: #cfd6de; --text: #111418; --muted: #4a5360;
-    --accent: #0b6b3a; --accent-ink: #ffffff; --ok: #0b6b3a; --err: #c0262d;
+    --bg: #F4EFE4; --card: #FFFCF5; --line: #E2D6BA; --text: #1E2B25; --muted: #66695F; --gold: #9C7A30; --gold-line: #C2A15A;
+    --accent: #17453B; --accent-ink: #F4EFE4; --ok: #17453B; --err: #B3402F;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; font-size: 20px; }
@@ -135,6 +135,42 @@
   #guide .gvideo { width: 100%; border-radius: 14px; background: #000; max-height: 70vh; }
   .waitnote { display: none !important; }
   #guide .gdev { display: flex; flex-direction: column; gap: 14px; }
+  /* ===== GIAO DIỆN A (Nam chọn 23/10): kem ngà, xanh rêu đậm, vàng đồng ===== */
+  body { background: var(--bg); }
+  h1, h2 { color: var(--text); }
+  h1.top { letter-spacing: 3px; font-weight: 600; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 2px 10px rgba(30, 43, 37, .06); }
+  .btn { background: var(--card); border: 1.5px solid var(--gold-line); color: var(--accent); font-weight: 600; letter-spacing: .2px; }
+  .btn.main { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  input[type=text], .compose textarea, #guide .glink { background: var(--card); border: 1.5px solid var(--line); }
+  .lesson { background: var(--card); border: 1px solid var(--line); }
+  .lesson.on { border-color: var(--gold); background: #F1E8D0; }
+  .install { background: #F1E8D0; border-color: var(--gold-line); }
+  .warn { background: #F6ECD0; border: 1px solid #D8C080; color: #5A4510; }
+  .tabbar { background: var(--card); border-top: 1px solid var(--line); gap: 6px; }
+  .tabbar button { background: transparent; border: 0; border-bottom: 3px solid transparent; border-radius: 0; color: #6F7268; font-weight: 600; letter-spacing: .5px; }
+  .tabbar button.on { background: transparent; border-bottom-color: var(--gold); color: var(--accent); font-weight: 700; }
+  #fromtool { background: var(--card); border-bottom: 1px solid var(--line); }
+  .bubble.sup { background: var(--card); border: 1px solid var(--line); }
+  .bubble.me { background: var(--accent); color: var(--accent-ink); }
+  .thumb { border: 1px solid var(--line); }
+  #tool-list .toolcard { --tc: #17453B !important; --tcbg: #FFFCF5 !important; border: 1px solid var(--line); background: var(--card); }
+  .toolcard h2 { color: var(--accent); letter-spacing: .5px; }
+  .toolcard .btn { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  #doitk-list .btn { --tc: #17453B !important; background: var(--card); border: 1.5px solid var(--gold-line); color: var(--accent); }
+  #guide .gcard, #guide .gcard:nth-of-type(n) { background: var(--card); border: 1px solid var(--line); box-shadow: 0 2px 12px rgba(30, 43, 37, .07); }
+  #guide .gcard h2, #guide .gcard:nth-of-type(n) h2 { display: flex; align-items: center; justify-content: center; gap: 12px; color: var(--text); font-size: 18px; letter-spacing: 1px; font-weight: 600; }
+  #guide .stepnum { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%; background: var(--gold); color: var(--card); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; letter-spacing: 0; }
+  #guide .steptx { text-align: center; white-space: pre-line; }
+  #guide .btn.act { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  #guide .gcard .btn.main.big { background: var(--card); border: 1.5px solid var(--gold-line); color: var(--accent); font-weight: 600; }
+  #guide .linkbox { background: var(--bg); border: 1.5px dashed var(--gold-line); }
+  #guide .linkbox .btn.big { background: var(--gold); border-color: var(--gold); color: var(--card); }
+  #guide .linkcap { color: var(--muted); }
+  #guide .gbar i { background: var(--gold); }
+  #guide .gcard .btn.big { min-height: 58px; font-size: 20px; }
+  #guide .gcard .btn.act:not(.big) { min-height: 54px; font-size: 18px; }
+  #doitk-help.btn.main { background: var(--card); border: 1.5px solid var(--gold-line); color: var(--accent); font-weight: 600; font-size: 20px !important; }
 </style>
 </head>
 <body>
@@ -608,7 +644,9 @@
       box.appendChild(mk('h1', 'top', 'Hướng dẫn'));
       (GUIDES || []).forEach(function (gg) {
         var c = mk('div', 'card gcard');
-        c.appendChild(mk('h2', '', gg.title));
+        var h2 = mk('h2', ''); var mt = /^Bước (\d+):\s*([\s\S]*)$/.exec(gg.title || '');
+        if (mt) { h2.appendChild(mk('span', 'stepnum', mt[1])); h2.appendChild(mk('span', 'steptx', mt[2])); } else h2.textContent = gg.title;
+        c.appendChild(h2);
         if (gg.youtube || gg.video) c.appendChild(videoToggle(gg));
         (gg.videos || []).forEach(function (v) { c.appendChild(videoToggle({ video: v.u, label: v.t })); });
         if (gg.link) linkBox(c, gg.link);
