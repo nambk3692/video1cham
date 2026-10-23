@@ -108,7 +108,7 @@
   #guide .btn.big { min-height: 72px; font-size: 24px; }
   #tab-hd { flex: 1.35; }
   #guide textarea.glink { padding: 12px 14px; font-family: inherit; resize: none; line-height: 1.35; }
-  #guide .glink { width: 100%; min-height: 64px; padding: 0 14px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font-size: 20px; margin: 8px 0 12px; }
+  #guide .glink { width: 100%; min-height: 64px; padding: 0 14px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font-size: 18px; margin: 8px 0 12px; }
   #guide .glink:focus { outline: 3px solid var(--accent); border-color: transparent; }
   #guide a.btn { text-decoration: none; margin: 10px 0 4px; }
   #guide .btn.act { background: #1a56db; border-color: #1a56db; color: #fff; }
@@ -529,7 +529,7 @@
       var ab = mk('a', 'btn act big', s.btn.t); ab.href = s.btn.u; ab.target = '_blank'; ab.rel = 'noopener'; box.appendChild(ab);
     }
     if (s.paste) {
-      var inp = mk('textarea', 'glink'); inp.rows = 2; inp.placeholder = 'Dán link kích hoạt vào đây rồi ấn Mở link bên dưới'; inp.autocomplete = 'off'; inp.autocapitalize = 'off'; inp.spellcheck = false;
+      var inp = mk('input', 'glink'); inp.type = 'url'; inp.placeholder = 'Dán link kích hoạt và ấn Mở link'; inp.autocomplete = 'off'; inp.autocapitalize = 'off'; inp.spellcheck = false;
       var ob = gBtn('Mở link', 'act big', function () {
         var u = inp.value.trim();
         if (!/^https?:\/\/\S+$/i.test(u)) { inp.style.borderColor = '#c0262d'; inp.placeholder = 'Chưa đúng link, dán lại giúp em'; return; }
