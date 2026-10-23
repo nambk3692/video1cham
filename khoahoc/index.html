@@ -95,10 +95,13 @@
   .tabbar button { font-size: 14px; padding: 0 2px; text-transform: uppercase; }
   #guide .gcard { margin-bottom: 14px; display: flex; flex-direction: column; gap: 12px; }
   #guide .gcard h2, #guide h1.top { text-align: center; text-transform: uppercase; white-space: pre-line; }
-  #guide .linkbox { background: #fff; border: 2px dashed #7a8594; border-radius: 12px; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; text-align: center; }
+  #guide .linkbox { background: #fff; border: 2px dashed #7a8594; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; text-align: center; }
   #guide .linkcap { font-size: 13px; color: var(--muted); }
-  #guide .linkurl { font-size: 15px; font-weight: 700; word-break: break-all; -webkit-user-select: all; user-select: all; }
+  #guide .linkurl { font-size: clamp(11px, 3.4vw, 14px); font-weight: 700; white-space: nowrap; -webkit-user-select: all; user-select: all; }
   #guide .linkbox .btn.big { min-height: 40px; font-size: 16px; margin: 0; }
+  #guide .gcard > * { margin: 0 !important; }
+  #guide .gcard .btn { margin: 0 !important; }
+  #guide .gcard > div:not(.linkbox) { display: flex; flex-direction: column; gap: 12px; }
   #guide .gcard { box-shadow: 0 8px 20px rgba(17, 20, 24, .13), 0 2px 4px rgba(17, 20, 24, .08); }
   #guide .gcard:nth-of-type(3n+1) { background: #f6cf6e; border-color: #c8901a; } #guide .gcard:nth-of-type(3n+1) h2 { color: #6a4000; }
   #guide .gcard:nth-of-type(3n+2) { background: #f7b8a2; border-color: #d9704f; } #guide .gcard:nth-of-type(3n+2) h2 { color: #7a2310; }
