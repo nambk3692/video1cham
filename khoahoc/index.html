@@ -435,7 +435,7 @@
   // Giữ khung chat khít vùng nhìn thấy khi bàn phím mở (iPhone)
   function fitChat() {
     var vv = window.visualViewport;
-    if (document.body.classList.contains('chatmode')) { if (vv) { document.body.style.height = vv.height + 'px'; window.scrollTo(0, 0); } }
+    if (document.body.classList.contains('chatmode')) { if (vv && /iPhone|iPad|iPod/.test(navigator.userAgent)) { document.body.style.height = vv.height + 'px'; window.scrollTo(0, 0); } else document.body.style.height = ''; }
     else document.body.style.height = '';
   }
   if (window.visualViewport) { window.visualViewport.addEventListener('resize', fitChat); window.visualViewport.addEventListener('scroll', fitChat); }
