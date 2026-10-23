@@ -24,8 +24,9 @@
           "only": "dt"
         },
         {
-          "t": "Đăng nhập email đã mua Veo",
+          "t": "Đăng nhập email đã mua Veo (nếu máy chưa có)",
           "d": [
+            "Email đã mua Veo đã có sẵn trong máy (đã đăng nhập từ trước)? Bấm \"Xong, bước tiếp\" hai lần để bỏ qua bước này và bước sau.",
             "Bấm nút xanh bên dưới. Trang đăng nhập của Google sẽ mở ra.",
             "Gõ email đã mua Veo, rồi bấm \"Tiếp\" (tiếng Anh: Next).",
             "Nếu Google báo \"đã đăng nhập với số lượng tài khoản tối đa\": mở Chrome, bấm dấu ba chấm, chọn \"Tab ẩn danh mới\", gõ accounts.google.com rồi đăng nhập email đã mua trong tab ẩn danh. Các bước sau làm luôn trong tab ẩn danh đó (dán link kích hoạt thẳng vào ô địa chỉ). Không rõ thì bấm \"Tôi không làm được bước này\"."
@@ -47,16 +48,17 @@
         {
           "t": "Dán link kích hoạt",
           "d": [
-            "Sao chép link kích hoạt đã được gửi cho anh/chị, dán vào ô bên dưới, rồi bấm nút \"Mở link\"."
+            "Sao chép link kích hoạt đã được gửi cho anh/chị, dán vào ô bên dưới, rồi bấm nút \"Mở link\".",
+            "Google sẽ hiện danh sách email: chọn đúng email đã mua Veo."
           ],
           "img": "huongdan_veo3/s_danlink.svg",
           "paste": true
         },
         {
-          "t": "Chọn đúng email đã mua",
+          "t": "Kiểm tra đúng email",
           "d": [
-            "Bấm hình đại diện ở góc phải phía trên.",
-            "Chọn đúng email vừa đăng nhập ở bước trước."
+            "Bấm hình đại diện ở góc phải phía trên, xem có đúng email đã mua Veo không.",
+            "Sai thì bấm vào email đúng để đổi."
           ],
           "img": "huongdan_veo3/s_dungemail.svg"
         },

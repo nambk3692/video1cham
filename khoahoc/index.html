@@ -528,7 +528,9 @@
       var ob = gBtn('Mở link', 'act big', function () {
         var u = inp.value.trim();
         if (!/^https?:\/\/\S+$/i.test(u)) { inp.style.borderColor = '#c0262d'; inp.placeholder = 'Chưa đúng link, dán lại giúp em'; return; }
-        window.open(u, '_blank', 'noopener');
+        var go = u;
+        try { if (/(^|\.)google\.com$/.test(new URL(u).hostname)) go = 'https://accounts.google.com/AccountChooser?continue=' + encodeURIComponent(u); } catch (e) {}
+        window.open(go, '_blank', 'noopener');
       });
       box.appendChild(inp); box.appendChild(ob);
     }
