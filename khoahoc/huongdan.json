@@ -7,9 +7,7 @@
       "steps": [
         {
           "t": "Dán link kích hoạt",
-          "d": [
-            "Dán link vào ô, bấm Mở link."
-          ],
+          "d": [],
           "img": "huongdan_veo3/s_danlink.svg",
           "paste": true,
           "imgDev": "mt"
