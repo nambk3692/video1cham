@@ -529,10 +529,12 @@
       (GUIDES || []).forEach(function (gg) {
         var c = mk('div', 'card gcard');
         c.appendChild(mk('h2', '', gg.title));
-        c.appendChild(mk('p', 'muted', gg.intro || ''));
         if (gg.youtube || gg.video) c.appendChild(videoToggle(gg));
-        c.appendChild(gBtn('Trợ lý hỗ trợ', 'main big', function () { startGuided(gg.assist || ('Em muốn được hỗ trợ: ' + gg.title)); }));
-        c.appendChild(mk('p', 'muted', 'Vừa làm vừa chụp màn hình gửi cho trợ lý để được chỉ từng bước.'));
+        var ab = gBtn('', 'main big', function () { startGuided(gg.assist || ('Tôi muốn được hỗ trợ: ' + gg.title)); });
+        ab.style.flexDirection = 'column'; ab.style.gap = '4px'; ab.style.padding = '10px 14px'; ab.style.textAlign = 'center';
+        var a1 = mk('span', '', 'Trợ lý hỗ trợ'); var a2 = mk('span', '', 'Chụp màn hình gửi cho trợ lý để được hướng dẫn từng bước');
+        a2.style.fontSize = '16px'; a2.style.fontWeight = '500'; a2.style.lineHeight = '1.3';
+        ab.appendChild(a1); ab.appendChild(a2); c.appendChild(ab);
         box.appendChild(c);
       });
       return;
