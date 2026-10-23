@@ -2,6 +2,7 @@
   "guides": [
     {
       "id": "veo3",
+      "link": { "t": "Link labs.google", "u": "https://labs.google/fx/tools/flow" },
       "title": "Bước 1: Kích hoạt\nVeo 3 Pro",
       "intro": "",
       "steps": [],
