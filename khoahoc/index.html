@@ -522,24 +522,16 @@
     var box = $('g-body'); box.innerHTML = '';
     var st = readHd();
     var g = st && st.g ? gById(st.g) : null;
+    if (g && !(g.steps && g.steps.length)) { writeHd(null); g = null; }
     if (!g) {
       box.appendChild(mk('h1', 'top', 'Hướng dẫn'));
       (GUIDES || []).forEach(function (gg) {
         var c = mk('div', 'card gcard');
         c.appendChild(mk('h2', '', gg.title));
         c.appendChild(mk('p', 'muted', gg.intro || ''));
-        if (gg.video) {
-          var vbox = mk('video', 'gvideo hide'); vbox.src = gg.video; vbox.controls = true; vbox.setAttribute('playsinline', ''); vbox.preload = 'none';
-          var vb = gBtn('Xem video hướng dẫn', 'act big', function () {
-            var show = vbox.classList.contains('hide');
-            vbox.classList.toggle('hide', !show);
-            vb.textContent = show ? 'Ẩn video' : 'Xem video hướng dẫn';
-            if (show) { try { vbox.play(); } catch (e) {} } else { try { vbox.pause(); } catch (e) {} }
-          });
-          c.appendChild(vb); c.appendChild(vbox);
-        }
         if (gg.youtube || gg.video) c.appendChild(videoToggle(gg));
-        c.appendChild(gBtn('Làm từng bước', 'main big', function () { writeHd({ g: gg.id, dev: (devKind() === 'mt') ? 'mt' : 'dt', i: 0 }); renderGuide(); }));
+        c.appendChild(gBtn('Trợ lý hỗ trợ', 'main big', function () { startGuided(gg.assist || ('Em muốn được hỗ trợ: ' + gg.title)); }));
+        c.appendChild(mk('p', 'muted', 'Vừa làm vừa chụp màn hình gửi cho trợ lý để được chỉ từng bước.'));
         box.appendChild(c);
       });
       return;
@@ -684,6 +676,8 @@
     renderChat();
   }
 
+  function isGuided() { return Date.now() - Number(store('kh_guided') || 0) < 3 * 3600 * 1000; }
+  function startGuided(text) { store('kh_guided', String(Date.now())); showTab('hoi'); $('chat-text').value = text; sendMsg(); }
   function renderChat() {
     var box = $('chat-list'); if (!box) return;
     var ids = Object.keys(msgs).filter(function (k) { return msgs[k] && msgs[k].t; })
@@ -729,7 +723,7 @@
     if (text) m.text = text.slice(0, 2000);
     if (pendingImg) m.hasImg = true;
     var img = pendingImg;
-    var p = put('/chats/' + cid + '/meta', { name: (who.name || 'Khách').slice(0, 80), ma: String(who.ma || '').slice(0, 40), dev: devKind(), hd: (hdCtx && Date.now() - hdCtxT < 1800000) ? hdCtx.slice(0, 200) : '' });
+    var p = put('/chats/' + cid + '/meta', { name: (who.name || 'Khách').slice(0, 80), ma: String(who.ma || '').slice(0, 40), dev: devKind(), hd: isGuided() ? 'KICHHOAT_DAN' : ((hdCtx && Date.now() - hdCtxT < 1800000) ? hdCtx.slice(0, 200) : '') });
     if (img) p = p.then(function () { return put('/chats/' + cid + '/img/' + mid, img); });
     p.then(function () { return put('/chats/' + cid + '/msgs/' + mid, m); })
       .then(function () { return put('/inbox/' + cid, { t: t, last: (text || 'Ảnh').slice(0, 80) }); })

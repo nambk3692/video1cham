@@ -3,77 +3,11 @@
     {
       "id": "veo3",
       "title": "Kích hoạt tài khoản Veo 3 Pro",
-      "intro": "Làm từng bước, xong bấm nút xanh.",
-      "steps": [
-        {
-          "t": "Sao chép tin nhắn Zalo thứ nhất",
-          "d": [
-            "Nhấn giữ vào tin nhắn Zalo thứ nhất, chọn Sao chép link."
-          ]
-        },
-        {
-          "t": "Mở Chrome, bấm ba chấm",
-          "d": [
-            "Mở Chrome, bấm vào một bài báo bất kỳ.",
-            "Bấm dấu ba chấm ở góc phải phía trên."
-          ]
-        },
-        {
-          "t": "Bật \"Trang cho máy tính\"",
-          "d": [
-            "Kéo menu xuống, bấm chọn Trang cho máy tính."
-          ]
-        },
-        {
-          "t": "Dán link vào ô tìm kiếm",
-          "d": [
-            "Bấm vào ô tìm kiếm Google, dán link, bấm Enter."
-          ]
-        },
-        {
-          "t": "Chọn email nhận tiếp thị",
-          "d": [
-            "Chọn email nhận tiếp thị, bấm Tiếp theo.",
-            "Kéo xuống phần chính sách, bấm Tiếp theo."
-          ]
-        },
-        {
-          "t": "Tạo dự án mới",
-          "d": [
-            "Bấm vào Dự án mới, bấm Bắt đầu.",
-            "Gõ một chữ bất kỳ, bấm Enter."
-          ]
-        },
-        {
-          "t": "Xem tín dụng",
-          "d": [
-            "Bấm hình tròn ở góc phải phía trên.",
-            "Hiện 50 tín dụng là chưa kích hoạt."
-          ]
-        },
-        {
-          "t": "Dán link kích hoạt (tin Zalo thứ hai)",
-          "d": [
-            "Quay lại Zalo, sao chép tin nhắn thứ hai.",
-            "Bấm ô tìm kiếm của Chrome, dán link, bấm Enter."
-          ]
-        },
-        {
-          "t": "Bấm \"Kích hoạt gói\"",
-          "d": [
-            "Kéo xuống xem, rồi bấm nút Kích hoạt gói."
-          ]
-        },
-        {
-          "t": "Kiểm tra thành công",
-          "d": [
-            "Quay lại Zalo, sao chép lại tin nhắn thứ nhất, dán vào ô tìm kiếm, bấm Enter.",
-            "Thấy chữ Pro và 1050 tín dụng là thành công."
-          ]
-        }
-      ],
+      "intro": "Xem video, rồi bấm Trợ lý hỗ trợ nếu cần.",
+      "steps": [],
       "done": "Tài khoản Veo 3 Pro của anh/chị đã sẵn sàng. Bây giờ vào tool và làm video như bình thường.",
-      "video": "huongdan_veo3/dienthoai.mp4"
+      "video": "huongdan_veo3/dienthoai.mp4",
+      "assist": "Em muốn được hỗ trợ kích hoạt tài khoản Veo 3 Pro"
     }
   ]
 }
