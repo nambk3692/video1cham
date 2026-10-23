@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
-<meta name="theme-color" content="#F4EFE4">
+<meta name="theme-color" content="#E6D6AE">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,7 +14,7 @@
 <link rel="icon" href="icon-192.png">
 <style>
   :root {
-    --bg: #F4EFE4; --card: #FFFCF5; --line: #E2D6BA; --text: #1E2B25; --muted: #66695F; --gold: #9C7A30; --gold-line: #C2A15A;
+    --bg: #E6D6AE; --card: #FFFCF5; --line: #D2BE8C; --text: #1E2B25; --muted: #5C5D52; --gold: #8A6420; --gold-line: #AE8A3A;
     --accent: #17453B; --accent-ink: #F4EFE4; --ok: #17453B; --err: #B3402F;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -144,12 +144,13 @@
   .btn.main { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
   input[type=text], .compose textarea, #guide .glink { background: var(--card); border: 1.5px solid var(--line); }
   .lesson { background: var(--card); border: 1px solid var(--line); }
-  .lesson.on { border-color: var(--gold); background: #F1E8D0; }
+  .lesson.on { border-color: var(--gold); background: #EBDDB5; }
   .install { background: #F1E8D0; border-color: var(--gold-line); }
   .warn { background: #F6ECD0; border: 1px solid #D8C080; color: #5A4510; }
   .tabbar { background: var(--card); border-top: 1px solid var(--line); gap: 6px; }
-  .tabbar button { background: transparent; border: 0; border-bottom: 3px solid transparent; border-radius: 0; color: #6F7268; font-weight: 600; letter-spacing: .5px; }
-  .tabbar button.on { background: transparent; border-bottom-color: var(--gold); color: var(--accent); font-weight: 700; }
+  .tabbar { background: #D9C690; border-top: 1px solid var(--gold-line); }
+  .tabbar button { background: var(--card); border: 1.5px solid var(--gold-line); border-radius: 12px; color: #4F5148; font-weight: 600; letter-spacing: .5px; }
+  .tabbar button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
   #fromtool { background: var(--card); border-bottom: 1px solid var(--line); }
   .bubble.sup { background: var(--card); border: 1px solid var(--line); }
   .bubble.me { background: var(--accent); color: var(--accent-ink); }
