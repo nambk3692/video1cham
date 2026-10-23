@@ -7,7 +7,31 @@
       "steps": [],
       "done": "Tài khoản Veo 3 Pro của anh/chị đã sẵn sàng. Bây giờ vào tool và làm video như bình thường.",
       "video": "huongdan_veo3/dienthoai.mp4",
-      "assist": "Tôi muốn được hỗ trợ kích hoạt tài khoản Veo 3 Pro"
+      "assist": "Tôi muốn được hỗ trợ kích hoạt tài khoản Veo 3 Pro",
+      "mode": "KICHHOAT_DAN"
+    },
+    {
+      "id": "sk",
+      "title": "Hướng dẫn tạo video sức khỏe",
+      "intro": "",
+      "steps": [],
+      "done": "",
+      "tool": {
+        "t": "Mở tool Sức Khỏe",
+        "u": "https://nambk3692.github.io/video1cham/suckhoe/"
+      },
+      "assist": "Tôi muốn được hướng dẫn tạo video sức khỏe",
+      "mode": "HUONGDAN_SK",
+      "videos": [
+        {
+          "t": "▶ Phần 1: Viết bài và tạo ảnh",
+          "u": "huongdan_veo3/suckhoe1.mp4"
+        },
+        {
+          "t": "▶ Phần 2: Làm video và ghép phim",
+          "u": "huongdan_veo3/suckhoe2.mp4"
+        }
+      ]
     }
   ]
 }
