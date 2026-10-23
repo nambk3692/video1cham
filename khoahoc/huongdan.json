@@ -11,7 +11,8 @@
             "Dán link vào ô, bấm Mở link."
           ],
           "img": "huongdan_veo3/s_danlink.svg",
-          "paste": true
+          "paste": true,
+          "imgDev": "mt"
         },
         {
           "t": "Chọn email đã mua Veo",

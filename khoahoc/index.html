@@ -521,7 +521,7 @@
     box.appendChild(mk('p', 'gstep', 'Bước ' + (st.i + 1) + ' trên ' + n));
     var bar = mk('div', 'gbar'); var fill = mk('i'); fill.style.width = Math.round((st.i / n) * 100) + '%'; bar.appendChild(fill); box.appendChild(bar);
     box.appendChild(mk('h2', 'gtitle', s.t));
-    if (s.img) { var im = mk('img', 'gimg'); im.src = s.img; im.alt = ''; box.appendChild(im); }
+    if (s.img && (!s.imgDev || s.imgDev === st.dev)) { var im = mk('img', 'gimg'); im.src = s.img; im.alt = ''; box.appendChild(im); }
     (s.d || []).forEach(function (line) { box.appendChild(mk('p', 'gtext', line)); });
     if (s.note) box.appendChild(mk('p', 'gnote', s.note));
     if (s.btn) {
