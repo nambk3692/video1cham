@@ -7,7 +7,9 @@
       "steps": [],
       "done": "",
       "assist": "Tôi cần được hỗ trợ",
-      "mode": "HUONGDAN_CHUNG"
+      "mode": "HUONGDAN_CHUNG",
+      "btn": "Bấm vào đây để bắt đầu",
+      "btnSub": "Trợ lý sẽ hướng dẫn từng bước"
     }
   ]
 }
