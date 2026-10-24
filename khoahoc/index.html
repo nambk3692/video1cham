@@ -658,7 +658,7 @@
       box.appendChild(mk('h1', 'top', 'Hướng dẫn'));
       (GUIDES || []).forEach(function (gg) {
         var c = mk('div', 'card gcard');
-        c.appendChild(mk('h2', '', String(gg.title || '').replace(/\s*\n\s*/g, ' ')));
+        if (gg.title) c.appendChild(mk('h2', '', String(gg.title).replace(/\s*\n\s*/g, ' ')));
         if (gg.youtube || gg.video) c.appendChild(videoToggle(gg));
         (gg.videos || []).forEach(function (v) { c.appendChild(videoToggle({ video: v.u, label: v.t })); });
         if (gg.link) linkBox(c, gg.link);
