@@ -1082,7 +1082,7 @@
   var canShot = !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) && !/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && !(navigator.maxTouchPoints > 1);
   if (canShot) $('chat-shot').classList.remove('hide');
   function shotShare() {
-    return navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: 'monitor' }, audio: false, monitorTypeSurfaces: 'include', selfBrowserSurface: 'exclude' })
+    return navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: 'browser' }, audio: false, selfBrowserSurface: 'exclude' })
       .then(function (st) { shotStream = st; st.getVideoTracks()[0].addEventListener('ended', function () { shotStream = null; }); });
   }
   function shotGrab() {
