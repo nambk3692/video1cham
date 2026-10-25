@@ -107,6 +107,11 @@
               "t": "Chưa kích hoạt",
               "v": "chua",
               "send": "Tôi chưa kích hoạt tài khoản Veo 3"
+            },
+            {
+              "t": "Không rõ",
+              "v": "khongro",
+              "send": "Tôi không rõ đã kích hoạt tài khoản Veo 3 chưa"
             }
           ]
         },
@@ -151,6 +156,38 @@
           ],
           "when": {
             "damua": "da"
+          }
+        }
+      ],
+      "vsteps": [
+        {
+          "t": "Kích hoạt Veo 3 Pro",
+          "video": "huongdan_veo3/dienthoai.mp4",
+          "needs": {
+            "damua": "da"
+          },
+          "skipIf": {
+            "dakichhoat": "da"
+          }
+        },
+        {
+          "t": "Kích hoạt tool",
+          "video": "huongdan_veo3/vaotool_sk.mp4",
+          "needs": {
+            "damua": "da"
+          },
+          "skipIf": {
+            "datao": "da"
+          }
+        },
+        {
+          "t": "Hướng dẫn tạo video",
+          "video": "huongdan_veo3/suckhoe.mp4",
+          "needs": {
+            "damua": "da"
+          },
+          "skipIf": {
+            "datao": "da"
           }
         }
       ]

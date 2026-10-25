@@ -176,6 +176,11 @@
   #guide .gcard .btn.startbtn { flex-direction: column; gap: 6px; min-height: 84px !important; padding: 12px; }
   #guide .startbtn .sb1 { font-size: 21px; font-weight: 800; }
   #guide .startbtn .sb2 { font-size: 15px; font-weight: 500; opacity: .95; }
+  .vflow { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 16px; }
+  .vflow .btn { min-height: 60px; font-size: 19px; }
+  .vflow .gvwrap { margin: 0; }
+  .vflow .gvholder { margin-bottom: 0; }
+  .vflow .gvideo { width: 100%; border-radius: 14px; background: #000; max-height: 60vh; }
   .qbtns { display: flex; flex-wrap: wrap; gap: 10px; margin: 4px 0 16px; }
   .qbtns .btn { flex: 1 1 150px; min-height: 60px; font-size: 20px; }
   #guide .gcard .linkbtn .lb1 { font-size: inherit !important; font-weight: inherit !important; }
@@ -837,6 +842,7 @@
       box.appendChild(b);
     });
     renderQuiz(box);
+    renderVflow(box);
     var last = ids.length ? msgs[ids[ids.length - 1]] : null;
     $('chat-wait').classList.toggle('hide', !(last && last.from === 'khach'));
     box.scrollTop = box.scrollHeight;
@@ -880,11 +886,56 @@
     // lưu các câu hỏi vào khung chat (để khách còn thấy và trợ lý biết mình đã hỏi gì), rồi gửi câu trả lời
     var t0 = Date.now() - 4000, cid = chatId();
     Promise.all(st.a.map(function (x, i) { var t = t0 + i; return put('/chats/' + cid + '/msgs/q' + t.toString(36), { from: 'ai', t: t, text: x.q }); }))
-      .catch(function () {}).then(function () { startGuided(st.a.map(function (x) { return x.send; }).join('. ') + '.', st.mode); });
+      .catch(function () {}).then(function () {
+        var vs = vflowSteps(st);
+        if (vs.length) beginVflow(vs, st.mode); else startGuided(st.a.map(function (x) { return x.send; }).join('. ') + '.', st.mode);
+      });
   }
   function startQuiz(gg) {
     store('kh_quiz', JSON.stringify({ i: 0, a: [], quiz: gg.quiz, mode: gg.mode }));
     showTab('hoi'); renderChat();
+  }
+
+  // ===== Khách chọn "tự xem video và làm được": app gửi lần lượt từng video; khách nhắn "xong" hoặc bấm nút thì gửi video kế tiếp (Nam chốt 25/10) =====
+  var vLastT = 0;
+  function vflowState() { try { var v = JSON.parse(store('kh_vflow') || 'null'); return v && v.steps && v.i < v.steps.length ? v : null; } catch (e) { return null; } }
+  function vflowSteps(st) {
+    var ans = {}; st.a.forEach(function (x) { if (x.id) ans[x.id] = x.v; });
+    if (ans.tuxem !== 'tu') return [];
+    return ((GUIDES && GUIDES[0] && GUIDES[0].vsteps) || []).filter(function (v) {
+      var ok = true;
+      Object.keys(v.needs || {}).forEach(function (k) { if (ans[k] !== v.needs[k]) ok = false; });
+      Object.keys(v.skipIf || {}).forEach(function (k) { if (ans[k] === v.skipIf[k]) ok = false; });
+      return ok;
+    }).map(function (v) { return { t: v.t, video: v.video }; });
+  }
+  function aiSay(text) {
+    var t = Math.max(Date.now(), vLastT + 1); vLastT = t;
+    var id = 'v' + t.toString(36), m = { from: 'ai', t: t, text: text };
+    msgs[id] = m; renderChat();
+    return put('/chats/' + chatId() + '/msgs/' + id, m).catch(function () {});
+  }
+  function vflowText(v) { return 'Video ' + (v.i + 1) + '/' + v.steps.length + ': ' + v.steps[v.i].t + '. Mình xem video và làm theo, xong thì bấm nút "Xong rồi" bên dưới (hoặc nhắn chữ "xong") để em gửi video tiếp theo ạ.'; }
+  function beginVflow(steps, mode) {
+    store('kh_guided', String(Date.now())); store('kh_mode', mode || 'HUONGDAN_CHUNG');
+    var v = { steps: steps, i: 0 }; store('kh_vflow', JSON.stringify(v));
+    showTab('hoi');
+    aiSay('Dạ, mình tự xem video làm được thì em gửi mình từng video một nhé. Có chỗ nào bị kẹt mình cứ nhắn em ạ.')
+      .then(function () { return aiSay(vflowText(v)); });
+  }
+  function vflowNext() {
+    var v = vflowState(); if (!v) return;
+    v.i++;
+    if (v.i >= v.steps.length) { store('kh_vflow', null); aiSay('Dạ, mình đã xem hết các video rồi ạ. Có chỗ nào chưa rõ hoặc bị kẹt, mình cứ nhắn em nhé.'); return; }
+    store('kh_vflow', JSON.stringify(v)); aiSay(vflowText(v));
+  }
+  function renderVflow(box) {
+    var v = vflowState(); if (!v) return;
+    var step = v.steps[v.i];
+    var w = document.createElement('div'); w.className = 'vflow';
+    w.appendChild(videoToggle({ video: step.video, label: '▶ Xem video: ' + step.t }));
+    w.appendChild(gBtn(v.i === v.steps.length - 1 ? 'Xong rồi' : 'Xong rồi, gửi video tiếp theo', 'main', vflowNext));
+    box.appendChild(w);
   }
 
   function put(path, body) {
@@ -907,6 +958,7 @@
   }
     function sendMsg() {
     if (sending) return;
+    if (vflowState() && !pendingImg && /^(xong|đã xong|xong rồi|làm xong|xong ạ|xong rồi ạ|em xong rồi|tôi xong rồi)[\s.!]*$/i.test($('chat-text').value.trim())) { $('chat-text').value = ''; vflowNext(); return; }
     store('kh_quiz', null);
     var text = $('chat-text').value.trim();
     if (!text && !pendingImg) return;
