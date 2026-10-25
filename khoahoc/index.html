@@ -69,7 +69,7 @@
 
   /* Hỏi đáp: khung cố định, chỉ danh sách tin nhắn cuộn, ô nhập đứng yên */
   body.chatmode { position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; overscroll-behavior: none; }
-  body.chatmode { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+  body.chatmode { padding-bottom: var(--tbh, calc(84px + env(safe-area-inset-bottom))); }
   body.chatmode .wrap { height: 100%; display: flex; flex-direction: column; padding-top: 10px; padding-bottom: 0; }
   body.chatmode #chat-err:empty { display: none; }
   body.chatmode .compose { margin-top: 4px; }
@@ -562,9 +562,16 @@
   // Giữ khung chat khít vùng nhìn thấy khi bàn phím mở (iPhone)
   function fitChat() {
     var vv = window.visualViewport;
-    if (document.body.classList.contains('chatmode')) { if (vv && /iPhone|iPad|iPod/.test(navigator.userAgent) && vv.height < window.innerHeight - 120) { document.body.style.height = vv.height + 'px'; window.scrollTo(0, 0); } else document.body.style.height = ''; }
+    // đo chiều cao thật của thanh tab để khung nhập không bị che (iPad/iPhone/Samsung đều khác nhau)
+    var tb = $('tabbar');
+    document.body.style.setProperty('--tbh', ((tb && getComputedStyle(tb).display !== 'none') ? Math.ceil(tb.getBoundingClientRect().height) : 0) + 'px');
+    if (document.body.classList.contains('chatmode')) {
+      if (vv && isIOS && vv.height < window.innerHeight - 120) { document.body.style.height = vv.height + 'px'; window.scrollTo(0, 0); }
+      else { document.body.style.height = ''; if (isIOS) window.scrollTo(0, 0); }
+    }
     else document.body.style.height = '';
   }
+  window.addEventListener('resize', fitChat); window.addEventListener('orientationchange', function () { setTimeout(fitChat, 300); });
   if (window.visualViewport) { window.visualViewport.addEventListener('resize', fitChat); window.visualViewport.addEventListener('scroll', fitChat); }
 
   var HOC_IDS = ['player-box', 'list', 'load-err', 'out', 'install-android', 'install-ios', 'home-title'];
