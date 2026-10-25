@@ -245,15 +245,7 @@
 
   // ----- Vào trang -----
   function start() { $('gate').classList.add('hide'); $('main').classList.remove('hide'); openStream(); render(); }
-  if (who.ma) start();
-  else {
-    $('gate').classList.remove('hide');
-    $('gate-go').addEventListener('click', function () {
-      var code = $('gate-code').value.trim().split('~')[0];
-      if (!code) { $('gate-err').textContent = 'Bạn chưa nhập mã.'; return; }
-      who.ma = code; store('hd_ma', code); start();
-    });
-  }
+  start();  // Nam chốt 25/10: không cần mã để hỏi trợ lý
 })();
 </script>
 </body>
