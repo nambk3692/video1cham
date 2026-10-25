@@ -230,6 +230,7 @@
         <div id="reg-form" class="hide">
           <input id="reg-name" type="text" maxlength="60" autocomplete="name" placeholder="Tên của mình">
           <input id="reg-phone" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="Số điện thoại">
+          <input id="reg-email" type="email" inputmode="email" maxlength="100" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="Email (để gửi mã vào app)">
           <button id="reg-go" class="btn main block" type="button">Nhận mã vào app</button>
           <p id="reg-err" class="err"></p>
         </div>
@@ -980,20 +981,21 @@
   $('reg-open').addEventListener('click', function () { $('reg-open').classList.add('hide'); $('reg-form').classList.remove('hide'); $('reg-name').focus(); });
   $('reg-go').addEventListener('click', function () {
     var btn = $('reg-go'), err = $('reg-err'); err.textContent = '';
-    var name = $('reg-name').value.trim(), phone = $('reg-phone').value.trim();
+    var name = $('reg-name').value.trim(), phone = $('reg-phone').value.trim(), email = $('reg-email').value.trim();
     if (!name) { err.textContent = 'Mình nhập tên giúp em nhé.'; return; }
     if (phone.replace(/\D/g, '').length < 9) { err.textContent = 'Số điện thoại chưa đúng, mình kiểm tra lại nhé.'; return; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { err.textContent = 'Email chưa đúng, mình kiểm tra lại nhé.'; return; }
     btn.disabled = true; btn.textContent = 'Đang gửi...';
     var ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
     var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 25000);
-    fetch(CONFIG.api, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'dangkyapp', name: name, phone: phone }), signal: ctl ? ctl.signal : undefined })
+    fetch(CONFIG.api, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'dangkyapp', name: name, phone: phone, email: email }), signal: ctl ? ctl.signal : undefined })
       .then(function (r) { return r.json(); })
       .then(function (j) {
         clearTimeout(timer);
         if (!j || !j.ok) { err.textContent = (j && j.msg) || 'Chưa đăng ký được, mình thử lại nhé.'; return; }
         $('code').value = j.code;
         $('reg-form').classList.add('hide');
-        var m = $('reg-msg'); m.textContent = 'Mã vào app của mình là ' + j.code + '. Mình ghi lại phòng khi đổi máy, rồi bấm Vào app nhé.'; m.classList.remove('hide');
+        var m = $('reg-msg'); m.textContent = 'Mã vào app của mình là ' + j.code + '. ' + (j.mailed ? 'Em đã gửi mã vào email của mình, mình kiểm tra cả mục Spam nhé. ' : '') + 'Mình bấm Vào app nhé.'; m.classList.remove('hide');
       })
       .catch(function () { clearTimeout(timer); err.textContent = MSG_NET; })
       .then(function () { btn.disabled = false; btn.textContent = 'Nhận mã vào app'; });
