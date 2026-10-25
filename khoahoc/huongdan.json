@@ -147,11 +147,19 @@
       "videos": [
         {
           "t": "▶ Bước 1: Kích hoạt Veo 3 Pro",
-          "u": "huongdan_veo3/dienthoai.mp4"
+          "u": "huongdan_veo3/dienthoai.mp4",
+          "link": {
+            "t": "Link labs.google",
+            "u": "https://labs.google/fx/tools/flow"
+          }
         },
         {
           "t": "▶ Bước 2: Kích hoạt tool",
-          "u": "huongdan_veo3/vaotool_sk.mp4"
+          "u": "huongdan_veo3/vaotool_sk.mp4",
+          "link": {
+            "t": "Link tool Sức Khỏe",
+            "u": "https://nambk3692.github.io/video1cham/suckhoe/"
+          }
         },
         {
           "t": "▶ Bước 3: Tạo video",

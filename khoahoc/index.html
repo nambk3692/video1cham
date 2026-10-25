@@ -678,7 +678,7 @@
         c.appendChild(hb);
         if (gg.videos && gg.videos.length) {
           if (gg.videosTitle) c.appendChild(mk('p', 'vhead', gg.videosTitle));
-          gg.videos.forEach(function (v) { c.appendChild(videoToggle({ video: v.u, label: v.t })); });
+          gg.videos.forEach(function (v) { c.appendChild(videoToggle({ video: v.u, label: v.t })); if (v.link) linkBox(c, v.link); });
         }
         box.appendChild(c);
       });
