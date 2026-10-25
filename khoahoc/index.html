@@ -963,7 +963,11 @@
   });
 
   function put(path, body) {
-    return fetch(DB + path + '.json', { method: 'PUT', body: JSON.stringify(body) }).then(function (r) { if (!r.ok) throw new Error('http'); return r; });
+    // có hạn chờ 20 giây để không treo mãi; báo rõ lỗi gì để dễ tìm nguyên nhân (nhất là trên iPad/iPhone)
+    var ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    var tm = ctl ? setTimeout(function () { ctl.abort(); }, 20000) : 0;
+    return fetch(DB + path + '.json', { method: 'PUT', body: JSON.stringify(body), signal: ctl ? ctl.signal : undefined })
+      .then(function (r) { clearTimeout(tm); if (!r.ok) throw new Error('http ' + r.status); return r; }, function (e) { clearTimeout(tm); throw new Error('mạng: ' + ((e && (e.name === 'AbortError' ? 'quá lâu' : e.message)) || 'lỗi')); });
   }
 
   function osKind() {
@@ -1003,7 +1007,11 @@
         msgs[mid] = m; renderChat();
         $('chat-text').value = ''; pendingImg = ''; $('pending-img').classList.add('hide');
       })
-      .catch(function () { $('chat-err').textContent = 'Chưa gửi được. Vui lòng kiểm tra mạng rồi bấm Gửi tin lại.'; })
+      .catch(function (e) {
+        var em = 'Chưa gửi được (' + ((e && e.message) || 'lỗi') + '). Mình kiểm tra mạng rồi bấm Gửi tin lại nhé.';
+        $('chat-err').textContent = em;
+        var bx = $('chat-list'); if (bx) { var nb = document.createElement('div'); nb.className = 'bubble sup'; nb.style.color = '#C0262D'; nb.textContent = em; bx.appendChild(nb); bx.scrollTop = bx.scrollHeight; }
+      })
       .then(function () { sending = false; $('chat-send').disabled = false; });
   }
   $('chat-send').addEventListener('click', sendMsg);
