@@ -89,7 +89,7 @@
   .toolcard h2 { margin: 0; font-size: 20px; line-height: 1.25; color: var(--tc); text-align: center; }
   .ln { display: block; }
   .toolcard .btn { margin: 0; text-decoration: none; background: var(--tc); border-color: var(--tc); color: #fff; min-height: 52px; font-size: 19px; }
-  #doitk-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+  #doitk-list { display: none !important; }  /* Nam bảo 25/10: bỏ 4 ô đổi tài khoản, chỉ để nút Trợ lý hỗ trợ đổi tài khoản */
   #doitk-list .btn { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.05; background: #fff; border-color: var(--tc); color: var(--tc); min-height: 56px; font-size: 15px; padding: 6px 4px; white-space: nowrap; text-align: center; text-decoration: none; }
   .vidhelp { width: 100%; border-radius: 14px; margin-top: 10px; background: #000; }
   .tabbar button { font-size: 14px; padding: 0 2px; text-transform: uppercase; }
@@ -300,7 +300,7 @@
     <div class="card" style="margin-top:6px">
       <h2 style="text-align:center">Đổi tài khoản khi hết credit</h2>
       <div id="doitk-list"></div>
-      <button id="doitk-help" class="btn main" type="button" style="width:100%;min-height:60px;font-size:22px;margin-top:4px">Trợ lý hỗ trợ</button>
+      <button id="doitk-help" class="btn main" type="button" style="width:100%;min-height:60px;font-size:22px;margin-top:4px">Trợ lý hỗ trợ đổi tài khoản</button>
     </div>
   </section>
 
