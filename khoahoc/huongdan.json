@@ -80,22 +80,22 @@
           "when": {
             "damua": "da"
           },
-          "q": "Dạ, mình đã kích hoạt tài khoản Veo 3 chưa ạ?",
+          "q": "Dạ, mình đã kích hoạt tài khoản Veo 3 Pro chưa ạ?",
           "opts": [
             {
               "t": "Đã kích hoạt",
               "v": "da",
-              "send": "Tôi đã kích hoạt tài khoản Veo 3"
+              "send": "Tôi đã kích hoạt tài khoản Veo 3 Pro"
             },
             {
               "t": "Chưa kích hoạt",
               "v": "chua",
-              "send": "Tôi chưa kích hoạt tài khoản Veo 3"
+              "send": "Tôi chưa kích hoạt tài khoản Veo 3 Pro"
             },
             {
               "t": "Không rõ",
               "v": "khongro",
-              "send": "Tôi không rõ đã kích hoạt tài khoản Veo 3 chưa"
+              "send": "Tôi không rõ đã kích hoạt tài khoản Veo 3 Pro chưa"
             }
           ]
         },
