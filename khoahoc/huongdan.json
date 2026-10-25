@@ -77,9 +77,6 @@
         },
         {
           "id": "dakichhoat",
-          "when": {
-            "damua": "da"
-          },
           "q": "Dạ, mình đã kích hoạt tài khoản Veo 3 Pro chưa ạ?",
           "opts": [
             {
@@ -101,9 +98,6 @@
         },
         {
           "id": "chromeemail",
-          "when": {
-            "damua": "da"
-          },
           "q": "Dạ, Chrome của mình đã đăng nhập đúng email đã mua Veo 3 chưa ạ?",
           "opts": [
             {
@@ -137,10 +131,7 @@
               "v": "chua",
               "send": "Tôi chưa vào tool hoặc chưa tạo được video nào"
             }
-          ],
-          "when": {
-            "damua": "da"
-          }
+          ]
         }
       ],
       "videosTitle": "Hoặc tự xem video và làm theo",
