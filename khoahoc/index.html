@@ -177,6 +177,10 @@
   #guide .startbtn .sb1 { font-size: 21px; font-weight: 800; }
   #guide .startbtn .sb2 { font-size: 15px; font-weight: 500; opacity: .95; }
   #guide .vhead { text-align: center; font-weight: 800; color: #8A6420; font-size: clamp(15px,4.2vw,18px); margin: 26px 0 12px; }
+  .regbox { border-top: 1px solid #AE8A3A; margin-top: 8px; padding-top: 14px; }
+  .regttl { text-align: center; margin: 0 0 10px; font-weight: 700; }
+  .regrow { display: flex; gap: 10px; }
+  .regrow .btn { flex: 1 1 0; min-height: 56px; font-size: 17px; }
   .vflow { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 16px; }
   .vflow .btn { min-height: 60px; font-size: 19px; }
   .vflow .gvwrap { margin: 0; }
@@ -218,6 +222,20 @@
       <input id="code" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Dán mã kích hoạt vào đây">
       <button id="go" class="btn main block" type="button">Vào app</button>
       <p id="login-err" class="err"></p>
+      <div id="reg" class="regbox">
+        <p class="muted regttl">Chưa có mã?</p>
+        <div class="regrow">
+          <button id="reg-trial" class="btn act" type="button">Dùng thử 1 ngày</button>
+          <button id="reg-buy" class="btn act" type="button">Đăng ký mua</button>
+        </div>
+        <div id="reg-pick" class="hide">
+          <p id="reg-q" class="muted regttl"></p>
+          <div class="regrow">
+            <button class="btn main regtool" data-t="phongthuy" type="button">Phong Thủy</button>
+            <button class="btn main regtool" data-t="suckhoe" type="button">Sức Khỏe</button>
+          </div>
+        </div>
+      </div>
     </div>
     <div id="inapp" class="warn hide" style="margin-top:14px;text-align:left">
       Bạn đang mở trong ứng dụng khác (Zalo, Facebook...). Hãy mở link bằng Chrome hoặc Safari để cài app và xem video ổn định hơn.
@@ -941,6 +959,51 @@
     w.appendChild(gBtn(v.i === v.steps.length - 1 ? 'Xong rồi' : 'Xong rồi, gửi video tiếp theo', 'main', vflowNext));
     box.appendChild(w);
   }
+
+  // ===== Dùng thử / Đăng ký mua ngay ở màn đăng nhập (Nam chốt 25/10): dùng đúng trang đăng ký + mã máy của tool Phong Thủy và Sức Khỏe =====
+  var REG_SITE = 'https://nambk3692.github.io/video1cham/';
+  var regPlan = '', regDev = '';
+  function deviceIdNow() {
+    // Giữ y hệt cách tính trong tool (services/deviceService.ts): mã máy lấy từ phần cứng nên app và tool ra CÙNG một mã trên cùng máy
+    var ALPHA = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    function gpu() {
+      try {
+        var cv = document.createElement('canvas');
+        var gl = cv.getContext('webgl') || cv.getContext('experimental-webgl');
+        if (!gl) return 'nogl';
+        var ext = gl.getExtension('WEBGL_debug_renderer_info');
+        var vendor = ext ? gl.getParameter(ext.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR);
+        var renderer = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+        return String(vendor) + '|' + String(renderer);
+      } catch (e) { return 'nogl'; }
+    }
+    var nav = navigator, touch = Number(nav.maxTouchPoints) || 0, y = new Date().getFullYear();
+    var zone = new Date(y, 0, 1).getTimezoneOffset() + '/' + new Date(y, 6, 1).getTimezoneOffset();
+    var parts = [gpu(), 'c' + (nav.hardwareConcurrency || 0), 'p' + (nav.platform || ''), 't' + touch, 'z' + zone];
+    if (touch > 0) { var a = screen.width, b = screen.height; parts.push('s' + Math.min(a, b) + 'x' + Math.max(a, b)); }
+    if (!window.crypto || !crypto.subtle) return Promise.resolve('');
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(parts.join('#'))).then(function (buf) {
+      var h = new Uint8Array(buf), id = '';
+      for (var i = 0; i < 8; i++) id += ALPHA[h[i] % 32];
+      return id;
+    }).catch(function () { return ''; });
+  }
+  deviceIdNow().then(function (id) { regDev = id; });
+  function regChoose(plan) {
+    regPlan = plan;
+    $('reg-q').textContent = plan === 'thu' ? 'Dùng thử tool nào ạ?' : 'Đăng ký mua tool nào ạ?';
+    $('reg-pick').classList.remove('hide');
+  }
+  function regOpen(site) {
+    function go(id) {
+      if (!id) { $('login-err').textContent = 'Không đọc được mã máy, mình tải lại trang rồi thử lại nhé.'; return; }
+      window.open(REG_SITE + site + '/dangky.html?dk=' + regPlan + '&may=' + id, '_blank');
+    }
+    if (regDev) go(regDev); else deviceIdNow().then(function (id) { regDev = id; go(id); });
+  }
+  $('reg-trial').addEventListener('click', function () { regChoose('thu'); });
+  $('reg-buy').addEventListener('click', function () { regChoose('mua'); });
+  Array.prototype.forEach.call(document.querySelectorAll('.regtool'), function (b) { b.addEventListener('click', function () { regOpen(b.getAttribute('data-t')); }); });
 
   function put(path, body) {
     return fetch(DB + path + '.json', { method: 'PUT', body: JSON.stringify(body) }).then(function (r) { if (!r.ok) throw new Error('http'); return r; });
