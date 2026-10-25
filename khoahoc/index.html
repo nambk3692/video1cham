@@ -183,6 +183,9 @@
   #reg-form input { width: 100%; box-sizing: border-box; min-height: 60px; padding: 0 16px; border-radius: 14px; border: 2px solid var(--line); background: #fff; color: var(--text); font-size: 20px; margin-bottom: 10px; }
   #reg-form .err { margin: 6px 0 0; }
   .regdone { white-space: pre-line; text-align: center; font-weight: 700; font-size: 19px; margin: 12px 0 0; line-height: 1.5; color: var(--accent); }
+  .dkplayer { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 14px; overflow: hidden; margin-top: 10px; }
+  .dkplayer iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  #tools #doitk-vid { background: #F7EBD3; border-color: #F7EBD3; color: #17453B; font-weight: 700; }
   .vflow { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 16px; }
   .vflow .btn { min-height: 60px; font-size: 19px; }
   .vflow .gvwrap { margin: 0; }
@@ -301,6 +304,8 @@
       <h2 style="text-align:center">Đổi tài khoản khi hết credit</h2>
       <div id="doitk-list"></div>
       <button id="doitk-help" class="btn main" type="button" style="width:100%;min-height:60px;font-size:22px;margin-top:4px">Trợ lý hỗ trợ đổi tài khoản</button>
+      <button id="doitk-vid" class="btn" type="button" style="width:100%;min-height:56px;font-size:18px;margin-top:10px">▶ Xem video hướng dẫn đổi tài khoản</button>
+      <div id="doitk-player" class="dkplayer hide"></div>
     </div>
   </section>
 
@@ -862,7 +867,19 @@
 
   function isGuided() { return Date.now() - Number(store('kh_guided') || 0) < 3 * 3600 * 1000; }
   function startGuided(text, mode) { store('kh_guided', String(Date.now())); store('kh_mode', mode || 'KICHHOAT_DAN'); showTab('hoi'); $('chat-text').value = text; sendMsg(); }
-  $('doitk-help').addEventListener('click', function () { startGuided('Tôi muốn được hướng dẫn đổi tài khoản Google khi hết credit', 'DOITK_DAN'); });
+  // Nút Trợ lý hỗ trợ đổi tài khoản: hỏi bằng nút bấm đổi trên điện thoại hay máy tính (Nam chốt 25/10), rồi trợ lý dẫn theo đúng thiết bị
+  $('doitk-help').addEventListener('click', function () {
+    startQuiz({ mode: 'DOITK_DAN', quiz: [{ id: 'doitk', q: 'Dạ, mình muốn đổi tài khoản trên điện thoại hay trên máy tính ạ?', opts: [
+      { t: 'Trên điện thoại', v: 'dt', send: 'Tôi muốn đổi tài khoản Google khi hết credit, tôi làm trên điện thoại', set: { dev: 'dt' } },
+      { t: 'Trên máy tính', v: 'mt', send: 'Tôi muốn đổi tài khoản Google khi hết credit, tôi làm trên máy tính', set: { dev: 'mt', os: '' } }] }] });
+  });
+  $('doitk-vid').addEventListener('click', function () {
+    var pl = $('doitk-player'), open = !pl.classList.contains('hide');
+    if (open) { pl.innerHTML = ''; pl.classList.add('hide'); $('doitk-vid').textContent = '▶ Xem video hướng dẫn đổi tài khoản'; return; }
+    var fr = document.createElement('iframe'); fr.src = 'https://drive.google.com/file/d/1-TCzOFVGxe9pZIs8LTuCZ2-CsX7D3xvK/preview';
+    fr.setAttribute('allow', 'autoplay; fullscreen'); fr.setAttribute('allowfullscreen', ''); fr.title = 'Video hướng dẫn đổi tài khoản';
+    pl.appendChild(fr); pl.classList.remove('hide'); $('doitk-vid').textContent = 'Ẩn video';
+  });
   function renderChat() {
     var box = $('chat-list'); if (!box) return;
     var ids = Object.keys(msgs).filter(function (k) { return msgs[k] && msgs[k].t; })
