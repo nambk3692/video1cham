@@ -17,17 +17,96 @@
           "opts": [
             {
               "t": "Điện thoại",
-              "send": "Tôi dùng điện thoại",
+              "send": "Tôi dùng tool này trên điện thoại",
               "set": {
                 "dev": "dt"
-              }
+              },
+              "v": "dt"
             },
             {
               "t": "Máy tính",
-              "send": "Tôi dùng máy tính",
+              "send": "Tôi dùng tool này trên máy tính",
               "set": {
-                "dev": "mt"
+                "dev": "mt",
+                "os": ""
+              },
+              "v": "mt"
+            }
+          ]
+        },
+        {
+          "id": "hedieuhanh",
+          "when": {
+            "thietbi": "dt"
+          },
+          "q": "Dạ, mình dùng điện thoại iPhone hay Samsung (Android) ạ?",
+          "opts": [
+            {
+              "t": "iPhone",
+              "v": "ios",
+              "send": "Điện thoại của tôi là iPhone",
+              "set": {
+                "os": "ios"
               }
+            },
+            {
+              "t": "Samsung / Android",
+              "v": "android",
+              "send": "Điện thoại của tôi là Samsung hoặc Android khác",
+              "set": {
+                "os": "android"
+              }
+            }
+          ]
+        },
+        {
+          "id": "damua",
+          "q": "Dạ, mình đã mua tài khoản Veo 3 chưa ạ?",
+          "opts": [
+            {
+              "t": "Mua rồi",
+              "v": "da",
+              "send": "Tôi đã mua tài khoản Veo 3"
+            },
+            {
+              "t": "Chưa mua",
+              "v": "chua",
+              "send": "Tôi chưa mua tài khoản Veo 3"
+            }
+          ]
+        },
+        {
+          "id": "dakichhoat",
+          "when": {
+            "damua": "da"
+          },
+          "q": "Dạ, mình đã kích hoạt tài khoản Veo 3 chưa ạ?",
+          "opts": [
+            {
+              "t": "Đã kích hoạt",
+              "v": "da",
+              "send": "Tôi đã kích hoạt tài khoản Veo 3"
+            },
+            {
+              "t": "Chưa kích hoạt",
+              "v": "chua",
+              "send": "Tôi chưa kích hoạt tài khoản Veo 3"
+            }
+          ]
+        },
+        {
+          "id": "datao",
+          "q": "Dạ, mình đã vào tool lần nào chưa, và đã tạo được video nào chưa ạ?",
+          "opts": [
+            {
+              "t": "Đã tạo được video",
+              "v": "da",
+              "send": "Tôi đã vào tool và tạo được video"
+            },
+            {
+              "t": "Chưa tạo được",
+              "v": "chua",
+              "send": "Tôi chưa vào tool hoặc chưa tạo được video nào"
             }
           ]
         }

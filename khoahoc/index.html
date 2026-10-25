@@ -858,11 +858,23 @@
     });
     box.appendChild(row);
   }
+  // bỏ qua câu hỏi có điều kiện when:{id:giá trị} mà khách chưa trả lời đúng giá trị đó
+  function nextQuiz(st) {
+    var i = st.i;
+    while (i < st.quiz.length) {
+      var w = st.quiz[i].when, ok = true;
+      if (w) Object.keys(w).forEach(function (k) { if (!st.a.some(function (x) { return x.id === k && x.v === w[k]; })) ok = false; });
+      if (ok) break; i++;
+    }
+    return i;
+  }
   function answerQuiz(o) {
     var st = quizState(); if (!st) return;
     var cur = st.quiz[st.i];
     if (o.set && o.set.dev) store('kh_dev', o.set.dev);
-    st.a.push({ q: cur.q, t: o.t, send: o.send || o.t }); st.i++;
+    if (o.set && o.set.os !== undefined) store('kh_os', o.set.os);
+    st.a.push({ id: cur.id, v: o.v || '', q: cur.q, t: o.t, send: o.send || o.t }); st.i++;
+    st.i = nextQuiz(st);
     if (st.i < st.quiz.length) { store('kh_quiz', JSON.stringify(st)); renderChat(); return; }
     store('kh_quiz', null);
     // lưu các câu hỏi vào khung chat (để khách còn thấy và trợ lý biết mình đã hỏi gì), rồi gửi câu trả lời
@@ -880,6 +892,7 @@
   }
 
   function osKind() {
+    var ov = store('kh_os'); if (ov === 'ios' || ov === 'android') return ov;
     var ua = navigator.userAgent || '', touch = (navigator.maxTouchPoints || 0) > 1;
     if (/iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && touch)) return 'ios';
     if (/Android/i.test(ua)) return 'android';
