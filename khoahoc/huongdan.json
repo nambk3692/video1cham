@@ -60,22 +60,6 @@
           ]
         },
         {
-          "id": "tuxem",
-          "q": "Dạ, mình có thể tự xem video hướng dẫn rồi làm theo được không ạ?",
-          "opts": [
-            {
-              "t": "Tự xem video và làm được",
-              "v": "tu",
-              "send": "Tôi tự xem video hướng dẫn và làm theo được"
-            },
-            {
-              "t": "Cần hướng dẫn từng bước",
-              "v": "can",
-              "send": "Tôi không tự xem video và làm theo được, cần hướng dẫn từng bước"
-            }
-          ]
-        },
-        {
           "id": "damua",
           "q": "Dạ, mình đã mua tài khoản Veo 3 chưa ạ?",
           "opts": [
@@ -159,36 +143,19 @@
           }
         }
       ],
-      "vsteps": [
+      "videosTitle": "Hoặc tự xem video và làm theo",
+      "videos": [
         {
-          "t": "Kích hoạt Veo 3 Pro",
-          "video": "huongdan_veo3/dienthoai.mp4",
-          "needs": {
-            "damua": "da"
-          },
-          "skipIf": {
-            "dakichhoat": "da"
-          }
+          "t": "▶ Bước 1: Kích hoạt Veo 3 Pro",
+          "u": "huongdan_veo3/dienthoai.mp4"
         },
         {
-          "t": "Kích hoạt tool",
-          "video": "huongdan_veo3/vaotool_sk.mp4",
-          "needs": {
-            "damua": "da"
-          },
-          "skipIf": {
-            "datao": "da"
-          }
+          "t": "▶ Bước 2: Kích hoạt tool",
+          "u": "huongdan_veo3/vaotool_sk.mp4"
         },
         {
-          "t": "Hướng dẫn tạo video",
-          "video": "huongdan_veo3/suckhoe.mp4",
-          "needs": {
-            "damua": "da"
-          },
-          "skipIf": {
-            "datao": "da"
-          }
+          "t": "▶ Bước 3: Tạo video",
+          "u": "huongdan_veo3/suckhoe.mp4"
         }
       ]
     }

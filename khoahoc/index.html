@@ -176,6 +176,7 @@
   #guide .gcard .btn.startbtn { flex-direction: column; gap: 6px; min-height: 84px !important; padding: 12px; }
   #guide .startbtn .sb1 { font-size: 21px; font-weight: 800; }
   #guide .startbtn .sb2 { font-size: 15px; font-weight: 500; opacity: .95; }
+  #guide .vhead { text-align: center; font-weight: 800; color: #8A6420; font-size: clamp(15px,4.2vw,18px); margin: 26px 0 12px; }
   .vflow { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 16px; }
   .vflow .btn { min-height: 60px; font-size: 19px; }
   .vflow .gvwrap { margin: 0; }
@@ -670,12 +671,15 @@
         var c = mk('div', 'card gcard');
         if (gg.title) c.appendChild(mk('h2', '', String(gg.title).replace(/\s*\n\s*/g, ' ')));
         if (gg.youtube || gg.video) c.appendChild(videoToggle(gg));
-        (gg.videos || []).forEach(function (v) { c.appendChild(videoToggle({ video: v.u, label: v.t })); });
         if (gg.link) linkBox(c, gg.link);
         if (gg.tool) { var ta = mk('a', 'btn act big', gg.tool.t); ta.href = gg.tool.u; ta.target = '_blank'; ta.rel = 'noopener'; c.appendChild(ta); }
         var hb = gBtn(gg.btn ? '' : 'Trợ lý hỗ trợ', 'main big', function () { if (gg.quiz && gg.quiz.length) startQuiz(gg); else startGuided(gg.assist || ('Tôi muốn được hỗ trợ: ' + gg.title), gg.mode); });
         if (gg.btn) { hb.classList.add('startbtn'); hb.appendChild(mk('span', 'sb1', gg.btn)); if (gg.btnSub) hb.appendChild(mk('span', 'sb2', gg.btnSub)); }
         c.appendChild(hb);
+        if (gg.videos && gg.videos.length) {
+          if (gg.videosTitle) c.appendChild(mk('p', 'vhead', gg.videosTitle));
+          gg.videos.forEach(function (v) { c.appendChild(videoToggle({ video: v.u, label: v.t })); });
+        }
         box.appendChild(c);
       });
       return;
