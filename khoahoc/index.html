@@ -68,7 +68,7 @@
   .waitnote { color: var(--muted); font-size: 18px; margin: 4px 2px; }
 
   /* Hỏi đáp: khung cố định, chỉ danh sách tin nhắn cuộn, ô nhập đứng yên */
-  body.chatmode { position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; overscroll-behavior: none; }
+  body.chatmode { position: fixed; top: 0; left: 0; right: 0; bottom: 0; min-height: 0; overflow: hidden; overscroll-behavior: none; }
   body.chatmode { padding-bottom: var(--tbh, calc(84px + env(safe-area-inset-bottom))); }
   body.chatmode .wrap { height: 100%; display: flex; flex-direction: column; padding-top: 10px; padding-bottom: 0; }
   body.chatmode #chat-err:empty { display: none; }
@@ -564,13 +564,15 @@
     var vv = window.visualViewport;
     // đo chiều cao thật của thanh tab để khung nhập không bị che (iPad/iPhone/Samsung đều khác nhau)
     var tb = $('tabbar');
-    document.body.style.setProperty('--tbh', ((tb && getComputedStyle(tb).display !== 'none') ? Math.ceil(tb.getBoundingClientRect().height) : 0) + 'px');
+    if (tb && !tb.classList.contains('hide') && getComputedStyle(tb).display !== 'none') document.body.style.setProperty('--tbh', Math.ceil(tb.getBoundingClientRect().height) + 'px');
+    else document.body.style.removeProperty('--tbh');
     if (document.body.classList.contains('chatmode')) {
       if (vv && isIOS && vv.height < window.innerHeight - 120) { document.body.style.height = vv.height + 'px'; window.scrollTo(0, 0); }
       else { document.body.style.height = ''; if (isIOS) window.scrollTo(0, 0); }
     }
     else document.body.style.height = '';
   }
+  if (window.ResizeObserver && $('tabbar')) new ResizeObserver(fitChat).observe($('tabbar'));
   window.addEventListener('resize', fitChat); window.addEventListener('orientationchange', function () { setTimeout(fitChat, 300); });
   if (window.visualViewport) { window.visualViewport.addEventListener('resize', fitChat); window.visualViewport.addEventListener('scroll', fitChat); }
 
