@@ -1057,8 +1057,16 @@
   $('chat-send').addEventListener('click', sendMsg);
 
   $('chat-pic').addEventListener('click', function () { $('chat-file').click(); });
-  $('chat-file').addEventListener('change', function () {
-    var f = this.files && this.files[0]; if (!f) return;
+  $('chat-file').addEventListener('change', function () { readImgFile(this.files && this.files[0]); this.value = ''; });
+  // Dán ảnh đã chụp (Windows + Shift + S hoặc phím PrtScn) thẳng vào ô gõ chữ bằng Ctrl + V
+  $('chat-text').addEventListener('paste', function (e) {
+    var items = (e.clipboardData && e.clipboardData.items) || [];
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].kind === 'file' && /^image\//.test(items[i].type)) { e.preventDefault(); readImgFile(items[i].getAsFile()); return; }
+    }
+  });
+  function readImgFile(f) {
+    if (!f) return;
     var rd = new FileReader();
     rd.onload = function () {
       var im = new Image();
@@ -1074,8 +1082,7 @@
       im.src = rd.result;
     };
     rd.readAsDataURL(f);
-    this.value = '';
-  });
+  }
 
   // ----- Chụp màn hình (chỉ máy tính, giống nút trong khung Hỏi trợ lý mở từ tool): chia sẻ một lần, chụp nhiều lần không hỏi lại -----
   var shotStream = null;
