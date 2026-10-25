@@ -281,6 +281,7 @@
       <textarea id="chat-text" placeholder="Gõ câu hỏi hoặc gửi ảnh màn hình"></textarea>
       <div class="row2">
         <button id="chat-pic" class="btn" type="button">Gửi ảnh</button>
+        <button id="chat-shot" class="btn hide" type="button">Chụp màn hình</button>
         <button id="chat-send" class="btn main" type="button">Gửi tin</button>
         <button id="chat-tabs" class="btn" type="button" style="flex:0 0 64px" aria-label="Ẩn hoặc hiện thanh Khóa học, Công cụ, Hỏi đáp">▼</button>
       </div>
@@ -1074,6 +1075,43 @@
     };
     rd.readAsDataURL(f);
     this.value = '';
+  });
+
+  // ----- Chụp màn hình (chỉ máy tính, giống nút trong khung Hỏi trợ lý mở từ tool): chia sẻ một lần, chụp nhiều lần không hỏi lại -----
+  var shotStream = null;
+  var canShot = !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) && !/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && !(navigator.maxTouchPoints > 1);
+  if (canShot) $('chat-shot').classList.remove('hide');
+  function shotShare() {
+    return navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: 'monitor' }, audio: false, monitorTypeSurfaces: 'include', selfBrowserSurface: 'exclude' })
+      .then(function (st) { shotStream = st; st.getVideoTracks()[0].addEventListener('ended', function () { shotStream = null; }); });
+  }
+  function shotGrab() {
+    return new Promise(function (resolve, reject) {
+      var v = document.createElement('video'); v.muted = true; v.playsInline = true; v.srcObject = shotStream;
+      v.onloadedmetadata = function () {
+        v.play().then(function () {
+          setTimeout(function () {
+            try {
+              var w = v.videoWidth, h = v.videoHeight, sc = Math.min(1, 1500 / Math.max(w, h));
+              var c = document.createElement('canvas'); c.width = Math.round(w * sc); c.height = Math.round(h * sc);
+              c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+              var q = 0.75, out = c.toDataURL('image/jpeg', q);
+              while (out.length > 450000 && q > 0.3) { q -= 0.1; out = c.toDataURL('image/jpeg', q); }
+              resolve(out);
+            } catch (e) { reject(e); }
+          }, 350);
+        }).catch(reject);
+      };
+    });
+  }
+  $('chat-shot').addEventListener('click', function () {
+    if (sending) return;
+    $('chat-err').textContent = '';
+    (shotStream ? Promise.resolve() : shotShare()).then(shotGrab).then(function (data) {
+      pendingImg = data; var pi = $('pending-img'); pi.src = data; pi.classList.remove('hide');
+      if (!$('chat-text').value.trim()) $('chat-text').value = 'Xin xem giúp màn hình của tôi.';
+      sendMsg();
+    }).catch(function () { $('chat-err').textContent = 'Chưa chụp được. Bấm Chụp màn hình, chọn màn hình rồi bấm Chia sẻ, hoặc dùng nút Gửi ảnh.'; });
   });
 
   // ===== Khởi động =====
