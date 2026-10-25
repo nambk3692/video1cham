@@ -9,7 +9,29 @@
       "assist": "Tôi cần được hỗ trợ",
       "mode": "HUONGDAN_CHUNG",
       "btn": "Bấm vào đây để bắt đầu",
-      "btnSub": "Trợ lý sẽ hướng dẫn từng bước"
+      "btnSub": "Trợ lý sẽ hướng dẫn từng bước",
+      "quiz": [
+        {
+          "id": "thietbi",
+          "q": "Dạ, em hỏi mình một câu cho dễ hướng dẫn nhé. Mình đang dùng điện thoại hay máy tính ạ?",
+          "opts": [
+            {
+              "t": "Điện thoại",
+              "send": "Tôi dùng điện thoại",
+              "set": {
+                "dev": "dt"
+              }
+            },
+            {
+              "t": "Máy tính",
+              "send": "Tôi dùng máy tính",
+              "set": {
+                "dev": "mt"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
