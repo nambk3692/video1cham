@@ -180,7 +180,9 @@
   .regbox { border-top: 1px solid #AE8A3A; margin-top: 8px; padding-top: 14px; }
   .regttl { text-align: center; margin: 0 0 10px; font-weight: 700; }
   .regrow { display: flex; gap: 10px; }
-  .regrow .btn { flex: 1 1 0; min-height: 56px; font-size: 17px; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+  #reg-form input { width: 100%; box-sizing: border-box; min-height: 60px; padding: 0 16px; border-radius: 14px; border: 2px solid var(--line); background: #fff; color: var(--text); font-size: 20px; margin-bottom: 10px; }
+  #reg-form .err { margin: 6px 0 0; }
+  .regdone { text-align: center; font-weight: 700; font-size: 19px; margin: 12px 0 0; line-height: 1.5; color: var(--accent); }
   .vflow { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 16px; }
   .vflow .btn { min-height: 60px; font-size: 19px; }
   .vflow .gvwrap { margin: 0; }
@@ -223,11 +225,15 @@
       <button id="go" class="btn main block" type="button">Vào app</button>
       <p id="login-err" class="err"></p>
       <div id="reg" class="regbox">
-        <p class="muted regttl">Chưa có mã? Chọn tool muốn đăng ký bên dưới để bắt đầu.</p>
-        <div class="regrow">
-          <a id="reg-pt" class="btn main regtool" target="_blank" rel="noopener">Phong Thủy</a>
-          <a id="reg-sk" class="btn main regtool" target="_blank" rel="noopener">Sức Khỏe</a>
+        <p class="muted regttl">Chưa có mã?</p>
+        <button id="reg-open" class="btn main block" type="button">Đăng ký app</button>
+        <div id="reg-form" class="hide">
+          <input id="reg-name" type="text" maxlength="60" autocomplete="name" placeholder="Tên của mình">
+          <input id="reg-phone" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="Số điện thoại">
+          <button id="reg-go" class="btn main block" type="button">Nhận mã vào app</button>
+          <p id="reg-err" class="err"></p>
         </div>
+        <p id="reg-msg" class="regdone hide"></p>
       </div>
     </div>
     <div id="inapp" class="warn hide" style="margin-top:14px;text-align:left">
@@ -364,6 +370,14 @@
   }
 
   function verify(code, tool) {
+    code = (code || '').trim().split('~')[0];
+    // mã app tự đăng ký: chữ A + 7 ký tự, kiểm ngay ở Sheet app (không chờ 4 tool)
+    if (!tool && /^[Aa][2-9A-HJ-NP-Za-hj-np-z]{7}$/.test(code)) {
+      return verifyCourse(code).then(function (cr) { return cr.ok || cr.net ? cr : verifyAll(code, tool); });
+    }
+    return verifyAll(code, tool);
+  }
+  function verifyAll(code, tool) {
     code = (code || '').trim().split('~')[0];
     if (!code) return Promise.resolve({ ok: false, msg: 'Bạn chưa nhập mã.' });
     var keys = (tool && TOOL_APIS[tool]) ? [tool] : Object.keys(TOOL_APIS);
@@ -962,13 +976,27 @@
     box.appendChild(w);
   }
 
-  // ===== Chưa có mã (Nam chốt 25/10): chọn tool muốn đăng ký thì mở thẳng tool, tool tự có ô dán mã / dùng thử / mua như cũ =====
-  [["reg-pt", "phongthuy/", "pt"], ["reg-sk", "suckhoe/", "sk"]].forEach(function (r) {
-    var el = $(r[0]); el.href = SITE + r[1];
-    fetch(TOOL_APIS[r[2]] + "?api=config").then(function (x) { return x.json(); }).then(function (cfg) {
-      var link = String((cfg && cfg.toolLink) || "");
-      if (/^https:\/\/flow\.google\.com\/shared\/tool\//.test(link)) el.href = link;
-    }).catch(function () {});
+  // ===== Đăng ký app (Nam chốt 25/10): tên + số điện thoại -> mã riêng vào app (ghi vào Sheet kiểm mã ở Apps Script CONFIG.api); mỗi số điện thoại một mã =====
+  $('reg-open').addEventListener('click', function () { $('reg-open').classList.add('hide'); $('reg-form').classList.remove('hide'); $('reg-name').focus(); });
+  $('reg-go').addEventListener('click', function () {
+    var btn = $('reg-go'), err = $('reg-err'); err.textContent = '';
+    var name = $('reg-name').value.trim(), phone = $('reg-phone').value.trim();
+    if (!name) { err.textContent = 'Mình nhập tên giúp em nhé.'; return; }
+    if (phone.replace(/\D/g, '').length < 9) { err.textContent = 'Số điện thoại chưa đúng, mình kiểm tra lại nhé.'; return; }
+    btn.disabled = true; btn.textContent = 'Đang gửi...';
+    var ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 25000);
+    fetch(CONFIG.api, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'dangkyapp', name: name, phone: phone }), signal: ctl ? ctl.signal : undefined })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        clearTimeout(timer);
+        if (!j || !j.ok) { err.textContent = (j && j.msg) || 'Chưa đăng ký được, mình thử lại nhé.'; return; }
+        $('code').value = j.code;
+        $('reg-form').classList.add('hide');
+        var m = $('reg-msg'); m.textContent = 'Mã vào app của mình là ' + j.code + '. Mình ghi lại phòng khi đổi máy, rồi bấm Vào app nhé.'; m.classList.remove('hide');
+      })
+      .catch(function () { clearTimeout(timer); err.textContent = MSG_NET; })
+      .then(function () { btn.disabled = false; btn.textContent = 'Nhận mã vào app'; });
   });
 
   function put(path, body) {
