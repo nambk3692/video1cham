@@ -184,7 +184,7 @@
   #reg-form .err { margin: 6px 0 0; }
   .regdone { white-space: pre-line; text-align: center; font-weight: 700; font-size: 19px; margin: 12px 0 0; line-height: 1.5; color: var(--accent); }
   .dkplayer { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 14px; overflow: hidden; margin-top: 10px; }
-  .dkplayer iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .dkplayer video { position: absolute; inset: 0; width: 100%; height: 100%; }
   #tools #doitk-vid { background: #F7EBD3; border-color: #F7EBD3; color: #17453B; font-weight: 700; }
   .vflow { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 16px; }
   .vflow .btn { min-height: 60px; font-size: 19px; }
@@ -876,9 +876,8 @@
   $('doitk-vid').addEventListener('click', function () {
     var pl = $('doitk-player'), open = !pl.classList.contains('hide');
     if (open) { pl.innerHTML = ''; pl.classList.add('hide'); $('doitk-vid').textContent = '▶ Xem video hướng dẫn đổi tài khoản'; return; }
-    var fr = document.createElement('iframe'); fr.src = 'https://drive.google.com/file/d/1-TCzOFVGxe9pZIs8LTuCZ2-CsX7D3xvK/preview';
-    fr.setAttribute('allow', 'autoplay; fullscreen'); fr.setAttribute('allowfullscreen', ''); fr.title = 'Video hướng dẫn đổi tài khoản';
-    pl.appendChild(fr); pl.classList.remove('hide'); $('doitk-vid').textContent = 'Ẩn video';
+    var vd = document.createElement('video'); vd.src = 'huongdan_veo3/doitaikhoan.mp4'; vd.controls = true; vd.setAttribute('playsinline', ''); vd.preload = 'auto'; vd.style.cssText = 'width:100%;height:100%;background:#000;';
+    pl.appendChild(vd); pl.classList.remove('hide'); $('doitk-vid').textContent = 'Ẩn video'; try { var pr = vd.play(); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {}
   });
   function renderChat() {
     var box = $('chat-list'); if (!box) return;
