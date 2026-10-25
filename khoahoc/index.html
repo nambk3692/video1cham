@@ -998,7 +998,7 @@
     if (text) m.text = text.slice(0, 2000);
     if (pendingImg) m.hasImg = true;
     var img = pendingImg;
-    var p = put('/chats/' + cid + '/meta', { name: (who.name || 'Khách').slice(0, 80), ma: String(who.ma || '').slice(0, 300), tool: who.tool || '', dev: devKind(), os: osKind(), hd: isGuided() ? (store('kh_mode') || 'KICHHOAT_DAN') : ((hdCtx && Date.now() - hdCtxT < 1800000) ? hdCtx.slice(0, 200) : '') });
+    var p = put('/chats/' + cid + '/meta', { name: (who.name || 'Khách').slice(0, 80), ma: String(who.ma || '').slice(0, 40), ma2: String(who.ma || '').slice(40, 340), tool: who.tool || '', dev: devKind(), os: osKind(), hd: isGuided() ? (store('kh_mode') || 'KICHHOAT_DAN') : ((hdCtx && Date.now() - hdCtxT < 1800000) ? hdCtx.slice(0, 200) : '') });
     if (img) p = p.then(function () { return put('/chats/' + cid + '/img/' + mid, img); });
     p.then(function () { return put('/chats/' + cid + '/msgs/' + mid, m); })
       .then(function () { return put('/inbox/' + cid, { t: t, last: (text || 'Ảnh').slice(0, 80) }); })

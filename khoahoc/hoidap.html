@@ -170,7 +170,7 @@
     if (pendingImg) m.hasImg = true;
     var img = pendingImg;
     var name = 'Khách' + (who.tool ? ' ' + TOOL_NAMES[who.tool] : '');
-    var meta = { name: name.slice(0, 80), ma: who.ma.slice(0, 300), dev: devKind(), os: osKind() };
+    var meta = { name: name.slice(0, 80), ma: who.ma.slice(0, 40), ma2: who.ma.slice(40, 340), dev: devKind(), os: osKind() };
     if (who.tool) meta.tool = who.tool;
     var p = put('/chats/' + cid + '/meta', meta);
     if (img) p = p.then(function () { return put('/chats/' + cid + '/img/' + mid, img); });
