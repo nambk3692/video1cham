@@ -60,6 +60,22 @@
           ]
         },
         {
+          "id": "tuxem",
+          "q": "Dạ, mình có thể tự xem video hướng dẫn rồi làm theo được không ạ?",
+          "opts": [
+            {
+              "t": "Tự xem video và làm được",
+              "v": "tu",
+              "send": "Tôi tự xem video hướng dẫn và làm theo được"
+            },
+            {
+              "t": "Cần hướng dẫn từng bước",
+              "v": "can",
+              "send": "Tôi không tự xem video và làm theo được, cần hướng dẫn từng bước"
+            }
+          ]
+        },
+        {
           "id": "damua",
           "q": "Dạ, mình đã mua tài khoản Veo 3 chưa ạ?",
           "opts": [
@@ -95,6 +111,30 @@
           ]
         },
         {
+          "id": "chromeemail",
+          "when": {
+            "damua": "da"
+          },
+          "q": "Dạ, Chrome của mình đã đăng nhập đúng email đã mua Veo 3 chưa ạ?",
+          "opts": [
+            {
+              "t": "Rồi",
+              "v": "roi",
+              "send": "Chrome của tôi đã đăng nhập đúng email đã mua Veo 3"
+            },
+            {
+              "t": "Chưa",
+              "v": "chua",
+              "send": "Chrome của tôi chưa đăng nhập đúng email đã mua Veo 3"
+            },
+            {
+              "t": "Không rõ",
+              "v": "khongro",
+              "send": "Tôi không rõ Chrome đã đăng nhập đúng email đã mua Veo 3 chưa"
+            }
+          ]
+        },
+        {
           "id": "datao",
           "q": "Dạ, mình đã vào tool lần nào chưa, và đã tạo được video nào chưa ạ?",
           "opts": [
@@ -108,7 +148,10 @@
               "v": "chua",
               "send": "Tôi chưa vào tool hoặc chưa tạo được video nào"
             }
-          ]
+          ],
+          "when": {
+            "damua": "da"
+          }
         }
       ]
     }
