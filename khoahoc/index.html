@@ -182,7 +182,7 @@
   .regrow { display: flex; gap: 10px; }
   #reg-form input { width: 100%; box-sizing: border-box; min-height: 60px; padding: 0 16px; border-radius: 14px; border: 2px solid var(--line); background: #fff; color: var(--text); font-size: 20px; margin-bottom: 10px; }
   #reg-form .err { margin: 6px 0 0; }
-  .regdone { text-align: center; font-weight: 700; font-size: 19px; margin: 12px 0 0; line-height: 1.5; color: var(--accent); }
+  .regdone { white-space: pre-line; text-align: center; font-weight: 700; font-size: 19px; margin: 12px 0 0; line-height: 1.5; color: var(--accent); }
   .vflow { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 16px; }
   .vflow .btn { min-height: 60px; font-size: 19px; }
   .vflow .gvwrap { margin: 0; }
@@ -995,7 +995,7 @@
         if (!j || !j.ok) { err.textContent = (j && j.msg) || 'Chưa đăng ký được, mình thử lại nhé.'; return; }
         $('code').value = j.code;
         $('reg-form').classList.add('hide');
-        var m = $('reg-msg'); m.textContent = 'Mã vào app của mình là ' + j.code + '. ' + (j.mailed ? 'Em đã gửi mã vào email của mình, mình kiểm tra cả mục Spam nhé. ' : '') + 'Mình bấm Vào app nhé.'; m.classList.remove('hide');
+        var m = $('reg-msg'); m.textContent = 'Mã vào app của mình là ' + j.code + '.\nMã đã được điền sẵn vào ô phía trên, mình bấm Vào app là được.' + (j.mailed ? '\n\nEm cũng vừa gửi mã vào email của mình. Nếu không thấy thư, mình mở thư mục Spam để tìm nhé.' : ''); m.classList.remove('hide');
       })
       .catch(function () { clearTimeout(timer); err.textContent = MSG_NET; })
       .then(function () { btn.disabled = false; btn.textContent = 'Nhận mã vào app'; });
