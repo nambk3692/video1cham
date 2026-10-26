@@ -11,6 +11,7 @@
 <body><div class="card">
   <h2 id="h">Đang nhận phim từ tool...</h2>
   <p class="sub" id="msg">Giữ trang này mở vài giây, không cần làm gì thêm.</p>
+  <p class="sub hide" id="diag" style="font-size:12px;opacity:.7"></p>
   <video id="v" class="hide" controls playsinline></video>
   <div class="row">
     <button class="btn main hide" id="save" type="button">Lưu phim vào máy</button>
@@ -24,9 +25,16 @@
   //   tool -> trang: {type:'PT1C_TAI_FILE', base64:'<mp4 base64 thuần>', mime:'video/mp4', filename:'phong-thuy.mp4'}
   //   trang -> tool: {type:'PT1C_TAI_READY'} (lặp tới khi nhận) rồi {type:'PT1C_TAI_DONE', ok, msg}
   var $ = function (id) { return document.getElementById(id); };
-  var handled = false, readyTimer = null, blobUrl = '', fileObj = null;
+  var handled = false, readyTimer = null, blobUrl = '', fileObj = null, tool = null, pings = 0, t0 = Date.now();
+  var diagOn = /test/.test(location.hash);
+  function diag(t) { if (!diagOn) return; var d = $('diag'); d.classList.remove('hide'); d.textContent = t; }
+  function sec() { return Math.round((Date.now() - t0) / 100) / 10; }
 
-  function toTool(o) { try { if (window.opener) window.opener.postMessage(o, '*'); } catch (e) {} }
+  // Gửi về tool: ưu tiên cửa sổ tool đã tự giới thiệu (PING), nếu không có thì dùng window.opener
+  function toTool(o) {
+    try { if (tool) { tool.postMessage(o, '*'); return; } } catch (e) {}
+    try { if (window.opener) window.opener.postMessage(o, '*'); } catch (e) {}
+  }
   function show(id) { $(id).classList.remove('hide'); }
   function fail(msg) {
     $('h').textContent = 'Chưa tải được';
@@ -73,16 +81,28 @@
     } catch (err) { fail('Không đọc được phim: ' + (err && err.message || err)); }
   }
 
+  // Cách mới: tool gửi PING liên tục, trang trả lời READY qua e.source (chạy được cả khi trình duyệt iPhone làm mất window.opener)
   window.addEventListener('message', function (e) {
-    if (handled || !window.opener || e.source !== window.opener) return;
     var d = e.data;
-    if (d && d.type === 'PT1C_TAI_FILE') onFile(d);
+    if (!d || handled) return;
+    if (d.type === 'PT1C_TAI_PING') {
+      pings++;
+      if (!tool && e.source) { tool = e.source; clearInterval(readyTimer); }
+      toTool({ type: 'PT1C_TAI_READY' });
+      diag('opener: ' + (window.opener ? 'co' : 'khong') + ' | PING: ' + pings + ' | ' + sec() + 's');
+      return;
+    }
+    if (d.type === 'PT1C_TAI_FILE') { diag('nhan phim luc ' + sec() + 's'); onFile(d); }
   });
 
-  if (!window.opener) fail('Hãy mở trang này từ trong tool (bấm nút tải phim trong tool).');
-  else {
-    toTool({ type: 'PT1C_TAI_READY' });
-    readyTimer = setInterval(function () { toTool({ type: 'PT1C_TAI_READY' }); }, 500);
-    setTimeout(function () { if (!handled) { clearInterval(readyTimer); fail('Tool không gửi phim sang, thử lại nhé.'); } }, 60000);
-  }
+  diag('opener: ' + (window.opener ? 'co' : 'khong') + ' | cho tool...');
+  // Cách cũ (còn opener): tự gọi READY lặp tới khi nhận. Không có opener thì cứ chờ PING từ tool, tối đa 60 giây.
+  toTool({ type: 'PT1C_TAI_READY' });
+  readyTimer = setInterval(function () { toTool({ type: 'PT1C_TAI_READY' }); }, 500);
+  setTimeout(function () {
+    if (!handled) {
+      clearInterval(readyTimer);
+      fail(window.opener || tool ? 'Tool không gửi phim sang, thử lại nhé.' : 'Chưa nhận được phim từ tool. Hãy bấm nút tải phim trong tool rồi giữ trang này mở.');
+    }
+  }, 60000);
 </script></body></html>
