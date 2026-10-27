@@ -53,7 +53,12 @@
   var NAMES = { nha: 'Phong thủy nhà', tuong: 'Thuật xem tướng' };
   function show(id) { ['bad', 'load', 'none', 'pending', 'unlocked'].forEach(function (x) { $(x).classList.add('hide'); }); $(id).classList.remove('hide'); }
   function tell(status) {
-    try { window.parent.postMessage({ type: 'PT1C_KHO', kho: kho, status: status }, '*'); } catch (e) {}
+    // Tool mở trang này bằng window.open (Flow chặn nhúng iframe): báo về cửa sổ mở nó rồi tự đóng.
+    try {
+      var target = window.opener || (window.parent !== window ? window.parent : null);
+      if (target) target.postMessage({ type: 'PT1C_KHO', kho: kho, status: status }, '*');
+      if (window.opener) setTimeout(function () { window.close(); }, 1500);
+    } catch (e) {}
   }
   function render(r) {
     last = r;
