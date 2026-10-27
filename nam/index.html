@@ -91,7 +91,20 @@ textarea{min-height:76px;resize:vertical}
   var $ = function (id) { return document.getElementById(id); };
   var KEY = '', cur = '', tab = 'list', timer = null;
   var metaC = {}, imgC = {}, seen = {}, prev = {}, ten = {};
-  function tenHien(id) { var n = metaC[id] && metaC[id].name; return ten[id] || ((n && !/^Khách( thử)?$/.test(n)) ? n : 'Khách'); }
+  // tên khách nằm sẵn trong mã tool (phần giữa hai dấu chấm), giống cách app khách đọc
+  function tenTuMa(m) {
+    try {
+      var ma = (String(m.ma || '') + String(m.ma2 || '')).split('~')[0], p = ma.split('.')[1] || '';
+      if (!p) return '';
+      p = p.replace(/-/g, '+').replace(/_/g, '/'); while (p.length % 4) p += '=';
+      var n = decodeURIComponent(escape(atob(p))).slice(0, 60).trim();
+      return /^[\p{L}\p{N} .'-]{2,}$/u.test(n) ? n : '';
+    } catch (e) { return ''; }
+  }
+  function tenHien(id) {
+    var m = metaC[id] || {}, n = m.name;
+    return ten[id] || tenTuMa(m) || ((n && !/^Khách( thử| Sức Khỏe)?$/.test(n)) ? n : 'Khách');
+  }
 
   function st(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} return null; }
   function api(path, method, body) {
