@@ -90,7 +90,8 @@ textarea{min-height:76px;resize:vertical}
   var DB = 'https://hotro-khoahoc-default-rtdb.asia-southeast1.firebasedatabase.app';
   var $ = function (id) { return document.getElementById(id); };
   var KEY = '', cur = '', tab = 'list', timer = null;
-  var metaC = {}, imgC = {}, seen = {};
+  var metaC = {}, imgC = {}, seen = {}, prev = {}, ten = {};
+  function tenHien(id) { var n = metaC[id] && metaC[id].name; return ten[id] || ((n && !/^Khách( thử)?$/.test(n)) ? n : 'Khách'); }
 
   function st(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} return null; }
   function api(path, method, body) {
@@ -128,10 +129,10 @@ textarea{min-height:76px;resize:vertical}
     if (!ids.length) { box.appendChild(el('div', 'card', 'Chưa có cuộc trò chuyện nào.')); return; }
     ids.forEach(function (id) {
       var c = el('div', 'card row'); c.style.cursor = 'pointer';
-      var g = el('div', 'grow'), nm = el('div', 'name', (metaC[id] && (metaC[id].name || 'Khách')) || '...');
+      var g = el('div', 'grow'), nm = el('div', 'name', metaC[id] ? tenHien(id) : '...');
       var devs = { dt: 'điện thoại', mtb: 'máy tính bảng', mt: 'máy tính' };
       var sub = ago(list[id]) + (metaC[id] && metaC[id].dev ? ' · ' + (devs[metaC[id].dev] || '') : '') + (metaC[id] && metaC[id].tool ? ' · ' + metaC[id].tool : '');
-      g.appendChild(nm); g.appendChild(el('div', 'sub', sub));
+      g.appendChild(nm); if (prev[id] && prev[id].text) g.appendChild(el('div', '', prev[id].text)).style.cssText = 'font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'; g.appendChild(el('div', 'sub', sub));
       c.appendChild(g);
       if (seen[id] && seen[id] < list[id]) c.insertBefore(el('div', 'dot'), g);
       c.onclick = function () { openChat(id); };
@@ -140,7 +141,7 @@ textarea{min-height:76px;resize:vertical}
     });
   }
   function loadList() {
-    return api(N('/list')).then(function (l) { window._list = l || {}; if (!cur && tab === 'list') renderList(window._list); }).catch(function () {
+    return Promise.all([api(N('/list')), api(N('/prev')).catch(function () { return {}; }), api(N('/ten')).catch(function () { return {}; })]).then(function (r) { var l = r[0]; prev = r[1] || {}; ten = r[2] || {}; window._list = l || {}; if (!cur && tab === 'list') renderList(window._list); }).catch(function () {
       if (!cur && tab === 'list') { var b = $('m-list'); b.textContent = ''; b.appendChild(el('div', 'card', 'Không đọc được. Kiểm tra mạng hoặc khóa chưa đúng.')); }
     });
   }
@@ -148,7 +149,7 @@ textarea{min-height:76px;resize:vertical}
   // ----- một cuộc trò chuyện -----
   function openChat(id) {
     cur = id; seen[id] = Date.now(); st('nam_seen', JSON.stringify(seen));
-    show('m-chat'); $('title').textContent = (metaC[id] && metaC[id].name) || 'Khách';
+    show('m-chat'); $('title').textContent = tenHien(id) + ' ✎';
     $('m-chat').textContent = '';
     loadChat();
   }
@@ -179,6 +180,13 @@ textarea{min-height:76px;resize:vertical}
       if (atEnd || !box.dataset.done) { box.scrollTop = box.scrollHeight; box.dataset.done = '1'; }
     }).catch(function () {});
   }
+  $('title').onclick = function () {
+    if (!cur) return;
+    var v = prompt('Đặt tên cho khách này (để trống = bỏ tên):', ten[cur] || '');
+    if (v === null) return; v = v.trim().slice(0, 60);
+    var id = cur;
+    api(N('/ten/' + id), v ? 'PUT' : 'DELETE', v ? v : undefined).then(function () { if (v) ten[id] = v; else delete ten[id]; $('title').textContent = tenHien(id) + ' ✎'; });
+  };
   $('back').onclick = function () { cur = ''; $('m-chat').dataset.done = ''; $('title').textContent = 'Quản lý trợ lý'; setTab('list'); };
   $('csend').onclick = function () {
     var t = $('cin').value.trim(); if (!t || !cur) return;
