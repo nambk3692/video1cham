@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#17453B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Trợ lý của Nam">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Quản lý trợ lý</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font:17px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#E6D6AE;color:#1d2a26;display:flex;flex-direction:column;overflow:hidden}
+.hide{display:none!important}
+header{background:#17453B;color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;padding-top:max(12px,env(safe-area-inset-top))}
+header h1{font-size:18px;margin:0;flex:1}
+header button{background:transparent;border:0;color:#fff;font-size:16px;padding:6px 8px}
+main{flex:1;overflow:auto;padding:12px;-webkit-overflow-scrolling:touch}
+nav{display:flex;background:#fff8e6;border-top:2px solid #17453B;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;background:transparent;padding:14px 4px;font-size:17px;font-weight:600;color:#17453B}
+nav button.on{background:#17453B;color:#fff}
+.card{background:#FFFCF5;border-radius:12px;padding:12px 14px;margin-bottom:10px;box-shadow:0 1px 3px #0002}
+.row{display:flex;gap:10px;align-items:center}
+.grow{flex:1;min-width:0}
+.name{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sub{font-size:14px;color:#5b6660}
+.dot{width:10px;height:10px;border-radius:50%;background:#C0262D;flex:none}
+.bub{max-width:86%;padding:9px 12px;border-radius:14px;margin:6px 0;white-space:pre-wrap;word-break:break-word}
+.k{background:#fff;margin-right:auto;border-top-left-radius:4px}
+.a{background:#B9CFC2;margin-left:auto;border-top-right-radius:4px}
+.n{background:#D9B45B;margin-left:auto;border-top-right-radius:4px}
+.nr{background:#fff;border:2px solid #D9B45B;margin-left:auto;border-top-right-radius:4px}
+.bub img{max-width:100%;border-radius:8px;display:block;margin-top:6px}
+.who{font-size:12px;color:#5b6660;margin-top:8px}
+textarea,input{width:100%;font:inherit;padding:10px;border:2px solid #17453B;border-radius:10px;background:#fff}
+textarea{min-height:76px;resize:vertical}
+.btn{background:#C0262D;color:#fff;border:0;border-radius:12px;padding:12px 16px;font-size:17px;font-weight:700;width:100%;margin-top:8px}
+.btn.g{background:#17453B}
+.btn.s{width:auto;padding:6px 12px;font-size:14px;margin:0;background:#8a8a8a}
+.dock{background:#FFFCF5;border-top:2px solid #17453B;padding:10px 12px}
+.hint{font-size:14px;color:#5b6660;margin:2px 0 6px}
+</style>
+</head>
+<body>
+<header>
+  <button id="back" class="hide">‹ Về</button>
+  <h1 id="title">Quản lý trợ lý</h1>
+  <button id="reload">Làm mới</button>
+</header>
+
+<main id="login" class="hide">
+  <div class="card">
+    <p><b>Nhập khóa của Nam</b> (dán đoạn khóa dài trong link riêng). Chỉ cần nhập một lần trên máy này.</p>
+    <input id="keyin" placeholder="Dán khóa vào đây" autocomplete="off">
+    <button class="btn g" id="keyok">Vào</button>
+  </div>
+</main>
+
+<main id="m-list" class="hide"></main>
+
+<main id="m-chat" class="hide"></main>
+<div id="chatdock" class="dock hide">
+  <div class="hint">Dặn trợ lý về cuộc trò chuyện này (ví dụ: "chỗ này lần sau nói ngắn hơn")</div>
+  <textarea id="cin" placeholder="Gõ lời dặn..."></textarea>
+  <button class="btn" id="csend">Gửi lời dặn</button>
+</div>
+
+<main id="m-so" class="hide">
+  <div class="card">
+    <div class="hint">Dặn chung cho trợ lý (áp dụng mọi khách từ tin sau)</div>
+    <textarea id="gin" placeholder="Ví dụ: khách hỏi giá thì bảo nhắn Zalo Đinh Huệ"></textarea>
+    <button class="btn" id="gsend">Gửi lời dặn</button>
+  </div>
+  <div id="gthread"></div>
+  <h3 style="margin:16px 4px 6px">Sổ lời dặn đang có hiệu lực</h3>
+  <div id="so"></div>
+</main>
+
+<nav id="nav" class="hide">
+  <button id="t-list" class="on">Tin khách</button>
+  <button id="t-so">Dặn trợ lý</button>
+</nav>
+
+<script>
+(function () {
+  'use strict';
+  var DB = 'https://hotro-khoahoc-default-rtdb.asia-southeast1.firebasedatabase.app';
+  var $ = function (id) { return document.getElementById(id); };
+  var KEY = '', cur = '', tab = 'list', timer = null;
+  var metaC = {}, imgC = {}, seen = {};
+
+  function st(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} return null; }
+  function api(path, method, body) {
+    return fetch(DB + path + '.json', { method: method || 'GET', body: body === undefined ? undefined : JSON.stringify(body) })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+  }
+  var N = function (p) { return '/nam/' + KEY + p; };
+  function ago(t) {
+    var d = Date.now() - t, m = Math.round(d / 60000);
+    if (m < 1) return 'vừa xong'; if (m < 60) return m + ' phút trước';
+    var h = Math.round(m / 60); if (h < 24) return h + ' giờ trước';
+    return new Date(t).toLocaleDateString('vi-VN') + ' ' + new Date(t).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  }
+  function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function show(id) {
+    ['login', 'm-list', 'm-chat', 'm-so'].forEach(function (x) { $(x).classList.toggle('hide', x !== id); });
+    $('chatdock').classList.toggle('hide', id !== 'm-chat');
+    $('nav').classList.toggle('hide', id === 'login');
+    $('back').classList.toggle('hide', id !== 'm-chat');
+  }
+
+  // ----- khóa -----
+  var h = (location.hash || '').replace(/^#/, '').trim();
+  if (h.length >= 40) { st('nam_key', h); history.replaceState(null, '', location.pathname); }
+  KEY = (h.length >= 40 ? h : st('nam_key')) || '';
+  $('keyok').onclick = function () {
+    var v = $('keyin').value.trim(); if (v.length < 40) { alert('Khóa chưa đúng, dán lại giúp em.'); return; }
+    st('nam_key', v); KEY = v; start();
+  };
+
+  // ----- danh sách khách -----
+  function renderList(list) {
+    var box = $('m-list'); box.textContent = '';
+    var ids = Object.keys(list || {}).sort(function (a, b) { return list[b] - list[a]; }).slice(0, 40);
+    if (!ids.length) { box.appendChild(el('div', 'card', 'Chưa có cuộc trò chuyện nào.')); return; }
+    ids.forEach(function (id) {
+      var c = el('div', 'card row'); c.style.cursor = 'pointer';
+      var g = el('div', 'grow'), nm = el('div', 'name', (metaC[id] && (metaC[id].name || 'Khách')) || '...');
+      var devs = { dt: 'điện thoại', mtb: 'máy tính bảng', mt: 'máy tính' };
+      var sub = ago(list[id]) + (metaC[id] && metaC[id].dev ? ' · ' + (devs[metaC[id].dev] || '') : '') + (metaC[id] && metaC[id].tool ? ' · ' + metaC[id].tool : '');
+      g.appendChild(nm); g.appendChild(el('div', 'sub', sub));
+      c.appendChild(g);
+      if (seen[id] && seen[id] < list[id]) c.insertBefore(el('div', 'dot'), g);
+      c.onclick = function () { openChat(id); };
+      box.appendChild(c);
+      if (!metaC[id]) api('/chats/' + id + '/meta').then(function (m) { metaC[id] = m || {}; if (tab === 'list' && !cur) renderList(list); }).catch(function () {});
+    });
+  }
+  function loadList() {
+    return api(N('/list')).then(function (l) { window._list = l || {}; if (!cur && tab === 'list') renderList(window._list); }).catch(function () {
+      if (!cur && tab === 'list') { var b = $('m-list'); b.textContent = ''; b.appendChild(el('div', 'card', 'Không đọc được. Kiểm tra mạng hoặc khóa chưa đúng.')); }
+    });
+  }
+
+  // ----- một cuộc trò chuyện -----
+  function openChat(id) {
+    cur = id; seen[id] = Date.now(); st('nam_seen', JSON.stringify(seen));
+    show('m-chat'); $('title').textContent = (metaC[id] && metaC[id].name) || 'Khách';
+    $('m-chat').textContent = '';
+    loadChat();
+  }
+  function loadChat() {
+    if (!cur) return;
+    var id = cur;
+    Promise.all([api('/chats/' + id + '/msgs'), api(N('/cmd'))]).then(function (r) {
+      if (id !== cur) return;
+      var ms = r[0] || {}, cm = r[1] || {};
+      var arr = Object.keys(ms).map(function (k) { var m = ms[k]; m.id = k; m.k = 'm'; return m; });
+      Object.keys(cm).forEach(function (k) { var c = cm[k]; if (c && c.chat === id) { arr.push({ id: k, t: c.t, text: c.text, k: 'n' }); if (c.reply) arr.push({ id: k + 'r', t: c.done || c.t, text: c.reply, k: 'nr' }); } });
+      arr = arr.filter(function (m) { return m.t; }).sort(function (a, b) { return a.t - b.t; }).slice(-60);
+      var box = $('m-chat'), atEnd = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+      box.textContent = '';
+      arr.forEach(function (m) {
+        var cls = m.k === 'n' ? 'n' : m.k === 'nr' ? 'nr' : (m.from === 'khach' ? 'k' : 'a');
+        var who = m.k === 'n' ? 'Lời dặn của Nam' : m.k === 'nr' ? 'Trợ lý trả lời Nam' : (m.from === 'khach' ? 'Khách' : 'Trợ lý');
+        box.appendChild(el('div', 'who', who + ' · ' + ago(m.t)));
+        var b = el('div', 'bub ' + cls, m.text || (m.hasImg ? '' : '(trống)'));
+        if (m.hasImg) {
+          var im = new Image(); im.alt = 'ảnh';
+          if (imgC[m.id]) im.src = imgC[m.id];
+          else api('/chats/' + id + '/img/' + m.id).then(function (d) { if (d) { imgC[m.id] = d; im.src = d; } }).catch(function () {});
+          b.appendChild(im);
+        }
+        box.appendChild(b);
+      });
+      if (atEnd || !box.dataset.done) { box.scrollTop = box.scrollHeight; box.dataset.done = '1'; }
+    }).catch(function () {});
+  }
+  $('back').onclick = function () { cur = ''; $('m-chat').dataset.done = ''; $('title').textContent = 'Quản lý trợ lý'; setTab('list'); };
+  $('csend').onclick = function () {
+    var t = $('cin').value.trim(); if (!t || !cur) return;
+    $('csend').disabled = true;
+    api(N('/cmd'), 'POST', { t: Date.now(), text: t.slice(0, 1500), chat: cur }).then(function () { $('cin').value = ''; $('csend').disabled = false; loadChat(); })
+      .catch(function () { $('csend').disabled = false; alert('Chưa gửi được, thử lại giúp em.'); });
+  };
+
+  // ----- dặn chung + sổ -----
+  function loadSo() {
+    Promise.all([api(N('/so')), api(N('/cmd'))]).then(function (r) {
+      var so = r[0] || {}, cm = r[1] || {};
+      var th = $('gthread'); th.textContent = '';
+      Object.keys(cm).map(function (k) { return Object.assign({ id: k }, cm[k]); }).filter(function (c) { return !c.chat; }).sort(function (a, b) { return a.t - b.t; }).slice(-6).forEach(function (c) {
+        th.appendChild(el('div', 'bub n', c.text));
+        th.appendChild(el('div', 'bub nr', c.reply || 'Đang xử lý... (máy tính phải đang bật)'));
+      });
+      var box = $('so'); box.textContent = '';
+      var ks = Object.keys(so).filter(function (k) { return so[k] && so[k].text && so[k].on !== false; }).sort(function (a, b) { return so[b].t - so[a].t; });
+      if (!ks.length) box.appendChild(el('div', 'card', 'Chưa có lời dặn nào.'));
+      ks.forEach(function (k) {
+        var c = el('div', 'card'), tx = el('div', '', so[k].text);
+        var f = el('div', 'row'); f.style.marginTop = '8px';
+        f.appendChild(el('div', 'sub grow', ago(so[k].t)));
+        var bt = el('button', 'btn s', 'Xóa');
+        bt.onclick = function () { if (confirm('Xóa lời dặn này? Trợ lý sẽ không làm theo nữa.')) api(N('/so/' + k), 'DELETE').then(loadSo); };
+        f.appendChild(bt); c.appendChild(tx); c.appendChild(f); box.appendChild(c);
+      });
+    }).catch(function () {});
+  }
+  $('gsend').onclick = function () {
+    var t = $('gin').value.trim(); if (!t) return;
+    $('gsend').disabled = true;
+    api(N('/cmd'), 'POST', { t: Date.now(), text: t.slice(0, 1500) }).then(function () { $('gin').value = ''; $('gsend').disabled = false; loadSo(); })
+      .catch(function () { $('gsend').disabled = false; alert('Chưa gửi được, thử lại giúp em.'); });
+  };
+
+  // ----- chung -----
+  function setTab(t) {
+    tab = t; cur = '';
+    $('t-list').classList.toggle('on', t === 'list'); $('t-so').classList.toggle('on', t === 'so');
+    show(t === 'list' ? 'm-list' : 'm-so');
+    refresh();
+  }
+  function refresh() { if (cur) loadChat(); else if (tab === 'list') loadList(); else loadSo(); }
+  $('t-list').onclick = function () { setTab('list'); };
+  $('t-so').onclick = function () { setTab('so'); };
+  $('reload').onclick = refresh;
+  function start() {
+    try { seen = JSON.parse(st('nam_seen') || '{}'); } catch (e) { seen = {}; }
+    $('nav').classList.remove('hide'); setTab('list');
+    if (!timer) timer = setInterval(function () { if (!document.hidden) refresh(); }, 6000);
+  }
+  if (KEY.length >= 40) start(); else show('login');
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+})();
+</script>
+</body>
+</html>
