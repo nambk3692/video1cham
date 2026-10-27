@@ -16,7 +16,8 @@ html,body{margin:0;height:100%}
 body{font:17px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#E6D6AE;color:#1d2a26;display:flex;flex-direction:column;overflow:hidden}
 .hide{display:none!important}
 header{background:#17453B;color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;padding-top:max(12px,env(safe-area-inset-top))}
-header h1{font-size:18px;margin:0;flex:1}
+header h1{font-size:18px;margin:0;flex:1;text-align:center}
+header h1.up{text-transform:uppercase;letter-spacing:1px}
 header button{background:transparent;border:0;color:#fff;font-size:16px;padding:6px 8px}
 main{flex:1;overflow:auto;overscroll-behavior-y:contain;padding:12px;-webkit-overflow-scrolling:touch}
 nav{display:flex;background:#fff8e6;border-top:2px solid #17453B;padding-bottom:env(safe-area-inset-bottom)}
@@ -47,7 +48,7 @@ textarea{min-height:76px;resize:vertical}
 <body>
 <header>
   <button id="back" class="hide">‹ Về</button>
-  <h1 id="title">Quản lý trợ lý</h1>
+  <h1 id="title" class="up">Quản lý trợ lý</h1>
 </header>
 
 <main id="login" class="hide">
@@ -126,6 +127,7 @@ textarea{min-height:76px;resize:vertical}
     $('chatdock').classList.toggle('hide', id !== 'm-chat');
     $('nav').classList.toggle('hide', id === 'login');
     $('back').classList.toggle('hide', id !== 'm-chat');
+    $('title').classList.toggle('up', id !== 'm-chat');
   }
 
   // ----- khóa -----
