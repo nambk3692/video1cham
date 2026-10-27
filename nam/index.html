@@ -48,7 +48,6 @@ textarea{min-height:76px;resize:vertical}
 <header>
   <button id="back" class="hide">‹ Về</button>
   <h1 id="title">Quản lý trợ lý</h1>
-  <button id="reload">Làm mới</button>
 </header>
 
 <main id="login" class="hide">
@@ -69,8 +68,7 @@ textarea{min-height:76px;resize:vertical}
 
 <main id="m-so" class="hide">
   <div class="card">
-    <div class="hint">Dặn chung cho trợ lý (áp dụng mọi khách từ tin sau)</div>
-    <textarea id="gin" placeholder="Ví dụ: khách hỏi giá thì bảo nhắn Zalo Đinh Huệ"></textarea>
+    <textarea id="gin" placeholder="Gõ lời dặn..."></textarea>
     <button class="btn" id="gsend">Gửi lời dặn</button>
   </div>
   <div id="gthread"></div>
@@ -265,7 +263,7 @@ textarea{min-height:76px;resize:vertical}
   });
   $('t-list').onclick = function () { setTab('list'); };
   $('t-so').onclick = function () { setTab('so'); };
-  $('reload').onclick = refresh;
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) refresh(); });
   function start() {
     try { seen = JSON.parse(st('nam_seen') || '{}'); } catch (e) { seen = {}; }
     $('nav').classList.remove('hide'); setTab('list');
