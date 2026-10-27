@@ -18,7 +18,7 @@ body{font:17px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;backgro
 header{background:#17453B;color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;padding-top:max(12px,env(safe-area-inset-top))}
 header h1{font-size:18px;margin:0;flex:1}
 header button{background:transparent;border:0;color:#fff;font-size:16px;padding:6px 8px}
-main{flex:1;overflow:auto;padding:12px;-webkit-overflow-scrolling:touch}
+main{flex:1;overflow:auto;overscroll-behavior-y:contain;padding:12px;-webkit-overflow-scrolling:touch}
 nav{display:flex;background:#fff8e6;border-top:2px solid #17453B;padding-bottom:env(safe-area-inset-bottom)}
 nav button{flex:1;border:0;background:transparent;padding:14px 4px;font-size:17px;font-weight:600;color:#17453B}
 nav button.on{background:#17453B;color:#fff}
@@ -63,7 +63,6 @@ textarea{min-height:76px;resize:vertical}
 
 <main id="m-chat" class="hide"></main>
 <div id="chatdock" class="dock hide">
-  <div class="hint">Dặn trợ lý về cuộc trò chuyện này (ví dụ: "chỗ này lần sau nói ngắn hơn")</div>
   <textarea id="cin" placeholder="Gõ lời dặn..."></textarea>
   <button class="btn" id="csend">Gửi lời dặn</button>
 </div>
@@ -250,6 +249,20 @@ textarea{min-height:76px;resize:vertical}
     refresh();
   }
   function refresh() { if (cur) loadChat(); else if (tab === 'list') loadList(); else loadSo(); }
+  // vuốt từ trên xuống để làm mới (giống app khách)
+  var ind = el('div', 'hide', 'Thả tay để làm mới');
+  ind.style.cssText = 'position:fixed;left:0;right:0;text-align:center;background:#D9B45B;color:#1d2a26;font-weight:700;padding:8px;z-index:9';
+  document.body.appendChild(ind);
+  ['m-list', 'm-chat', 'm-so'].forEach(function (id) {
+    var box = $(id), y0 = null, dy = 0;
+    box.addEventListener('touchstart', function (e) { y0 = box.scrollTop <= 0 ? e.touches[0].clientY : null; dy = 0; }, { passive: true });
+    box.addEventListener('touchmove', function (e) {
+      if (y0 === null) return;
+      dy = e.touches[0].clientY - y0;
+      if (dy >= 70) { ind.style.top = document.querySelector('header').offsetHeight + 'px'; ind.classList.remove('hide'); } else ind.classList.add('hide');
+    }, { passive: true });
+    box.addEventListener('touchend', function () { var go = y0 !== null && dy >= 70; y0 = null; dy = 0; ind.classList.add('hide'); if (go) refresh(); });
+  });
   $('t-list').onclick = function () { setTab('list'); };
   $('t-so').onclick = function () { setTab('so'); };
   $('reload').onclick = refresh;
