@@ -90,7 +90,7 @@ textarea{min-height:76px;resize:vertical}
   var DB = 'https://hotro-khoahoc-default-rtdb.asia-southeast1.firebasedatabase.app';
   var $ = function (id) { return document.getElementById(id); };
   var KEY = '', cur = '', tab = 'list', timer = null;
-  var metaC = {}, imgC = {}, seen = {}, prev = {}, ten = {};
+  var metaC = {}, imgC = {}, seen = {}, prev = {}, ten = {}, tenKhach = {};
   // tên khách nằm sẵn trong mã tool (phần giữa hai dấu chấm), giống cách app khách đọc
   function tenTuMa(m) {
     try {
@@ -101,9 +101,14 @@ textarea{min-height:76px;resize:vertical}
       return /^[\p{L}\p{N} .'-]{2,}$/u.test(n) ? n : '';
     } catch (e) { return ''; }
   }
+  function hoaDau(t) { return String(t || '').trim().toLowerCase().split(/\s+/).map(function (w) { return w.charAt(0).toLocaleUpperCase('vi') + w.slice(1); }).join(' '); }
+  var TOOLN = { sk: 'sức khỏe', pt: 'phong thủy', tv1c: 'tạo video', ed1c: 'edit video', tt: 'tiếng Trung' };
+  // Ưu tiên: tên Nam tự đặt > tên trong mã tool > tên khách tự nói với trợ lý > tên cũ > "Khách"; viết hoa chữ đầu, kèm (tool) nếu khách nhắn từ tool
   function tenHien(id) {
     var m = metaC[id] || {}, n = m.name;
-    return ten[id] || tenTuMa(m) || ((n && !/^Khách( thử| Sức Khỏe)?$/.test(n)) ? n : 'Khách');
+    var t = hoaDau(ten[id] || tenTuMa(m) || tenKhach[id] || ((n && !/^Khách( thử| Sức Khỏe)?$/.test(n)) ? n : 'Khách'));
+    var tl = m.tool ? (TOOLN[m.tool] || m.tool) : '';
+    return tl ? t + ' (' + tl + ')' : t;
   }
 
   function st(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} return null; }
@@ -154,7 +159,7 @@ textarea{min-height:76px;resize:vertical}
     });
   }
   function loadList() {
-    return Promise.all([api(N('/list')), api(N('/prev')).catch(function () { return {}; }), api(N('/ten')).catch(function () { return {}; })]).then(function (r) { var l = r[0]; prev = r[1] || {}; ten = r[2] || {}; window._list = l || {}; if (!cur && tab === 'list') renderList(window._list); }).catch(function () {
+    return Promise.all([api(N('/list')), api(N('/prev')).catch(function () { return {}; }), api(N('/ten')).catch(function () { return {}; }), api(N('/tenkhach')).catch(function () { return {}; })]).then(function (r) { var l = r[0]; prev = r[1] || {}; ten = r[2] || {}; tenKhach = r[3] || {}; window._list = l || {}; if (!cur && tab === 'list') renderList(window._list); }).catch(function () {
       if (!cur && tab === 'list') { var b = $('m-list'); b.textContent = ''; b.appendChild(el('div', 'card', 'Không đọc được. Kiểm tra mạng hoặc khóa chưa đúng.')); }
     });
   }
