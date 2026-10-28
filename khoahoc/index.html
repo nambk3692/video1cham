@@ -950,17 +950,12 @@
         if (vs.length) beginVflow(vs, st.mode); else startGuided(st.a.map(function (x) { return x.send; }).join('. ') + '.', st.mode);
       });
   }
-  // Bộ câu hỏi chỉ hỏi MỘT lần (Nam chốt 28/10): lần sau bấm nút chỉ hiện câu "mình cần em hỗ trợ gì"
+  // Bộ câu hỏi chỉ hỏi MỘT lần (Nam chốt 28/10): lần sau bấm nút chỉ chuyển sang tab Hỏi đáp (Nam chốt lại 28/10)
   function quizDone(mode) { return !!store('kh_quizdone_' + mode) || (mode === 'HUONGDAN_CHUNG' && store('kh_mode') === 'HUONGDAN_CHUNG' && !!store('kh_guided')); }
   function askOrQuiz(gg) {
     if (!quizDone(gg.mode)) { startQuiz(gg); return; }
     store('kh_guided', String(Date.now())); store('kh_mode', gg.mode || 'HUONGDAN_CHUNG'); store('kh_quiz', null);
     showTab('hoi');
-    var Q = 'Dạ, mình cần em hỗ trợ gì ạ?', ids = Object.keys(msgs).sort(function (a, b) { return msgs[a].t - msgs[b].t; });
-    var last = ids.length ? msgs[ids[ids.length - 1]] : null;
-    if ((last && last.from === 'ai' && last.text === Q) || Date.now() - Number(store('kh_askq') || 0) < 1800000) return;
-    store('kh_askq', String(Date.now()));
-    aiSay(Q);
   }
   function startQuiz(gg) {
     store('kh_quiz', JSON.stringify({ i: 0, a: [], quiz: gg.quiz, mode: gg.mode }));
