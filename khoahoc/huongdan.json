@@ -60,6 +60,52 @@
           ]
         },
         {
+          "id": "tooldung",
+          "q": "Dạ, mình dùng tool để làm gì ạ?",
+          "opts": [
+            {
+              "t": "Làm video sức khỏe",
+              "v": "sk",
+              "send": "Tôi dùng tool để làm video sức khỏe",
+              "set": {
+                "tool": "sk"
+              }
+            },
+            {
+              "t": "Làm video phong thủy",
+              "v": "pt",
+              "send": "Tôi dùng tool để làm video phong thủy",
+              "set": {
+                "tool": "pt"
+              }
+            },
+            {
+              "t": "Làm video chủ đề khác",
+              "v": "tv1c",
+              "send": "Tôi dùng tool để làm video chủ đề khác",
+              "set": {
+                "tool": "tv1c"
+              }
+            },
+            {
+              "t": "Edit video có sẵn",
+              "v": "ed1c",
+              "send": "Tôi dùng tool để edit video có sẵn",
+              "set": {
+                "tool": "ed1c"
+              }
+            },
+            {
+              "t": "Chưa mua / chưa rõ",
+              "v": "none",
+              "send": "Tôi chưa mua tool hoặc chưa rõ mình dùng tool nào",
+              "set": {
+                "tool": "none"
+              }
+            }
+          ]
+        },
+        {
           "id": "damua",
           "q": "Dạ, mình đã mua tài khoản Veo 3 chưa ạ?",
           "opts": [
