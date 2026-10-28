@@ -326,8 +326,25 @@
   };
 
   function $(id) { return document.getElementById(id); }
+  // Bộ nhớ máy khách: trình duyệt nhúng (Zalo, Facebook...) hoặc chế độ riêng tư có thể không giữ được localStorage -> dùng thêm bộ nhớ tạm + cookie,
+  // để cuộc trò chuyện không bị tách thành nhiều cuộc mỗi lần khách nhắn (Nam báo 28/10).
+  var memStore = {};
+  var lsOk = (function () { try { localStorage.setItem('__kh', '1'); var ok = localStorage.getItem('__kh') === '1'; localStorage.removeItem('__kh'); return ok; } catch (e) { return false; } })();
+  function ckGet(k) { try { var m = document.cookie.match(new RegExp('(?:^|; )' + k + '=([^;]*)')); return m ? decodeURIComponent(m[1]) : null; } catch (e) { return null; } }
+  function ckSet(k, v) { try { document.cookie = k + '=' + (v === null ? '' : encodeURIComponent(v)) + '; max-age=' + (v === null ? 0 : 34560000) + '; path=/; SameSite=Lax'; } catch (e) {} }
   function store(k, v) {
-    try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; }
+    if (v === undefined) {
+      var x = null;
+      if (lsOk) { try { x = localStorage.getItem(k); } catch (e) {} }
+      if (x === null || x === undefined) x = (k in memStore) ? memStore[k] : ((!lsOk || k === 'kh_chat') ? ckGet(k) : null);
+      if (x !== null && x !== undefined && k === 'kh_chat') { memStore[k] = x; }
+      return x === undefined ? null : x;
+    }
+    if (v === null) { delete memStore[k]; if (lsOk) { try { localStorage.removeItem(k); } catch (e) {} } if (!lsOk || k === 'kh_chat') ckSet(k, null); return null; }
+    v = String(v); memStore[k] = v;
+    if (lsOk) { try { localStorage.setItem(k, v); } catch (e) {} }
+    if ((!lsOk || k === 'kh_chat') && v.length < 300) ckSet(k, v);
+    return null;
   }
 
   var data = null, flat = [], current = -1, deferredPrompt = null;
