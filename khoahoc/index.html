@@ -432,8 +432,7 @@
       if (lastTab === 'hoi' || lastTab === 'cu' || lastTab === 'hd') showTab(lastTab);
     } else if (/(^|[#&])tab=cu/.test(location.hash)) showTab('cu');
     else {
-      var hs = readHd();
-      if (!store('kh_hd_seen') || (hs && hs.g && !hs.done)) { store('kh_hd_seen', '1'); showTab('hd'); }
+      store('kh_hd_seen', '1'); showTab('hd'); // Nam chốt 28/10: mọi lần vào app đều mở sẵn tab Hướng dẫn
     }
   }
 
@@ -719,11 +718,13 @@
         var hb = gBtn(gg.btn ? '' : 'Trợ lý hỗ trợ', 'main big', function () { if (gg.quiz && gg.quiz.length) askOrQuiz(gg); else startGuided(gg.assist || ('Tôi muốn được hỗ trợ: ' + gg.title), gg.mode); });
         if (gg.btn) { hb.classList.add('startbtn'); hb.appendChild(mk('span', 'sb1', gg.btn)); if (gg.btnSub) hb.appendChild(mk('span', 'sb2', gg.btnSub)); }
         c.appendChild(hb);
-        if (gg.videos && gg.videos.length) {
-          if (gg.videosTitle) c.appendChild(mk('p', 'vhead', gg.videosTitle));
-          gg.videos.forEach(function (v) { c.appendChild(videoToggle({ video: v.u, label: v.t })); if (v.link) linkBox(c, v.link); });
-        }
         box.appendChild(c);
+        if (gg.videos && gg.videos.length) {
+          var c2 = mk('div', 'card gcard');
+          if (gg.videosTitle) c2.appendChild(mk('h2', '', gg.videosTitle));
+          gg.videos.forEach(function (v) { c2.appendChild(videoToggle({ video: v.u, label: v.t })); if (v.link) linkBox(c2, v.link); });
+          box.appendChild(c2);
+        }
       });
       return;
     }
