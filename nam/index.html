@@ -43,6 +43,11 @@ textarea{min-height:76px;resize:vertical}
 .btn.s{width:auto;padding:6px 12px;font-size:14px;margin:0;background:#8a8a8a}
 .dock{background:#FFFCF5;border-top:2px solid #17453B;padding:10px 12px}
 .hint{font-size:14px;color:#5b6660;margin:2px 0 6px}
+.tg{display:block;width:100%;background:#17453B;color:#fff;border:0;border-radius:8px;padding:8px;font-size:15px;font-weight:600;margin-bottom:8px}
+.btn.s2{width:auto;padding:8px 16px;margin:8px 10px 0 0;font-size:16px}
+.imgrow{display:flex;align-items:center}
+.imgrow img{height:44px;width:44px;object-fit:cover;border-radius:8px;margin-top:8px;border:2px solid #17453B}
+.imgrow .x{margin:8px 0 0 6px;font-size:14px;color:#C0262D;font-weight:700;background:none;border:0}
 </style>
 </head>
 <body>
@@ -63,13 +68,20 @@ textarea{min-height:76px;resize:vertical}
 
 <main id="m-chat" class="hide"></main>
 <div id="chatdock" class="dock hide">
-  <textarea id="cin" placeholder="Gõ lời dặn..."></textarea>
-  <button class="btn" id="csend">Gửi lời dặn</button>
+  <button class="tg" id="dtoggle">Ẩn khung dặn ▼</button>
+  <div id="dbody">
+    <textarea id="cin"></textarea>
+    <div class="imgrow"><button class="btn g s2" id="cpick">Gửi ảnh</button><span id="cprev"></span></div>
+    <button class="btn" id="csend">Gửi lời dặn</button>
+  </div>
+  <input type="file" id="cfile" accept="image/*" class="hide">
 </div>
 
 <main id="m-so" class="hide">
   <div class="card">
-    <textarea id="gin" placeholder="Gõ lời dặn..."></textarea>
+    <textarea id="gin"></textarea>
+    <div class="imgrow"><button class="btn g s2" id="gpick">Gửi ảnh</button><span id="gprev"></span></div>
+    <input type="file" id="gfile" accept="image/*" class="hide">
     <button class="btn" id="gsend">Gửi lời dặn</button>
   </div>
   <div id="gthread"></div>
@@ -177,7 +189,7 @@ textarea{min-height:76px;resize:vertical}
       if (id !== cur) return;
       var ms = r[0] || {}, cm = r[1] || {};
       var arr = Object.keys(ms).map(function (k) { var m = ms[k]; m.id = k; m.k = 'm'; return m; });
-      Object.keys(cm).forEach(function (k) { var c = cm[k]; if (c && c.chat === id) { arr.push({ id: k, t: c.t, text: c.text, k: 'n' }); if (c.reply) arr.push({ id: k + 'r', t: c.done || c.t, text: c.reply, k: 'nr' }); } });
+      Object.keys(cm).forEach(function (k) { var c = cm[k]; if (c && c.chat === id) { arr.push({ id: k, t: c.t, text: c.hasImg && c.text === '(chỉ gửi ảnh)' ? '' : c.text, k: 'n', hasImg: !!c.hasImg, imgPath: N('/img/' + k) }); if (c.reply) arr.push({ id: k + 'r', t: c.done || c.t, text: c.reply, k: 'nr' }); } });
       arr = arr.filter(function (m) { return m.t; }).sort(function (a, b) { return a.t - b.t; }).slice(-60);
       var box = $('m-chat'), atEnd = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
       box.textContent = '';
@@ -187,9 +199,9 @@ textarea{min-height:76px;resize:vertical}
         box.appendChild(el('div', 'who', who + ' · ' + ago(m.t)));
         var b = el('div', 'bub ' + cls, m.text || (m.hasImg ? '' : '(trống)'));
         if (m.hasImg) {
-          var im = new Image(); im.alt = 'ảnh';
-          if (imgC[m.id]) im.src = imgC[m.id];
-          else api('/chats/' + id + '/img/' + m.id).then(function (d) { if (d) { imgC[m.id] = d; im.src = d; } }).catch(function () {});
+          var im = new Image(), ip = m.imgPath || ('/chats/' + id + '/img/' + m.id); im.alt = 'ảnh';
+          if (imgC[ip]) im.src = imgC[ip];
+          else api(ip).then(function (d) { if (d) { imgC[ip] = d; im.src = d; } }).catch(function () {});
           b.appendChild(im);
         }
         box.appendChild(b);
@@ -205,11 +217,68 @@ textarea{min-height:76px;resize:vertical}
     api(N('/ten/' + id), v ? 'PUT' : 'DELETE', v ? v : undefined).then(function () { if (v) ten[id] = v; else delete ten[id]; $('title').textContent = tenHien(id) + ' ✎'; });
   };
   $('back').onclick = function () { cur = ''; $('m-chat').dataset.done = ''; $('title').textContent = 'Quản lý trợ lý'; setTab('list'); };
-  $('csend').onclick = function () {
-    var t = $('cin').value.trim(); if (!t || !cur) return;
-    $('csend').disabled = true;
-    api(N('/cmd'), 'POST', { t: Date.now(), text: t.slice(0, 1500), chat: cur }).then(function () { $('cin').value = ''; $('csend').disabled = false; loadChat(); })
-      .catch(function () { $('csend').disabled = false; alert('Chưa gửi được, thử lại giúp em.'); });
+  // ----- gửi ảnh kèm lời dặn (thu nhỏ trước khi gửi) -----
+  var pic = { c: '', g: '' };
+  function nenAnh(file, cb) {
+    var fr = new FileReader();
+    fr.onload = function () {
+      var im = new Image();
+      im.onload = function () {
+        var sc = Math.min(1, 1280 / Math.max(im.width, im.height)), q = 0.75, out = '';
+        var cv = document.createElement('canvas');
+        for (var i = 0; i < 4; i++) {
+          cv.width = Math.round(im.width * sc); cv.height = Math.round(im.height * sc);
+          cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
+          out = cv.toDataURL('image/jpeg', q);
+          if (out.length < 560000) break;
+          sc *= 0.75; q = 0.65;
+        }
+        cb(out.length < 600000 ? out : '');
+      };
+      im.onerror = function () { cb(''); };
+      im.src = fr.result;
+    };
+    fr.onerror = function () { cb(''); };
+    fr.readAsDataURL(file);
+  }
+  function setupPick(btn, inp, prevId, key) {
+    $(btn).onclick = function () { $(inp).click(); };
+    $(inp).onchange = function () {
+      var f = this.files && this.files[0]; this.value = '';
+      if (!f) return;
+      nenAnh(f, function (d) {
+        if (!d) { alert('Không đọc được ảnh này, chọn ảnh khác giúp em.'); return; }
+        pic[key] = d; showPrev(prevId, key);
+      });
+    };
+  }
+  function showPrev(prevId, key) {
+    var p = $(prevId); p.textContent = '';
+    if (!pic[key]) return;
+    var im = new Image(); im.src = pic[key]; p.appendChild(im);
+    var x = el('button', 'x', 'Bỏ ảnh'); x.onclick = function () { pic[key] = ''; showPrev(prevId, key); }; p.appendChild(x);
+    p.style.display = 'flex'; p.style.alignItems = 'center';
+  }
+  setupPick('cpick', 'cfile', 'cprev', 'c');
+  setupPick('gpick', 'gfile', 'gprev', 'g');
+  // gửi lời dặn (có thể kèm ảnh): ảnh ghi trước, lệnh ghi sau để trợ lý luôn thấy đủ
+  function guiDan(key, textId, btnId, prevId, chat, done) {
+    var t = $(textId).value.trim(), img = pic[key];
+    if (!t && !img) return;
+    $(btnId).disabled = true;
+    var id = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    var cmd = { t: Date.now(), text: (t || '(chỉ gửi ảnh)').slice(0, 1500) };
+    if (chat) cmd.chat = chat;
+    if (img) cmd.hasImg = true;
+    (img ? api(N('/img/' + id), 'PUT', img) : Promise.resolve()).then(function () { return api(N('/cmd/' + id), 'PUT', cmd); })
+      .then(function () { if (img) imgC[N('/img/' + id)] = img; $(textId).value = ''; pic[key] = ''; showPrev(prevId, key); $(btnId).disabled = false; done(); })
+      .catch(function () { $(btnId).disabled = false; alert('Chưa gửi được, thử lại giúp em.'); });
+  }
+  $('csend').onclick = function () { if (cur) guiDan('c', 'cin', 'csend', 'cprev', cur, loadChat); };
+  // ẩn/hiện khung dặn để đọc tin khách cho dễ
+  $('dtoggle').onclick = function () {
+    var hid = $('dbody').classList.toggle('hide');
+    this.textContent = hid ? 'Mở khung dặn trợ lý ▲' : 'Ẩn khung dặn ▼';
   };
 
   // ----- dặn chung + sổ -----
@@ -218,7 +287,13 @@ textarea{min-height:76px;resize:vertical}
       var so = r[0] || {}, cm = r[1] || {};
       var th = $('gthread'); th.textContent = '';
       Object.keys(cm).map(function (k) { return Object.assign({ id: k }, cm[k]); }).filter(function (c) { return !c.chat; }).sort(function (a, b) { return a.t - b.t; }).slice(-6).forEach(function (c) {
-        th.appendChild(el('div', 'bub n', c.text));
+        var bn = el('div', 'bub n', c.hasImg && c.text === '(chỉ gửi ảnh)' ? '' : c.text);
+        if (c.hasImg) {
+          var im = new Image(), ip = N('/img/' + c.id); im.alt = 'ảnh';
+          if (imgC[ip]) im.src = imgC[ip]; else api(ip).then(function (d) { if (d) { imgC[ip] = d; im.src = d; } }).catch(function () {});
+          bn.appendChild(im);
+        }
+        th.appendChild(bn);
         th.appendChild(el('div', 'bub nr', c.reply || 'Đang xử lý... (máy tính phải đang bật)'));
       });
       var box = $('so'); box.textContent = '';
@@ -234,12 +309,7 @@ textarea{min-height:76px;resize:vertical}
       });
     }).catch(function () {});
   }
-  $('gsend').onclick = function () {
-    var t = $('gin').value.trim(); if (!t) return;
-    $('gsend').disabled = true;
-    api(N('/cmd'), 'POST', { t: Date.now(), text: t.slice(0, 1500) }).then(function () { $('gin').value = ''; $('gsend').disabled = false; loadSo(); })
-      .catch(function () { $('gsend').disabled = false; alert('Chưa gửi được, thử lại giúp em.'); });
-  };
+  $('gsend').onclick = function () { guiDan('g', 'gin', 'gsend', 'gprev', '', loadSo); };
 
   // ----- chung -----
   function setTab(t) {
