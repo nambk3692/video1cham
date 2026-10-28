@@ -716,7 +716,7 @@
         if (gg.youtube || gg.video) c.appendChild(videoToggle(gg));
         if (gg.link) linkBox(c, gg.link);
         if (gg.tool) { var ta = mk('a', 'btn act big', gg.tool.t); ta.href = gg.tool.u; ta.target = '_blank'; ta.rel = 'noopener'; c.appendChild(ta); }
-        var hb = gBtn(gg.btn ? '' : 'Trợ lý hỗ trợ', 'main big', function () { if (gg.quiz && gg.quiz.length) startQuiz(gg); else startGuided(gg.assist || ('Tôi muốn được hỗ trợ: ' + gg.title), gg.mode); });
+        var hb = gBtn(gg.btn ? '' : 'Trợ lý hỗ trợ', 'main big', function () { if (gg.quiz && gg.quiz.length) askOrQuiz(gg); else startGuided(gg.assist || ('Tôi muốn được hỗ trợ: ' + gg.title), gg.mode); });
         if (gg.btn) { hb.classList.add('startbtn'); hb.appendChild(mk('span', 'sb1', gg.btn)); if (gg.btnSub) hb.appendChild(mk('span', 'sb2', gg.btnSub)); }
         c.appendChild(hb);
         if (gg.videos && gg.videos.length) {
@@ -941,6 +941,7 @@
     st.i = nextQuiz(st);
     if (st.i < st.quiz.length) { store('kh_quiz', JSON.stringify(st)); renderChat(); return; }
     store('kh_quiz', null);
+    if (st.mode) store('kh_quizdone_' + st.mode, String(Date.now()));
     // lưu các câu hỏi vào khung chat (để khách còn thấy và trợ lý biết mình đã hỏi gì), rồi gửi câu trả lời
     var t0 = Date.now() - 4000, cid = chatId();
     Promise.all(st.a.map(function (x, i) { var t = t0 + i; return put('/chats/' + cid + '/msgs/q' + t.toString(36), { from: 'ai', t: t, text: x.q }); }))
@@ -948,6 +949,18 @@
         var vs = vflowSteps(st);
         if (vs.length) beginVflow(vs, st.mode); else startGuided(st.a.map(function (x) { return x.send; }).join('. ') + '.', st.mode);
       });
+  }
+  // Bộ câu hỏi chỉ hỏi MỘT lần (Nam chốt 28/10): lần sau bấm nút chỉ hiện câu "mình cần em hỗ trợ gì"
+  function quizDone(mode) { return !!store('kh_quizdone_' + mode) || (mode === 'HUONGDAN_CHUNG' && store('kh_mode') === 'HUONGDAN_CHUNG' && !!store('kh_guided')); }
+  function askOrQuiz(gg) {
+    if (!quizDone(gg.mode)) { startQuiz(gg); return; }
+    store('kh_guided', String(Date.now())); store('kh_mode', gg.mode || 'HUONGDAN_CHUNG'); store('kh_quiz', null);
+    showTab('hoi');
+    var Q = 'Dạ, mình cần em hỗ trợ gì ạ?', ids = Object.keys(msgs).sort(function (a, b) { return msgs[a].t - msgs[b].t; });
+    var last = ids.length ? msgs[ids[ids.length - 1]] : null;
+    if ((last && last.from === 'ai' && last.text === Q) || Date.now() - Number(store('kh_askq') || 0) < 1800000) return;
+    store('kh_askq', String(Date.now()));
+    aiSay(Q);
   }
   function startQuiz(gg) {
     store('kh_quiz', JSON.stringify({ i: 0, a: [], quiz: gg.quiz, mode: gg.mode }));
