@@ -119,7 +119,7 @@ body.dmin #nav{display:none}
   function tenHien(id) {
     var m = metaC[id] || {}, n = m.name;
     var t = hoaDau(ten[id] || tenTuMa(m) || tenKhach[id] || ((n && !/^Khách( thử| Sức Khỏe)?$/.test(n)) ? n : 'Khách'));
-    var tl = m.tool ? (TOOLN[m.tool] || m.tool) : '';
+    var tl = m.tool ? (TOOLN[m.tool] || m.tool) : ((m.tl && m.tl !== 'none') ? (TOOLN[m.tl] || '') : '');
     return tl ? t + ' (' + tl + ')' : t;
   }
 
