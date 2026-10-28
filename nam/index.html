@@ -20,9 +20,9 @@ header h1{font-size:18px;margin:0;flex:1;text-align:center}
 header h1.up{text-transform:uppercase;letter-spacing:1px}
 header button{background:transparent;border:0;color:#fff;font-size:16px;padding:6px 8px}
 main{flex:1;overflow:auto;overscroll-behavior-y:contain;padding:12px;-webkit-overflow-scrolling:touch}
-nav{display:flex;background:#fff8e6;border-top:2px solid #17453B;padding-bottom:env(safe-area-inset-bottom)}
-nav button{flex:1;border:0;background:transparent;padding:14px 4px;font-size:17px;font-weight:600;color:#17453B}
-nav button.on{background:#17453B;color:#fff}
+nav{display:flex;gap:8px;padding:8px 10px;background:#E6D6AE;border-top:2px solid #D9B45B;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+nav button{flex:1;border:2px solid #D9B45B;border-radius:16px;background:#FFFCF5;padding:12px 4px;font-size:17px;font-weight:700;color:#17453B}
+nav button.on{background:#17453B;color:#fff;border-color:#17453B}
 .card{background:#FFFCF5;border-radius:12px;padding:12px 14px;margin-bottom:10px;box-shadow:0 1px 3px #0002}
 .row{display:flex;gap:10px;align-items:center}
 .grow{flex:1;min-width:0}
@@ -41,13 +41,20 @@ textarea{min-height:76px;resize:vertical}
 .btn{background:#C0262D;color:#fff;border:0;border-radius:12px;padding:12px 16px;font-size:17px;font-weight:700;width:100%;margin-top:8px}
 .btn.g{background:#17453B}
 .btn.s{width:auto;padding:6px 12px;font-size:14px;margin:0;background:#8a8a8a}
-.dock{background:#FFFCF5;border-top:2px solid #17453B;padding:10px 12px}
+.dock{background:#E6D6AE;border-top:2px solid #D9B45B;padding:10px 12px}
 .hint{font-size:14px;color:#5b6660;margin:2px 0 6px}
-.tg{display:block;width:100%;background:#17453B;color:#fff;border:0;border-radius:8px;padding:8px;font-size:15px;font-weight:600;margin-bottom:8px}
-.btn.s2{width:auto;padding:8px 16px;margin:8px 10px 0 0;font-size:16px}
-.imgrow{display:flex;align-items:center}
-.imgrow img{height:44px;width:44px;object-fit:cover;border-radius:8px;margin-top:8px;border:2px solid #17453B}
-.imgrow .x{margin:8px 0 0 6px;font-size:14px;color:#C0262D;font-weight:700;background:none;border:0}
+#cin,#gin{border:2px solid #D9B45B;border-radius:18px;background:#FFFCF5;min-height:64px;padding:12px 14px;font-size:18px}
+.drow{display:flex;gap:10px;margin-top:10px}
+.bt{flex:1;padding:14px 6px;border-radius:16px;font-size:20px;font-weight:700;border:2px solid #D9B45B;background:#FFFCF5;color:#17453B}
+.bt.gr{background:#17453B;color:#fff;border-color:#17453B}
+.bt.sq{flex:none;width:76px}
+.bt:disabled{opacity:.6}
+.dock.min #dbody,.dock.min .bt:not(#dtoggle){display:none}
+.dock.min .drow{justify-content:flex-end;margin-top:0}
+body.dmin #nav{display:none}
+.pv{display:flex;align-items:center;margin-top:8px}
+.pv img{height:48px;width:48px;object-fit:cover;border-radius:10px;border:2px solid #17453B}
+.pv .x{margin-left:8px;font-size:15px;color:#C0262D;font-weight:700;background:none;border:0}
 </style>
 </head>
 <body>
@@ -68,21 +75,16 @@ textarea{min-height:76px;resize:vertical}
 
 <main id="m-chat" class="hide"></main>
 <div id="chatdock" class="dock hide">
-  <button class="tg" id="dtoggle">Ẩn khung dặn ▼</button>
-  <div id="dbody">
-    <textarea id="cin"></textarea>
-    <div class="imgrow"><button class="btn g s2" id="cpick">Gửi ảnh</button><span id="cprev"></span></div>
-    <button class="btn" id="csend">Gửi lời dặn</button>
-  </div>
+  <div id="dbody"><textarea id="cin"></textarea><div id="cprev" class="pv"></div></div>
+  <div class="drow"><button class="bt" id="cpick">Gửi ảnh</button><button class="bt gr" id="csend">Gửi tin</button><button class="bt sq" id="dtoggle">▼</button></div>
   <input type="file" id="cfile" accept="image/*" class="hide">
 </div>
 
 <main id="m-so" class="hide">
-  <div class="card">
-    <textarea id="gin"></textarea>
-    <div class="imgrow"><button class="btn g s2" id="gpick">Gửi ảnh</button><span id="gprev"></span></div>
+  <div style="margin-bottom:10px">
+    <textarea id="gin"></textarea><div id="gprev" class="pv"></div>
+    <div class="drow"><button class="bt" id="gpick">Gửi ảnh</button><button class="bt gr" id="gsend">Gửi tin</button></div>
     <input type="file" id="gfile" accept="image/*" class="hide">
-    <button class="btn" id="gsend">Gửi lời dặn</button>
   </div>
   <div id="gthread"></div>
   <h3 style="margin:16px 4px 6px">Sổ lời dặn đang có hiệu lực</h3>
@@ -140,6 +142,7 @@ textarea{min-height:76px;resize:vertical}
     $('nav').classList.toggle('hide', id === 'login');
     $('back').classList.toggle('hide', id !== 'm-chat');
     $('title').classList.toggle('up', id !== 'm-chat');
+    if (id !== 'm-chat') { $('chatdock').classList.remove('min'); document.body.classList.remove('dmin'); $('dtoggle').textContent = '▼'; }
   }
 
   // ----- khóa -----
@@ -256,8 +259,7 @@ textarea{min-height:76px;resize:vertical}
     var p = $(prevId); p.textContent = '';
     if (!pic[key]) return;
     var im = new Image(); im.src = pic[key]; p.appendChild(im);
-    var x = el('button', 'x', 'Bỏ ảnh'); x.onclick = function () { pic[key] = ''; showPrev(prevId, key); }; p.appendChild(x);
-    p.style.display = 'flex'; p.style.alignItems = 'center';
+    var x = el('button', 'x', 'Bỏ ảnh'); x.type = 'button'; x.onclick = function () { pic[key] = ''; showPrev(prevId, key); }; p.appendChild(x);
   }
   setupPick('cpick', 'cfile', 'cprev', 'c');
   setupPick('gpick', 'gfile', 'gprev', 'g');
@@ -277,8 +279,9 @@ textarea{min-height:76px;resize:vertical}
   $('csend').onclick = function () { if (cur) guiDan('c', 'cin', 'csend', 'cprev', cur, loadChat); };
   // ẩn/hiện khung dặn để đọc tin khách cho dễ
   $('dtoggle').onclick = function () {
-    var hid = $('dbody').classList.toggle('hide');
-    this.textContent = hid ? 'Mở khung dặn trợ lý ▲' : 'Ẩn khung dặn ▼';
+    var m = $('chatdock').classList.toggle('min');
+    document.body.classList.toggle('dmin', m);
+    this.textContent = m ? '▲' : '▼';
   };
 
   // ----- dặn chung + sổ -----
