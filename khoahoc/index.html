@@ -912,6 +912,24 @@
     var vd = document.createElement('video'); vd.src = 'huongdan_veo3/doitaikhoan.mp4'; vd.controls = true; vd.setAttribute('playsinline', ''); vd.preload = 'auto'; vd.style.cssText = 'width:100%;height:100%;background:#000;';
     pl.appendChild(vd); pl.classList.remove('hide'); $('doitk-vid').textContent = 'Ẩn video'; try { var pr = vd.play(); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {}
   });
+  // Nút chọn tool do trợ lý gửi giữa cuộc trò chuyện (tin có btns:'tool'); bấm là gửi câu trả lời, nhớ lựa chọn
+  var TOOLBTNS = [
+    { t: 'Làm video sức khỏe', v: 'sk', send: 'Tôi dùng tool để làm video sức khỏe' },
+    { t: 'Làm video phong thủy', v: 'pt', send: 'Tôi dùng tool để làm video phong thủy' },
+    { t: 'Làm video chủ đề khác', v: 'tv1c', send: 'Tôi dùng tool để làm video chủ đề khác' },
+    { t: 'Edit video có sẵn', v: 'ed1c', send: 'Tôi dùng tool để edit video có sẵn' },
+    { t: 'Chưa mua / chưa rõ', v: 'none', send: 'Tôi chưa mua tool hoặc chưa rõ mình dùng tool nào' }
+  ];
+  function toolBtnRow(k, ids, sendFn) {
+    var row = document.createElement('div'); row.className = 'qbtns';
+    if (ids[ids.length - 1] !== k) return null; // chỉ hiện ở tin cuối cùng, khách đã trả lời rồi thì thôi
+    TOOLBTNS.forEach(function (o) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'btn main'; b.textContent = o.t;
+      b.addEventListener('click', function () { store('kh_utool', o.v); sendFn(o.send); });
+      row.appendChild(b);
+    });
+    return row;
+  }
   function renderChat() {
     var box = $('chat-list'); if (!box) return;
     var ids = Object.keys(msgs).filter(function (k) { return msgs[k] && msgs[k].t; })
@@ -929,6 +947,7 @@
       }
       if (m.text) { var tx = document.createElement('span'); tx.textContent = m.text; b.appendChild(tx); }
       box.appendChild(b);
+      if (m.btns === 'tool') { var rw = toolBtnRow(k, ids, function (t) { $('chat-text').value = t; sendMsg(); }); if (rw) box.appendChild(rw); }
     });
     renderQuiz(box);
     renderVflow(box);
