@@ -948,6 +948,10 @@
       if (m.text) { var tx = document.createElement('span'); tx.textContent = m.text; b.appendChild(tx); }
       box.appendChild(b);
       if (m.btns === 'tool') { var rw = toolBtnRow(k, ids, function (t) { $('chat-text').value = t; sendMsg(); }); if (rw) box.appendChild(rw); }
+      if (m.btns === 'khaosat' && ids[ids.length - 1] === k && !quizState() && !quizDone('HUONGDAN_CHUNG')) {
+        var gq = (GUIDES || []).filter(function (g) { return g.mode === 'HUONGDAN_CHUNG'; })[0];
+        if (gq && gq.quiz && gq.quiz.length) setTimeout(function () { if (!quizState()) startQuiz(gq); }, 0);
+      }
     });
     renderQuiz(box);
     renderVflow(box);
@@ -1002,9 +1006,9 @@
       });
   }
   // Bộ câu hỏi chỉ hỏi MỘT lần (Nam chốt 28/10): lần sau bấm nút chỉ chuyển sang tab Hỏi đáp (Nam chốt lại 28/10)
-  function quizDone(mode) { return !!store('kh_quizdone_' + mode) || (mode === 'HUONGDAN_CHUNG' && store('kh_mode') === 'HUONGDAN_CHUNG' && !!store('kh_guided')); }
+  function quizDone(mode) { return !!store('kh_quizdone_' + mode); }
   function askOrQuiz(gg) {
-    if (!quizDone(gg.mode)) { startQuiz(gg); return; }
+    if (!quizDone(gg.mode)) { startGuided('Tôi cần được hỗ trợ', gg.mode); return; } // trợ lý hỏi tên, số điện thoại rồi mới hiện các nút khảo sát
     store('kh_guided', String(Date.now())); store('kh_mode', gg.mode || 'HUONGDAN_CHUNG'); store('kh_quiz', null);
     showTab('hoi');
   }
@@ -1115,7 +1119,7 @@
     if (text) m.text = text.slice(0, 2000);
     if (pendingImg) m.hasImg = true;
     var img = pendingImg;
-    var p = put('/chats/' + cid + '/meta', { name: (who.name || 'Khách').slice(0, 80), ma: String(who.ma || '').slice(0, 40), ma2: String(who.ma || '').slice(40, 340), tool: who.tool || '', tl: String(store('kh_utool') || ''), dev: devKind(), os: osKind(), hd: isGuided() ? (store('kh_mode') || 'KICHHOAT_DAN') : ((hdCtx && Date.now() - hdCtxT < 1800000) ? hdCtx.slice(0, 200) : '') });
+    var p = put('/chats/' + cid + '/meta', { name: (who.name || 'Khách').slice(0, 80), ma: String(who.ma || '').slice(0, 40), ma2: String(who.ma || '').slice(40, 340), tool: who.tool || '', tl: String(store('kh_utool') || ''), qd: store('kh_quizdone_HUONGDAN_CHUNG') ? '1' : '', dev: devKind(), os: osKind(), hd: isGuided() ? (store('kh_mode') || 'KICHHOAT_DAN') : ((hdCtx && Date.now() - hdCtxT < 1800000) ? hdCtx.slice(0, 200) : '') });
     if (img) p = p.then(function () { return put('/chats/' + cid + '/img/' + mid, img); });
     p.then(function () { return put('/chats/' + cid + '/msgs/' + mid, m); })
       .then(function () { return put('/inbox/' + cid, { t: t, last: (text || 'Ảnh').slice(0, 80) }); })
