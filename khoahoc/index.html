@@ -856,6 +856,19 @@
     });
   }
 
+  // Trợ lý nhận ra khách qua số điện thoại thì gộp cuộc này vào cuộc cũ: tự chuyển sang cuộc cũ (Nam chốt 29/10)
+  function checkRedirect() {
+    if ($('chat').classList.contains('hide')) return;
+    var cid = chatId();
+    fetch(DB + '/chats/' + cid + '/redirect.json').then(function (r) { return r.json(); }).then(function (to) {
+      if (typeof to === 'string' && to.length >= 24 && to !== cid) {
+        store('kh_chat', to); msgs = {}; imgCache = {};
+        if (es) { try { es.close(); } catch (x) {} es = null; }
+        openStream(); renderChat();
+      }
+    }).catch(function () {});
+  }
+  setInterval(checkRedirect, 6000);
   function openStream() {
     if (es) return;
     es = new EventSource(DB + '/chats/' + chatId() + '/msgs.json');
