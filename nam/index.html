@@ -102,7 +102,7 @@ body.dmin #nav{display:none}
   var DB = 'https://hotro-khoahoc-default-rtdb.asia-southeast1.firebasedatabase.app';
   var $ = function (id) { return document.getElementById(id); };
   var KEY = '', cur = '', tab = 'list', timer = null;
-  var metaC = {}, imgC = {}, seen = {}, prev = {}, ten = {}, tenKhach = {};
+  var metaC = {}, imgC = {}, seen = {}, prev = {}, ten = {}, tenKhach = {}, sdtMap = {}, gopMap = {};
   // tên khách nằm sẵn trong mã tool (phần giữa hai dấu chấm), giống cách app khách đọc
   function tenTuMa(m) {
     try {
@@ -163,7 +163,7 @@ body.dmin #nav{display:none}
       var c = el('div', 'card row'); c.style.cursor = 'pointer';
       var g = el('div', 'grow'), nm = el('div', 'name', metaC[id] ? tenHien(id) : '...');
       var devs = { dt: 'điện thoại', mtb: 'máy tính bảng', mt: 'máy tính' };
-      var sub = ago(list[id]) + (metaC[id] && metaC[id].dev ? ' · ' + (devs[metaC[id].dev] || '') : '') + (metaC[id] && metaC[id].tool ? ' · ' + metaC[id].tool : '');
+      var sub = ago(list[id]) + (metaC[id] && metaC[id].dev ? ' · ' + (devs[metaC[id].dev] || '') : '') + (metaC[id] && metaC[id].tool ? ' · ' + metaC[id].tool : '') + (sdtMap[id] ? ' · ' + sdtMap[id] : '');
       g.appendChild(nm); if (prev[id] && prev[id].text) g.appendChild(el('div', '', prev[id].text)).style.cssText = 'font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'; g.appendChild(el('div', 'sub', sub));
       c.appendChild(g);
       if (seen[id] && seen[id] < list[id]) c.insertBefore(el('div', 'dot'), g);
@@ -173,7 +173,7 @@ body.dmin #nav{display:none}
     });
   }
   function loadList() {
-    return Promise.all([api(N('/list')), api(N('/prev')).catch(function () { return {}; }), api(N('/ten')).catch(function () { return {}; }), api(N('/tenkhach')).catch(function () { return {}; })]).then(function (r) { var l = r[0]; prev = r[1] || {}; ten = r[2] || {}; tenKhach = r[3] || {}; window._list = l || {}; if (!cur && tab === 'list') renderList(window._list); }).catch(function () {
+    return Promise.all([api(N('/list')), api(N('/prev')).catch(function () { return {}; }), api(N('/ten')).catch(function () { return {}; }), api(N('/tenkhach')).catch(function () { return {}; }), api(N('/sdt')).catch(function () { return {}; }), api(N('/gop')).catch(function () { return {}; })]).then(function (r) { var l = r[0]; prev = r[1] || {}; ten = r[2] || {}; tenKhach = r[3] || {}; sdtMap = r[4] || {}; gopMap = r[5] || {}; l = l || {}; Object.keys(gopMap).forEach(function (k) { delete l[k]; }); window._list = l || {}; if (!cur && tab === 'list') renderList(window._list); }).catch(function () {
       if (!cur && tab === 'list') { var b = $('m-list'); b.textContent = ''; b.appendChild(el('div', 'card', 'Không đọc được. Kiểm tra mạng hoặc khóa chưa đúng.')); }
     });
   }
