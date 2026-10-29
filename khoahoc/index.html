@@ -1008,7 +1008,11 @@
   // Bộ câu hỏi chỉ hỏi MỘT lần (Nam chốt 28/10): lần sau bấm nút chỉ chuyển sang tab Hỏi đáp (Nam chốt lại 28/10)
   function quizDone(mode) { return !!store('kh_quizdone_' + mode); }
   function askOrQuiz(gg) {
-    if (!quizDone(gg.mode)) { startGuided('Tôi cần được hỗ trợ', gg.mode); return; } // trợ lý hỏi tên, số điện thoại rồi mới hiện các nút khảo sát
+    // Lần đầu: trợ lý hỏi tên, số điện thoại rồi mới hiện các nút khảo sát. Đã từng bấm hoặc đã có tin trong khung chat (29/10, Nam chốt): chỉ quay lại tab Hỏi đáp, KHÔNG gửi lại câu "Tôi cần được hỗ trợ" (khách bấm nhiều lần bị khóa chống spam)
+    if (!quizDone(gg.mode)) {
+      if (!store('kh_guided') && !Object.keys(msgs).length) { startGuided('Tôi cần được hỗ trợ', gg.mode); return; }
+      showTab('hoi'); return;
+    }
     store('kh_guided', String(Date.now())); store('kh_mode', gg.mode || 'HUONGDAN_CHUNG'); store('kh_quiz', null);
     showTab('hoi');
   }
