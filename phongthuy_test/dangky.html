@@ -99,7 +99,7 @@
     callApi({ action: 'refcheck', ref: v }).then(function (r) {
       if (seq !== refSeq) return;
       refOk = !!r.ok; m.className = 'msg ' + (r.ok ? 'ok' : 'err');
-      m.textContent = r.ok ? 'Mã đúng. Tool giảm còn ' + money((cfg || {}).refPrice || 1268000) + ', combo giảm còn ' + money((cfg || {}).comboRefPrice || 1968000) + '.' : (r.msg || '');
+      m.textContent = r.ok ? '' : (r.msg || '');
       render(); sync();
     }).catch(function () { if (seq === refSeq) { m.className = 'msg err'; m.textContent = 'Chưa kiểm tra được mã, bạn thử lại nhé.'; } });
   }
@@ -162,7 +162,7 @@
         $('memo').textContent = r.memo; memoVal = r.memo;
         refOk = !!(r.ref && r.ref.ok);
         $('r').value = ref0;
-        if (ref0) { $('refm').className = 'msg ' + (refOk ? 'ok' : 'err'); $('refm').textContent = refOk ? 'Mã đúng. Tool giảm còn ' + money((cfg || {}).refPrice || 1268000) + ', combo giảm còn ' + money((cfg || {}).comboRefPrice || 1968000) + '.' : 'Mã giới thiệu chưa đúng. Bạn kiểm tra lại giúp nhé.'; }
+        if (ref0) { $('refm').className = 'msg ' + (refOk ? 'ok' : 'err'); $('refm').textContent = refOk ? '' : 'Mã giới thiệu chưa đúng. Bạn kiểm tra lại giúp nhé.'; }
         cur = 'combo'; render();
         done('buy-done');
       }
