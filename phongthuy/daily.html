@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đăng ký làm đại lý - Tạo Video Phong Thủy 1 Chạm</title>
+<link rel="stylesheet" href="style.css"></head>
+<body><div class="card">
+  <div id="home">
+    <h1>Làm đại lý Tạo Video Phong Thủy 1 Chạm</h1>
+    <p class="sub">Giới thiệu khách mua tool, nhận hoa hồng từ 30% đến 50% trên số tiền khách thực trả. Khách dùng mã của bạn được giảm giá.</p>
+    <div class="bank" style="margin-bottom:6px">
+      <b>Hoa hồng theo số khách thanh toán trong tháng:</b><br>
+      Khách thứ 1 đến 9: <b>30%</b><br>Từ khách thứ 10: <b>35%</b><br>Từ khách thứ 20: <b>40%</b><br>Từ khách thứ 30: <b>45%</b><br>Từ khách thứ 40 trở lên: <b>50%</b><br>
+      <span style="color:#9a9aa2;font-size:13px">Tháng mới tính lại từ đầu. Mỗi khi có khách thanh toán, bạn nhận email báo số tiền hoa hồng ngay.</span>
+    </div>
+    <form id="f">
+      <label for="n">Họ và tên</label><input id="n" required maxlength="60" autocomplete="name">
+      <label for="e">Email (nhận thông báo hoa hồng)</label><input id="e" type="email" required autocomplete="email">
+      <label for="p">Số điện thoại</label><input id="p" type="tel" required inputmode="tel" autocomplete="tel" placeholder="0912345678">
+      <label for="bk">Ngân hàng nhận hoa hồng</label><input id="bk" required maxlength="60" placeholder="Ví dụ: Vietcombank">
+      <label for="ac">Số tài khoản</label><input id="ac" required inputmode="numeric" maxlength="30">
+      <label for="ow">Tên chủ tài khoản</label><input id="ow" required maxlength="60" placeholder="NGUYEN VAN A">
+      <button id="b" type="submit" class="btn main" style="margin-top:22px">Đăng ký làm đại lý</button>
+    </form>
+    <div id="m" class="msg"></div>
+  </div>
+
+  <div id="done" class="hide">
+    <h2>Đăng ký thành công</h2>
+    <p class="sub" id="done-msg"></p>
+    <label>Mã giới thiệu của bạn</label>
+    <div class="code" id="code" style="font-size:22px;text-align:center;letter-spacing:.15em"></div>
+    <button class="btn main" id="copy-code" type="button">Sao chép mã</button>
+    <label>Link giới thiệu (gửi cho khách)</label>
+    <div class="code" id="link"></div>
+    <button class="btn main" id="copy-link" type="button">Sao chép link</button>
+    <p class="note">Khách mở link này, hoặc nhập mã ở trang mua tool, sẽ được giảm còn <span id="refp"></span>. Mã và link cũng đã gửi vào email của bạn.</p>
+    <a class="btn zalo" id="zalo" href="#" target="_blank">Vào nhóm Zalo hỗ trợ</a>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+  getConfig().then(function (c) { $('zalo').href = c.zaloGroup; $('refp').textContent = c.refPriceText || ''; }).catch(function () {});
+  $('f').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var b = $('b'), m = $('m'), label = b.textContent;
+    b.disabled = true; b.textContent = 'Đang gửi...'; m.textContent = '';
+    function fail(msg) { m.className = 'msg err'; m.textContent = msg || 'Có lỗi, vui lòng thử lại.'; b.disabled = false; b.textContent = label; }
+    callApi({ action: 'dailydk', name: $('n').value, email: $('e').value, phone: $('p').value, bank: $('bk').value, acct: $('ac').value, owner: $('ow').value }).then(function (r) {
+      if (!r.ok) return fail(r.msg);
+      $('done-msg').textContent = r.existed ? r.msg : 'Cảm ơn bạn. Đây là mã và link giới thiệu riêng của bạn.';
+      $('code').textContent = r.code; $('link').textContent = r.link;
+      $('copy-code').onclick = function () { copyText(r.code, function (ok) { $('copy-code').textContent = ok ? 'Đã sao chép mã' : 'Hãy bấm giữ mã để sao chép'; }); };
+      $('copy-link').onclick = function () { copyText(r.link, function (ok) { $('copy-link').textContent = ok ? 'Đã sao chép link' : 'Hãy bấm giữ link để sao chép'; }); };
+      $('home').classList.add('hide'); $('done').classList.remove('hide'); window.scrollTo(0, 0);
+    }).catch(function () { fail(); });
+  });
+</script></body></html>

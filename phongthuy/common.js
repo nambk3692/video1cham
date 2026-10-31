@@ -38,4 +38,9 @@ function copyText(text, done) {
   else fallback();
 }
 
+// Mã giới thiệu của đại lý (từ link ?ref=MÃ): nhớ trong trình duyệt để trang mua tự điền
+function cleanRef(v) { return String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12); }
+function saveRef(v) { v = cleanRef(v); if (!v) return ''; try { localStorage.setItem('pt_ref', v); } catch (e) {} return v; }
+function loadRef() { try { return cleanRef(localStorage.getItem('pt_ref')); } catch (e) { return ''; } }
+
 function isDeviceId(s) { return /^[A-HJ-NP-Z2-9]{8}$/.test(String(s || '')); }

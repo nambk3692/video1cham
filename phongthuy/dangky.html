@@ -33,8 +33,14 @@
 
   <div id="buy-done" class="hide">
     <h2>Thanh toán bản vĩnh viễn</h2>
-    <p class="sub">Quét mã bên dưới bằng app ngân hàng để chuyển khoản. Số tiền và nội dung đã điền sẵn.</p>
+    <div class="pkc" data-k="tool"><span class="dot"></span><span class="t"><b>Mua riêng tool</b><em id="tool-note"></em></span><span class="p" id="pt-tool"></span></div>
+    <div class="pkc" data-k="course"><span class="dot"></span><span class="t"><b>Mua riêng khóa học xây kênh phong thủy</b></span><span class="p" id="pt-course"></span></div>
+    <div class="pkc on" data-k="combo"><span class="dot"></span><span class="t"><b>Mua combo tool và khóa học</b><em id="combo-note"></em></span><span class="p" id="pt-combo"></span></div>
+    <label for="r">Mã giới thiệu (nếu có)</label>
+    <input id="r" maxlength="12" autocapitalize="characters" autocomplete="off" placeholder="Dán mã của người giới thiệu vào đây">
+    <div id="refm" class="msg"></div>
     <img class="qr" id="qr" alt="Mã QR chuyển khoản">
+    <div class="qrinfo"><div class="qa">Số tiền: <span id="qramt"></span></div><div class="qn">Nội dung chuyển khoản:</div><div class="qh">ghi rõ họ tên và số điện thoại</div></div>
     <div class="bank">
       Ngân hàng: <b id="bk-name"></b><br>
       Số tài khoản: <b id="bk-acc"></b><br>
@@ -42,21 +48,80 @@
       Số tiền: <b id="bk-price"></b><br>
       Nội dung: <b id="memo"></b>
     </div>
-    <p class="note"><b style="color:#f59e0b">Lưu ý:</b> nội dung chuyển khoản phải là <b>họ tên và số điện thoại bạn vừa đăng ký</b> (mã QR đã điền sẵn). Nếu chuyển khoản tay, hãy ghi đúng như trên để Nam kiểm tra và gửi mã nhanh.</p>
-    <p class="note">Sau khi chuyển khoản, mã kích hoạt vĩnh viễn sẽ được gửi vào email của bạn. Cần hỗ trợ nhanh, hãy nhắn Nam kèm ảnh chuyển khoản.</p>
-    <a class="btn main" id="zalo2" href="#" target="_blank"></a>
-    <a class="btn ghost" id="tel" href="#"></a>
+    <p class="note"><b style="color:#f59e0b">Lưu ý:</b> nội dung chuyển khoản phải ghi đúng theo họ tên và số điện thoại vừa đăng kí. Sau khi chuyển khoản mã kích hoạt sẽ được gửi vào mail của bạn.</p>
+    <button class="btn main" id="paid" type="button">Tôi đã chuyển khoản</button>
+    <div id="paid-msg" class="msg"></div>
     <a class="btn zalo" id="zalo3" href="#" target="_blank">Vào nhóm Zalo hỗ trợ sử dụng tool</a>
   </div>
 </div>
 <script src="common.js"></script>
 <script>
   var P = params(), plan = P.dk, may = P.may, cfg = null;
+  var cur = 'combo', memoVal = '', bankCode = 'TCB', bankAcc = '', bankOwner = '', refOk = false, form = null, syncTimer = null, refTimer = null, refSeq = 0;
+  function money(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + 'đ'; }
+  function amounts() {
+    var c = cfg || {};
+    return { tool: refOk ? (c.refPrice || 1268000) : (c.price || 1686000), course: c.coursePrice || 1686000, combo: refOk ? (c.comboRefPrice || 1968000) : (c.comboPrice || 2868000) };
+  }
+  var NAMES = { tool: 'Mua riêng tool', course: 'Mua riêng khóa học xây kênh phong thủy', combo: 'Mua combo tool và khóa học' };
+  // QR chỉ có số tài khoản, KHÔNG điền sẵn số tiền và nội dung: khách tự nhập trong app ngân hàng
+  function qrUrl() { return 'https://img.vietqr.io/image/' + bankCode + '-' + bankAcc + '-compact2.png?accountName=' + encodeURIComponent(bankOwner); }
+  function render() {
+    var c = cfg || {}, a = amounts();
+    document.querySelectorAll('.pkc').forEach(function (e) { e.classList.toggle('on', e.dataset.k === cur); });
+    $('pt-tool').innerHTML = refOk ? '<s style="color:#9a9aa2;font-weight:400">' + money(c.price || 1686000) + '</s> ' + money(a.tool) : money(a.tool);
+    $('tool-note').textContent = 'Nếu có mã giới thiệu: giảm còn ' + money(c.refPrice || 1268000);
+    $('pt-course').textContent = money(a.course);
+    $('pt-combo').innerHTML = refOk ? '<s style="color:#9a9aa2;font-weight:400">' + money(c.comboPrice || 2868000) + '</s> ' + money(a.combo) : money(a.combo);
+    $('combo-note').textContent = 'Nếu có mã giới thiệu: giảm còn ' + money(c.comboRefPrice || 1968000);
+    $('qramt').textContent = money(a[cur]);
+    $('bk-price').textContent = money(a[cur]);
+    if (!$('qr').getAttribute('src') || $('qr').dataset.u !== qrUrl()) { $('qr').dataset.u = qrUrl(); $('qr').src = qrUrl(); }
+  }
+  // Báo server gói + mã giới thiệu khách đang chọn (để Sheet ghi đúng số tiền phải trả và đại lý)
+  function sync() {
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(function () {
+      if (!form) return;
+      callApi({ action: 'mua', name: form.name, email: form.email, phone: form.phone, may: may, ref: cleanRef($('r').value), pkg: cur }).then(function (r) {
+        if (r && r.ok && r.ref) { refOk = !!r.ref.ok; render(); }
+      }).catch(function () {});
+    }, 400);
+  }
+  function checkRef() {
+    var v = cleanRef($('r').value); $('r').value = v;
+    var m = $('refm');
+    if (!v) { m.textContent = ''; refOk = false; render(); sync(); return; }
+    if (v.length < 4) { m.textContent = ''; return; }
+    var seq = ++refSeq; m.className = 'msg'; m.textContent = 'Đang kiểm tra mã...';
+    callApi({ action: 'refcheck', ref: v }).then(function (r) {
+      if (seq !== refSeq) return;
+      refOk = !!r.ok; m.className = 'msg ' + (r.ok ? 'ok' : 'err');
+      m.textContent = r.ok ? '' : (r.msg || '');
+      render(); sync();
+    }).catch(function () { if (seq === refSeq) { m.className = 'msg err'; m.textContent = 'Chưa kiểm tra được mã, bạn thử lại nhé.'; } });
+  }
+  document.querySelectorAll('.pkc').forEach(function (e) { e.addEventListener('click', function () { cur = e.dataset.k; render(); sync(); }); });
+  $('r').addEventListener('input', function () { clearTimeout(refTimer); refTimer = setTimeout(checkRef, 500); });
+  // Nút "Tôi đã chuyển khoản": báo ngầm cho Nam (Sheet tô vàng + email), khách không phải làm gì thêm
+  $('paid').addEventListener('click', function () {
+    var b = $('paid'), m = $('paid-msg');
+    if (!form || b.disabled) return;
+    b.disabled = true; b.textContent = 'Đang gửi...';
+    callApi({ action: 'dachuyen', email: form.email, phone: form.phone }).then(function () {
+      b.textContent = 'Đã báo cho Nam';
+      m.className = 'msg ok'; m.textContent = 'Cảm ơn bạn. Nam sẽ kiểm tra và gửi mã kích hoạt vào email của bạn sớm nhất.';
+    }).catch(function () {
+      b.disabled = false; b.textContent = 'Tôi đã chuyển khoản';
+      m.className = 'msg err'; m.textContent = 'Chưa gửi được, bạn thử bấm lại giúp nhé.';
+    });
+  });
   var trial = plan === 'thu';
   var label = trial ? 'Nhận mã dùng thử' : 'Tiếp tục thanh toán';
   if ((plan !== 'thu' && plan !== 'mua') || !isDeviceId(may)) {
     $('bad').classList.remove('hide');
   } else {
+    saveRef(P.ref);
     $('b').textContent = label;
     $('title').textContent = trial ? 'Dùng thử' : 'Mua Tạo Video Phong Thủy 1 Chạm';
     $('intro').textContent = 'Điền thông tin bên dưới. Mã chỉ chạy trên máy bạn vừa bấm đăng ký (mã máy ' + may + ').';
@@ -64,14 +129,13 @@
     getConfig().then(function (c) {
       cfg = c;
       if (trial) $('title').textContent = 'Dùng thử ' + c.trialDays + ' ngày';
-      $('intro').textContent = (trial ? 'Miễn phí ' + c.trialDays + ' ngày. Mã kích hoạt gửi qua email. ' : 'Bản vĩnh viễn: ' + c.priceText + '. Đăng ký xong sẽ hiện mã QR chuyển khoản. ') +
+      $('intro').textContent = (trial ? 'Miễn phí ' + c.trialDays + ' ngày. Mã kích hoạt gửi qua email. ' : 'Điền thông tin, sau đó chọn gói và quét mã QR để chuyển khoản. ') +
         'Mã chỉ chạy trên máy bạn vừa bấm đăng ký (mã máy ' + may + ').';
       ['zalo1', 'zalo3'].forEach(function (id) { $(id).href = c.zaloGroup; });
-      $('zalo2').href = 'https://zalo.me/' + c.phone; $('zalo2').textContent = 'Liên hệ Nam qua Zalo: ' + c.phone;
       $('contact1').href = 'https://zalo.me/' + c.phone; $('contact1').textContent = 'Liên hệ Nam: ' + c.phone;
-      $('tel').href = 'tel:' + c.phone; $('tel').textContent = 'Gọi điện: ' + c.phone;
       $('bk-name').textContent = c.bankName; $('bk-acc').textContent = c.bankAccount;
-      $('bk-owner').textContent = c.bankOwner; $('bk-price').textContent = c.priceText;
+      $('bk-owner').textContent = c.bankOwner;
+      bankCode = c.bankCode || 'TCB'; bankAcc = c.bankAccount || ''; bankOwner = c.bankOwner || '';
     }).catch(function () {});
   }
   function done(id) { $('home').classList.add('hide'); $(id).classList.remove('hide'); window.scrollTo(0, 0); }
@@ -80,7 +144,8 @@
     var b = $('b'), m = $('m');
     b.disabled = true; b.textContent = 'Đang gửi...'; m.textContent = '';
     function fail(msg) { m.className = 'msg err'; m.textContent = msg || 'Có lỗi, vui lòng thử lại.'; b.disabled = false; b.textContent = label; }
-    callApi({ action: plan, name: $('n').value, email: $('e').value, phone: $('p').value, may: may }).then(function (r) {
+    var ref0 = plan === 'mua' ? (cleanRef(P.ref) || loadRef()) : '';
+    callApi({ action: plan, name: $('n').value, email: $('e').value, phone: $('p').value, may: may, ref: ref0, pkg: 'combo' }).then(function (r) {
       if (!r.ok) return fail(r.msg);
       if (plan === 'thu') {
         $('trial-msg').textContent = r.msg;
@@ -91,10 +156,12 @@
         }
         done('trial-done');
       } else {
-        $('memo').textContent = r.memo;
-        var c = cfg || {};
-        $('qr').src = 'https://img.vietqr.io/image/' + (c.bankCode || 'TCB') + '-' + (c.bankAccount || '') + '-compact2.png?amount=' + (c.price || '') +
-          '&addInfo=' + encodeURIComponent(r.memo) + '&accountName=' + encodeURIComponent(c.bankOwner || '');
+        form = { name: $('n').value, email: $('e').value, phone: $('p').value };
+        $('memo').textContent = r.memo; memoVal = r.memo;
+        refOk = !!(r.ref && r.ref.ok);
+        $('r').value = ref0;
+        if (ref0) { $('refm').className = 'msg ' + (refOk ? 'ok' : 'err'); $('refm').textContent = refOk ? '' : 'Mã giới thiệu chưa đúng. Bạn kiểm tra lại giúp nhé.'; }
+        cur = 'combo'; render();
         done('buy-done');
       }
     }).catch(function () { fail(); });
