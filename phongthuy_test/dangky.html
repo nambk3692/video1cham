@@ -62,7 +62,7 @@
   function money(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + 'đ'; }
   function amounts() {
     var c = cfg || {};
-    return { tool: refOk ? (c.refPrice || 1268000) : (c.price || 1686000), course: c.coursePrice || 1686000, combo: c.comboPrice || 1968000 };
+    return { tool: refOk ? (c.refPrice || 1268000) : (c.price || 1686000), course: c.coursePrice || 1686000, combo: refOk ? (c.comboRefPrice || 1968000) : (c.comboPrice || 2868000) };
   }
   var NAMES = { tool: 'Mua riêng tool', course: 'Mua riêng khóa học xây kênh phong thủy', combo: 'Mua combo tool và khóa học' };
   // QR chỉ có số tài khoản, KHÔNG điền sẵn số tiền và nội dung: khách tự nhập trong app ngân hàng
@@ -71,11 +71,10 @@
     var c = cfg || {}, a = amounts();
     document.querySelectorAll('.pkc').forEach(function (e) { e.classList.toggle('on', e.dataset.k === cur); });
     $('pt-tool').innerHTML = refOk ? '<s style="color:#9a9aa2;font-weight:400">' + money(c.price || 1686000) + '</s> ' + money(a.tool) : money(a.tool);
-    $('tool-note').textContent = refOk ? 'Đã áp dụng mã giới thiệu' : 'Có mã giới thiệu: giảm còn ' + money(c.refPrice || 1268000);
+    $('tool-note').textContent = 'Nếu có mã giới thiệu: giảm còn ' + money(c.refPrice || 1268000);
     $('pt-course').textContent = money(a.course);
-    $('pt-combo').textContent = money(a.combo);
-    $('combo-note').textContent = 'Tiết kiệm ' + (c.comboSaveText || '');
-    $('combo-note').style.display = c.comboSaveText ? '' : 'none';
+    $('pt-combo').innerHTML = refOk ? '<s style="color:#9a9aa2;font-weight:400">' + money(c.comboPrice || 2868000) + '</s> ' + money(a.combo) : money(a.combo);
+    $('combo-note').textContent = 'Nếu có mã giới thiệu: giảm còn ' + money(c.comboRefPrice || 1968000);
     $('qramt').textContent = money(a[cur]);
     $('bk-price').textContent = money(a[cur]);
     $('pkname').textContent = NAMES[cur];
@@ -100,7 +99,7 @@
     callApi({ action: 'refcheck', ref: v }).then(function (r) {
       if (seq !== refSeq) return;
       refOk = !!r.ok; m.className = 'msg ' + (r.ok ? 'ok' : 'err');
-      m.textContent = r.ok ? 'Mã đúng. Gói mua riêng tool được giảm còn ' + money((cfg || {}).refPrice || 1268000) + '.' : (r.msg || '');
+      m.textContent = r.ok ? 'Mã đúng. Tool giảm còn ' + money((cfg || {}).refPrice || 1268000) + ', combo giảm còn ' + money((cfg || {}).comboRefPrice || 1968000) + '.' : (r.msg || '');
       render(); sync();
     }).catch(function () { if (seq === refSeq) { m.className = 'msg err'; m.textContent = 'Chưa kiểm tra được mã, bạn thử lại nhé.'; } });
   }
@@ -163,7 +162,7 @@
         $('memo').textContent = r.memo; memoVal = r.memo;
         refOk = !!(r.ref && r.ref.ok);
         $('r').value = ref0;
-        if (ref0) { $('refm').className = 'msg ' + (refOk ? 'ok' : 'err'); $('refm').textContent = refOk ? 'Mã đúng. Gói mua riêng tool được giảm còn ' + money((cfg || {}).refPrice || 1268000) + '.' : 'Mã giới thiệu chưa đúng. Bạn kiểm tra lại giúp nhé.'; }
+        if (ref0) { $('refm').className = 'msg ' + (refOk ? 'ok' : 'err'); $('refm').textContent = refOk ? 'Mã đúng. Tool giảm còn ' + money((cfg || {}).refPrice || 1268000) + ', combo giảm còn ' + money((cfg || {}).comboRefPrice || 1968000) + '.' : 'Mã giới thiệu chưa đúng. Bạn kiểm tra lại giúp nhé.'; }
         cur = 'combo'; render();
         done('buy-done');
       }
