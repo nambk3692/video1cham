@@ -1,0 +1,21 @@
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0e0e10;color:#eee;font-family:system-ui,Segoe UI,Roboto,sans-serif;padding:16px;box-sizing:border-box}
+.card{width:100%;max-width:400px;background:#18181b;border:1px solid #2a2a2e;border-radius:16px;padding:28px}
+h1{font-size:20px;margin:0 0 12px}
+h2{font-size:17px;margin:0 0 6px}
+p.sub{color:#9a9aa2;font-size:14px;margin:0 0 18px;line-height:1.5}
+.btn{display:block;width:100%;box-sizing:border-box;text-align:center;margin-top:12px;padding:13px;border:0;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;text-decoration:none;font-family:inherit}
+.main{background:#f59e0b;color:#111}
+.ghost{background:transparent;color:#eee;border:1px solid #3a3a40}
+.zalo{background:#0068ff;color:#fff}
+.hide{display:none}
+.warn{background:#422006;border:1px solid #a16207;color:#fde68a;border-radius:10px;padding:12px;font-size:14px;line-height:1.5;margin-bottom:14px}
+.code{background:#0e0e10;border:1px solid #2a2a2e;border-radius:10px;padding:12px;font-family:monospace;font-size:14px;overflow-wrap:anywhere;color:#fbbf24;user-select:all}
+label{display:block;font-size:12px;color:#9a9aa2;margin:14px 0 6px;text-transform:uppercase;letter-spacing:.05em}
+input{width:100%;box-sizing:border-box;background:#0e0e10;border:1px solid #2a2a2e;border-radius:10px;color:#eee;padding:12px;font-size:15px}
+input:focus{outline:none;border-color:#f59e0b}
+.msg{margin-top:16px;font-size:14px;line-height:1.5;white-space:pre-line;overflow-wrap:anywhere}
+.ok{color:#86efac}.err{color:#fca5a5}
+.qr{display:block;width:100%;max-width:280px;margin:12px auto;border-radius:12px;background:#fff}
+.bank{background:#0e0e10;border:1px solid #2a2a2e;border-radius:10px;padding:12px;font-size:14px;line-height:1.7}
+.bank b{color:#f59e0b}
+.note{color:#9a9aa2;font-size:13px;line-height:1.5;margin-top:12px}
