@@ -45,7 +45,6 @@
       Ngân hàng: <b id="bk-name"></b><br>
       Số tài khoản: <b id="bk-acc"></b><br>
       Chủ tài khoản: <b id="bk-owner"></b><br>
-      Gói: <b id="pkname"></b><br>
       Số tiền: <b id="bk-price"></b><br>
       Nội dung: <b id="memo"></b>
     </div>
@@ -77,7 +76,6 @@
     $('combo-note').textContent = 'Nếu có mã giới thiệu: giảm còn ' + money(c.comboRefPrice || 1968000);
     $('qramt').textContent = money(a[cur]);
     $('bk-price').textContent = money(a[cur]);
-    $('pkname').textContent = NAMES[cur];
     if (!$('qr').getAttribute('src') || $('qr').dataset.u !== qrUrl()) { $('qr').dataset.u = qrUrl(); $('qr').src = qrUrl(); }
   }
   // Báo server gói + mã giới thiệu khách đang chọn (để Sheet ghi đúng số tiền phải trả và đại lý)
