@@ -19,3 +19,17 @@ input:focus{outline:none;border-color:#f59e0b}
 .bank{background:#0e0e10;border:1px solid #2a2a2e;border-radius:10px;padding:12px;font-size:14px;line-height:1.7}
 .bank b{color:#f59e0b}
 .note{color:#9a9aa2;font-size:13px;line-height:1.5;margin-top:12px}
+
+/* thẻ chọn gói + khung số tiền dưới QR (trang mua 3 gói) */
+.qr{display:block;width:100%;max-width:280px;margin:12px auto;border-radius:12px;background:#fff}
+.pkc{display:flex;align-items:center;gap:12px;background:#0e0e10;border:2px solid #2a2a2e;border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer}
+.pkc.on{border-color:#f59e0b;background:#221a08}
+.pkc .dot{width:18px;height:18px;border-radius:50%;border:2px solid #6b6b73;flex:none}
+.pkc.on .dot{border-color:#f59e0b;background:radial-gradient(#f59e0b 45%,transparent 50%)}
+.pkc .t{flex:1;font-size:14px;line-height:1.4}
+.pkc .p{color:#f59e0b;font-weight:800;font-size:15px;white-space:nowrap}
+.pkc em{display:block;font-style:normal;color:#fcd34d;font-size:12px;margin-top:2px}
+.qrinfo{text-align:center;margin:4px 0 14px}
+.qrinfo .qa{font-size:20px;font-weight:700}.qrinfo .qa span{color:#f59e0b}
+.qrinfo .qn{font-size:13px;color:#9a9aa2;margin-top:8px}
+.qrinfo .qh{font-size:15px;font-weight:700;color:#f59e0b}
