@@ -16,7 +16,7 @@
       <label for="n">Tên của bạn</label><input id="n" required maxlength="60" autocomplete="name">
       <label for="e">Email</label><input id="e" type="email" required autocomplete="email">
       <label for="p">Số điện thoại</label><input id="p" type="tel" required inputmode="tel" autocomplete="tel" placeholder="0912345678">
-      <div id="anhbox" class="hide"><label for="a">Ảnh chuyển khoản (không bắt buộc)</label><input id="a" type="file" accept="image/*"></div>
+      <div id="anhbox" class="hide"><label for="a">Ảnh chuyển khoản</label><input id="a" type="file" accept="image/*"></div>
       <button id="b" type="submit" class="btn main" style="margin-top:22px"></button>
     </form>
     <div id="m" class="msg"></div>
@@ -119,7 +119,7 @@
   });
   var trial = plan === 'thu';
   var paidFirst = plan === 'paid';
-  var label = trial ? 'Nhận mã dùng thử' : paidFirst ? 'Gửi cho Nam' : 'Tiếp tục thanh toán';
+  var label = trial ? 'Nhận mã dùng thử' : paidFirst ? 'Gửi' : 'Tiếp tục thanh toán';
   if ((plan !== 'thu' && plan !== 'mua' && plan !== 'paid') || !isDeviceId(may)) {
     $('bad').classList.remove('hide');
   } else {
@@ -128,7 +128,7 @@
     $('title').textContent = trial ? 'Dùng thử' : paidFirst ? 'Tôi đã chuyển tiền rồi' : 'Mua Tạo Video Phong Thủy 1 Chạm';
     $('intro').textContent = 'Điền thông tin bên dưới. Mã chỉ chạy trên máy bạn vừa bấm đăng ký (mã máy ' + may + ').';
     $('home').classList.remove('hide');
-    if (paidFirst) $('anhbox').classList.remove('hide');
+    if (paidFirst) { $('anhbox').classList.remove('hide'); $('intro').classList.add('hide'); }
     getConfig().then(function (c) {
       cfg = c;
       if (trial) $('title').textContent = 'Dùng thử ' + c.trialDays + ' ngày';
@@ -174,7 +174,7 @@
       if (!r.ok) return fail(r.msg);
       if (paidFirst) {
         return callApi({ action: 'dachuyen', email: $('e').value, phone: $('p').value, anh: anh }).then(function () {
-          $('trial-done').querySelector('h2').textContent = 'Đã gửi thông tin';
+          $('trial-done').querySelector('h2').classList.add('hide');
           $('trial-msg').textContent = 'Nếu bạn đã chuyển tiền rồi, hãy nhắn Zalo cho Đinh Huệ số 0813941658 để lấy mã kích hoạt.';
           $('trial-done').querySelector('.sub:not(#trial-msg)').textContent = 'Có mã rồi thì quay lại tab tool, dán mã vào ô Mã kích hoạt.';
           $('contact1').classList.add('hide');
