@@ -180,7 +180,8 @@
       if (paidFirst) {
         return callApi({ action: 'dachuyen', email: $('e').value, phone: $('p').value, anh: anh }).then(function () {
           $('trial-done').querySelector('h2').classList.add('hide');
-          $('trial-msg').textContent = 'Nếu bạn đã chuyển tiền rồi, hãy nhắn Zalo cho Đinh Huệ số 0813941658 để lấy mã kích hoạt.';
+          $('trial-msg').textContent = 'Nếu bạn đã chuyển tiền rồi, hãy nhắn Zalo Đinh Huệ số 0813941658 để được hướng dẫn tiếp.';
+          $('trial-msg').style.cssText = 'color:#fbbf24;font-size:20px;font-weight:700;line-height:1.5';
           $('trial-done').querySelector('.sub:not(#trial-msg)').textContent = 'Có mã rồi thì quay lại tab tool, dán mã vào ô Mã kích hoạt.';
           $('contact1').classList.add('hide'); $('zalohue').classList.remove('hide');
           done('trial-done');
