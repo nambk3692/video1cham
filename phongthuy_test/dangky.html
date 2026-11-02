@@ -129,7 +129,7 @@
     $('title').textContent = trial ? 'Dùng thử' : paidFirst ? 'Tôi đã chuyển tiền rồi' : 'Mua Tạo Video Phong Thủy 1 Chạm';
     $('intro').textContent = 'Điền thông tin bên dưới. Mã chỉ chạy trên máy bạn vừa bấm đăng ký (mã máy ' + may + ').';
     $('home').classList.remove('hide');
-    if (paidFirst) { $('anhbox').classList.remove('hide'); $('refbox').classList.remove('hide'); $('intro').classList.add('hide'); $('title').classList.add('hide'); }
+    if (paidFirst) { $('anhbox').classList.remove('hide'); $('refbox').classList.remove('hide'); clearRef2(); setTimeout(clearRef2, 300); window.addEventListener('pageshow', clearRef2); $('intro').classList.add('hide'); $('title').classList.add('hide'); }
     getConfig().then(function (c) {
       cfg = c;
       if (trial) $('title').textContent = 'Dùng thử ' + c.trialDays + ' ngày';
@@ -163,6 +163,8 @@
       fr.readAsDataURL(file);
     });
   }
+  // Ô mã giới thiệu luôn để trống lúc mở trang (kể cả khi trình duyệt tự khôi phục chữ cũ sau khi tải lại)
+  function clearRef2() { $('r2').value = ''; }
   function done(id) { $('home').classList.add('hide'); $(id).classList.remove('hide'); window.scrollTo(0, 0); }
   $('f').addEventListener('submit', function (ev) {
     ev.preventDefault();
