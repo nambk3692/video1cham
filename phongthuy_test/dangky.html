@@ -16,6 +16,7 @@
       <label for="n">Tên của bạn</label><input id="n" required maxlength="60" autocomplete="name">
       <label for="e">Email</label><input id="e" type="email" required autocomplete="email">
       <label for="p">Số điện thoại</label><input id="p" type="tel" required inputmode="tel" autocomplete="tel" placeholder="0912345678">
+      <div id="refbox" class="hide"><label for="r2">Dán mã giới thiệu để được giảm 25%</label><input id="r2" maxlength="12" autocapitalize="characters" autocomplete="off"></div>
       <div id="anhbox" class="hide"><label for="a">Ảnh chuyển khoản</label><input id="a" type="file" accept="image/*"></div>
       <button id="b" type="submit" class="btn main" style="margin-top:22px"></button>
     </form>
@@ -128,7 +129,7 @@
     $('title').textContent = trial ? 'Dùng thử' : paidFirst ? 'Tôi đã chuyển tiền rồi' : 'Mua Tạo Video Phong Thủy 1 Chạm';
     $('intro').textContent = 'Điền thông tin bên dưới. Mã chỉ chạy trên máy bạn vừa bấm đăng ký (mã máy ' + may + ').';
     $('home').classList.remove('hide');
-    if (paidFirst) { $('anhbox').classList.remove('hide'); $('intro').classList.add('hide'); $('title').classList.add('hide'); }
+    if (paidFirst) { $('anhbox').classList.remove('hide'); $('refbox').classList.remove('hide'); $('r2').value = cleanRef(P.ref) || loadRef(); $('intro').classList.add('hide'); $('title').classList.add('hide'); }
     getConfig().then(function (c) {
       cfg = c;
       if (trial) $('title').textContent = 'Dùng thử ' + c.trialDays + ' ngày';
@@ -168,10 +169,11 @@
     var b = $('b'), m = $('m');
     b.disabled = true; b.textContent = 'Đang gửi...'; m.textContent = '';
     function fail(msg) { m.className = 'msg err'; m.textContent = msg || 'Có lỗi, vui lòng thử lại.'; b.disabled = false; b.textContent = label; }
-    var ref0 = plan === 'mua' ? (cleanRef(P.ref) || loadRef()) : '';
+    var ref0 = plan === 'mua' ? (cleanRef(P.ref) || loadRef()) : paidFirst ? cleanRef($('r2').value) : '';
     var imgP = paidFirst ? readImage($('a').files && $('a').files[0]) : Promise.resolve('');
-    imgP.then(function (anh) { return callApi({ action: paidFirst ? 'mua' : plan, name: $('n').value, email: $('e').value, phone: $('p').value, may: may, ref: ref0, pkg: 'combo' }).then(function (r) {
+    imgP.then(function (anh) { return callApi({ action: paidFirst ? 'mua' : plan, name: $('n').value, email: $('e').value, phone: $('p').value, may: may, ref: ref0, pkg: paidFirst ? 'tool' : 'combo' }).then(function (r) {
       if (!r.ok) return fail(r.msg);
+      if (paidFirst && ref0 && !(r.ref && r.ref.ok)) return fail('Mã giới thiệu chưa đúng. Bạn kiểm tra lại giúp nhé.');
       if (paidFirst) {
         return callApi({ action: 'dachuyen', email: $('e').value, phone: $('p').value, anh: anh }).then(function () {
           $('trial-done').querySelector('h2').classList.add('hide');
