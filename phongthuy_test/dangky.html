@@ -29,6 +29,7 @@
     <div class="code hide" id="trial-code"></div>
     <button class="btn main hide" id="trial-copy" type="button">Sao chép mã</button>
     <p class="sub" style="margin-top:14px">Quay lại tab tool, dán mã vào ô Mã kích hoạt.</p>
+    <a class="btn zalo hide" id="zalohue" href="https://zalo.me/0813941658" target="_blank">Zalo của Huệ</a>
     <a class="btn zalo" id="zalo1" href="#" target="_blank">Vào nhóm Zalo hỗ trợ sử dụng tool</a>
     <a class="btn ghost" id="contact1" href="#" target="_blank"></a>
   </div>
@@ -181,7 +182,7 @@
           $('trial-done').querySelector('h2').classList.add('hide');
           $('trial-msg').textContent = 'Nếu bạn đã chuyển tiền rồi, hãy nhắn Zalo cho Đinh Huệ số 0813941658 để lấy mã kích hoạt.';
           $('trial-done').querySelector('.sub:not(#trial-msg)').textContent = 'Có mã rồi thì quay lại tab tool, dán mã vào ô Mã kích hoạt.';
-          $('contact1').classList.add('hide');
+          $('contact1').classList.add('hide'); $('zalohue').classList.remove('hide');
           done('trial-done');
         });
       }
