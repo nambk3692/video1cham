@@ -851,6 +851,20 @@
         if (/^https:\/\/flow\.google\.com\/shared\/tool\//.test(link)) {
           open.href = link;
           sw.href = 'https://accounts.google.com/AccountChooser?continue=' + encodeURIComponent(link);
+          // iPhone: Safari chưa đăng nhập Google nên báo không tìm thấy tool -> mở bằng Chrome (nếu máy không có Chrome thì mở link thường)
+          if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+            open.addEventListener('click', function (ev) {
+              ev.preventDefault();
+              var left = false;
+              function onVis() { if (document.hidden) left = true; }
+              document.addEventListener('visibilitychange', onVis);
+              location.href = link.replace(/^https:/, 'googlechromes:');
+              setTimeout(function () {
+                document.removeEventListener('visibilitychange', onVis);
+                if (!left && !document.hidden) window.open(link, '_blank');
+              }, 1800);
+            });
+          }
         }
       }).catch(function () {});
     });
