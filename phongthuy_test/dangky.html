@@ -128,7 +128,7 @@
     $('title').textContent = trial ? 'Dùng thử' : paidFirst ? 'Tôi đã chuyển tiền rồi' : 'Mua Tạo Video Phong Thủy 1 Chạm';
     $('intro').textContent = 'Điền thông tin bên dưới. Mã chỉ chạy trên máy bạn vừa bấm đăng ký (mã máy ' + may + ').';
     $('home').classList.remove('hide');
-    if (paidFirst) { $('anhbox').classList.remove('hide'); $('intro').classList.add('hide'); }
+    if (paidFirst) { $('anhbox').classList.remove('hide'); $('intro').classList.add('hide'); $('title').classList.add('hide'); }
     getConfig().then(function (c) {
       cfg = c;
       if (trial) $('title').textContent = 'Dùng thử ' + c.trialDays + ' ngày';
