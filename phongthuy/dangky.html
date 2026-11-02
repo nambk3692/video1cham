@@ -16,6 +16,8 @@
       <label for="n">Tên của bạn</label><input id="n" required maxlength="60" autocomplete="name">
       <label for="e">Email</label><input id="e" type="email" required autocomplete="email">
       <label for="p">Số điện thoại</label><input id="p" type="tel" required inputmode="tel" autocomplete="tel" placeholder="0912345678">
+      <div id="refbox" class="hide"><label for="r2">Dán mã giới thiệu để được giảm 25%</label><input id="r2" maxlength="12" autocapitalize="characters" autocomplete="off"></div>
+      <div id="anhbox" class="hide"><label for="a">Ảnh chuyển khoản</label><input id="a" type="file" accept="image/*"></div>
       <button id="b" type="submit" class="btn main" style="margin-top:22px"></button>
     </form>
     <div id="m" class="msg"></div>
@@ -27,6 +29,7 @@
     <div class="code hide" id="trial-code"></div>
     <button class="btn main hide" id="trial-copy" type="button">Sao chép mã</button>
     <p class="sub" style="margin-top:14px">Quay lại tab tool, dán mã vào ô Mã kích hoạt.</p>
+    <a class="btn zalo hide" id="zalohue" href="https://zalo.me/0813941658" target="_blank">Zalo của Huệ</a>
     <a class="btn zalo" id="zalo1" href="#" target="_blank">Vào nhóm Zalo hỗ trợ sử dụng tool</a>
     <a class="btn ghost" id="contact1" href="#" target="_blank"></a>
   </div>
@@ -117,19 +120,21 @@
     });
   });
   var trial = plan === 'thu';
-  var label = trial ? 'Nhận mã dùng thử' : 'Tiếp tục thanh toán';
-  if ((plan !== 'thu' && plan !== 'mua') || !isDeviceId(may)) {
+  var paidFirst = plan === 'paid';
+  var label = trial ? 'Nhận mã dùng thử' : paidFirst ? 'Gửi' : 'Tiếp tục thanh toán';
+  if ((plan !== 'thu' && plan !== 'mua' && plan !== 'paid') || (plan !== 'paid' && !isDeviceId(may)) || (may && !isDeviceId(may))) {
     $('bad').classList.remove('hide');
   } else {
     saveRef(P.ref);
     $('b').textContent = label;
-    $('title').textContent = trial ? 'Dùng thử' : 'Mua Tạo Video Phong Thủy 1 Chạm';
+    $('title').textContent = trial ? 'Dùng thử' : paidFirst ? 'Tôi đã chuyển tiền rồi' : 'Mua Tạo Video Phong Thủy 1 Chạm';
     $('intro').textContent = 'Điền thông tin bên dưới. Mã chỉ chạy trên máy bạn vừa bấm đăng ký (mã máy ' + may + ').';
     $('home').classList.remove('hide');
+    if (paidFirst) { $('anhbox').classList.remove('hide'); $('refbox').classList.remove('hide'); clearRef2(); setTimeout(clearRef2, 300); window.addEventListener('pageshow', clearRef2); $('intro').classList.add('hide'); $('title').classList.add('hide'); }
     getConfig().then(function (c) {
       cfg = c;
       if (trial) $('title').textContent = 'Dùng thử ' + c.trialDays + ' ngày';
-      $('intro').textContent = (trial ? 'Miễn phí ' + c.trialDays + ' ngày. Mã kích hoạt gửi qua email. ' : 'Điền thông tin, sau đó chọn gói và quét mã QR để chuyển khoản. ') +
+      $('intro').textContent = (trial ? 'Miễn phí ' + c.trialDays + ' ngày. Mã kích hoạt gửi qua email. ' : paidFirst ? 'Điền đúng thông tin bạn đã dùng khi chuyển tiền. Nam kiểm tra rồi gửi mã kích hoạt vào email của bạn. ' : 'Điền thông tin, sau đó chọn gói và quét mã QR để chuyển khoản. ') +
         'Mã chỉ chạy trên máy bạn vừa bấm đăng ký (mã máy ' + may + ').';
       ['zalo1', 'zalo3'].forEach(function (id) { $(id).href = c.zaloGroup; });
       $('contact1').href = 'https://zalo.me/' + c.phone; $('contact1').textContent = 'Liên hệ Nam: ' + c.phone;
@@ -138,15 +143,50 @@
       bankCode = c.bankCode || 'TCB'; bankAcc = c.bankAccount || ''; bankOwner = c.bankOwner || '';
     }).catch(function () {});
   }
+  // Thu nhỏ ảnh chuyển khoản (tối đa 1200px, JPEG) trước khi gửi, không có ảnh thì trả chuỗi rỗng
+  function readImage(file) {
+    return new Promise(function (resolve) {
+      if (!file || !/^image\//.test(file.type)) return resolve('');
+      var fr = new FileReader();
+      fr.onerror = function () { resolve(''); };
+      fr.onload = function () {
+        var img = new Image();
+        img.onerror = function () { resolve(''); };
+        img.onload = function () {
+          var k = Math.min(1, 1200 / Math.max(img.width, img.height));
+          var c = document.createElement('canvas');
+          c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          resolve(c.toDataURL('image/jpeg', 0.8));
+        };
+        img.src = fr.result;
+      };
+      fr.readAsDataURL(file);
+    });
+  }
+  // Ô mã giới thiệu luôn để trống lúc mở trang (kể cả khi trình duyệt tự khôi phục chữ cũ sau khi tải lại)
+  function clearRef2() { $('r2').value = ''; }
   function done(id) { $('home').classList.add('hide'); $(id).classList.remove('hide'); window.scrollTo(0, 0); }
   $('f').addEventListener('submit', function (ev) {
     ev.preventDefault();
     var b = $('b'), m = $('m');
     b.disabled = true; b.textContent = 'Đang gửi...'; m.textContent = '';
     function fail(msg) { m.className = 'msg err'; m.textContent = msg || 'Có lỗi, vui lòng thử lại.'; b.disabled = false; b.textContent = label; }
-    var ref0 = plan === 'mua' ? (cleanRef(P.ref) || loadRef()) : '';
-    callApi({ action: plan, name: $('n').value, email: $('e').value, phone: $('p').value, may: may, ref: ref0, pkg: 'combo' }).then(function (r) {
+    var ref0 = plan === 'mua' ? (cleanRef(P.ref) || loadRef()) : paidFirst ? cleanRef($('r2').value) : '';
+    var imgP = paidFirst ? readImage($('a').files && $('a').files[0]) : Promise.resolve('');
+    imgP.then(function (anh) { return callApi({ action: paidFirst ? 'mua' : plan, name: $('n').value, email: $('e').value, phone: $('p').value, may: may, ref: ref0, pkg: paidFirst ? 'tool' : 'combo' }).then(function (r) {
       if (!r.ok) return fail(r.msg);
+      if (paidFirst && ref0 && !(r.ref && r.ref.ok)) return fail('Mã giới thiệu chưa đúng. Bạn kiểm tra lại giúp nhé.');
+      if (paidFirst) {
+        return callApi({ action: 'dachuyen', email: $('e').value, phone: $('p').value, anh: anh }).then(function () {
+          $('trial-done').querySelector('h2').classList.add('hide');
+          $('trial-msg').textContent = 'Nếu bạn đã chuyển tiền, nhắn Zalo Đinh Huệ số 0813941658 để được hướng dẫn tiếp.';
+          $('trial-msg').style.cssText = 'color:#fbbf24;font-size:20px;font-weight:700;line-height:1.5';
+          $('trial-done').querySelector('.sub:not(#trial-msg)').classList.add('hide');
+          $('contact1').classList.add('hide'); $('zalohue').classList.remove('hide');
+          done('trial-done');
+        });
+      }
       if (plan === 'thu') {
         $('trial-msg').textContent = r.msg;
         if (r.code) {
@@ -164,6 +204,6 @@
         cur = 'combo'; render();
         done('buy-done');
       }
-    }).catch(function () { fail(); });
+    }); }).catch(function () { fail(); });
   });
 </script></body></html>
