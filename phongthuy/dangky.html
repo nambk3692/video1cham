@@ -16,6 +16,7 @@
       <label for="n">Tên của bạn</label><input id="n" required maxlength="60" autocomplete="name">
       <label for="e">Email</label><input id="e" type="email" required autocomplete="email">
       <label for="p">Số điện thoại</label><input id="p" type="tel" required inputmode="tel" autocomplete="tel" placeholder="0912345678">
+      <div id="gbox" class="hide"><label for="g">Gói bạn đã mua</label><select id="g" style="width:100%;box-sizing:border-box;background:#0e0e10;border:1px solid #2a2a2e;border-radius:10px;color:#eee;padding:12px;font-size:15px"><option value="">-- Chọn gói --</option><option value="tool">Mua riêng tool</option><option value="course">Mua riêng khóa học xây kênh phong thủy</option><option value="combo">Combo tool và khóa học</option></select></div>
       <div id="refbox" class="hide"><label for="r2">Dán mã giới thiệu để được giảm 25%, nếu chưa có hãy hỏi người chia sẻ cho bạn để lấy mã</label><input id="r2" maxlength="12" autocapitalize="characters" autocomplete="off"></div>
       <div id="anhbox" class="hide"><label for="a">Ảnh chuyển khoản</label><input id="a" type="file" accept="image/*"></div>
       <button id="b" type="submit" class="btn main" style="margin-top:22px"></button>
@@ -130,7 +131,7 @@
     $('title').textContent = trial ? 'Dùng thử' : paidFirst ? 'Tôi đã chuyển tiền rồi' : 'Mua Tạo Video Phong Thủy 1 Chạm';
     $('intro').textContent = 'Điền thông tin bên dưới. Mã chỉ chạy trên máy bạn vừa bấm đăng ký (mã máy ' + may + ').';
     $('home').classList.remove('hide');
-    if (paidFirst) { $('anhbox').classList.remove('hide'); $('refbox').classList.remove('hide'); clearRef2(); setTimeout(clearRef2, 300); window.addEventListener('pageshow', clearRef2); $('intro').classList.add('hide'); $('title').classList.add('hide'); }
+    if (paidFirst) { $('gbox').classList.remove('hide'); $('g').required = true; $('g').addEventListener('change', function () { $('refbox').classList.toggle('hide', $('g').value === 'course'); }); $('anhbox').classList.remove('hide'); $('refbox').classList.remove('hide'); clearRef2(); setTimeout(clearRef2, 300); window.addEventListener('pageshow', clearRef2); $('intro').classList.add('hide'); $('title').classList.add('hide'); }
     getConfig().then(function (c) {
       cfg = c;
       if (trial) $('title').textContent = 'Dùng thử ' + c.trialDays + ' ngày';
@@ -172,11 +173,11 @@
     var b = $('b'), m = $('m');
     b.disabled = true; b.textContent = 'Đang gửi...'; m.textContent = '';
     function fail(msg) { m.className = 'msg err'; m.textContent = msg || 'Có lỗi, vui lòng thử lại.'; b.disabled = false; b.textContent = label; }
-    var ref0 = plan === 'mua' ? (cleanRef(P.ref) || loadRef()) : paidFirst ? cleanRef($('r2').value) : '';
+    var ref0 = plan === 'mua' ? (cleanRef(P.ref) || loadRef()) : paidFirst ? ($('g').value === 'course' ? '' : cleanRef($('r2').value)) : '';
     var imgP = paidFirst ? readImage($('a').files && $('a').files[0]) : Promise.resolve('');
-    imgP.then(function (anh) { return callApi({ action: paidFirst ? 'mua' : plan, name: $('n').value, email: $('e').value, phone: $('p').value, may: may, ref: ref0, pkg: paidFirst ? 'tool' : 'combo' }).then(function (r) {
+    imgP.then(function (anh) { return callApi({ action: paidFirst ? 'mua' : plan, name: $('n').value, email: $('e').value, phone: $('p').value, may: may, ref: ref0, pkg: paidFirst ? $('g').value : 'combo' }).then(function (r) {
       if (!r.ok) return fail(r.msg);
-      if (paidFirst && ref0 && !(r.ref && r.ref.ok)) return fail('Mã giới thiệu chưa đúng. Bạn kiểm tra lại giúp nhé.');
+      if (paidFirst && ref0 && $('g').value !== 'course' && !(r.ref && r.ref.ok)) return fail('Mã giới thiệu chưa đúng. Bạn kiểm tra lại giúp nhé.');
       if (paidFirst) {
         return callApi({ action: 'dachuyen', email: $('e').value, phone: $('p').value, anh: anh }).then(function () {
           $('trial-done').querySelector('h2').classList.add('hide');
