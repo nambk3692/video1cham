@@ -17,8 +17,7 @@
     <p class="sub" id="sub">Đã có mã kích hoạt: bấm nút vàng, mã sẽ tự sao chép, vào tool dán vào ô rồi bấm Kích hoạt.</p>
     <a class="btn main" id="go" href="#" target="_blank" rel="noopener" style="font-size:16px;padding:16px">ĐÃ MUA TOOL, BẤM VÀO ĐÂY ĐỂ VÀO</a>
     <p class="note hide" id="gonote"></p>
-    <a class="btn zalo" id="first" href="#" target="_blank" rel="noopener" style="font-size:16px;padding:16px">LẦN ĐẦU VÀO TOOL, BẤM ĐỂ ĐĂNG KÝ</a>
-    <p class="note hide" id="firstnote">Vào tool, bấm nút xanh SAO CHÉP LINK ĐĂNG KÝ, rồi dán vào thanh địa chỉ của Chrome hoặc Safari để đăng ký.</p>
+    <a class="btn zalo" id="first" href="chonmua_test.html" style="font-size:16px;padding:16px">LẦN ĐẦU VÀO TOOL, BẤM ĐỂ ĐĂNG KÝ</a>
   </div>
   <p class="note hide" id="err">Chưa tải được đường dẫn tool. Vui lòng tải lại trang.</p>
 </div>
@@ -35,7 +34,7 @@
   function savedMa() { try { return localStorage.getItem('pt1c_ma') || ''; } catch (e) { return ''; } }
   getConfig().then(function (c) {
     var link = c.toolLink;
-    $('go').href = link; $('first').href = link; $('first').onclick = function () { $('firstnote').classList.remove('hide'); return true; };
+    $('go').href = link;
     // Bấm nút vàng: sao chép mã đã nhớ trên máy này (nếu có) rồi mở tool ở thẻ mới
     $('go').onclick = function () {
       var ma = savedMa();
