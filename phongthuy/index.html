@@ -18,6 +18,7 @@
     <a class="btn main" id="go" href="#" target="_blank" rel="noopener" style="font-size:16px;padding:16px">ĐÃ MUA TOOL, BẤM VÀO ĐÂY ĐỂ VÀO</a>
     <p class="note hide" id="gonote"></p>
     <a class="btn zalo" id="first" href="chonmua.html" style="font-size:16px;padding:16px">LẦN ĐẦU VÀO TOOL, BẤM ĐỂ ĐĂNG KÝ</a>
+    <a class="btn ghost" id="adv" href="nangcao.html">MỞ KHÓA CHỨC NĂNG NÂNG CAO</a>
     <p style="margin:14px 0 0"><a href="themmay2.html" style="color:#9a9aa2;font-size:13px;text-decoration:underline">Thêm máy thứ hai</a></p>
   </div>
   <p class="note hide" id="err">Chưa tải được đường dẫn tool. Vui lòng tải lại trang.</p>
@@ -33,6 +34,14 @@
     $('sub').innerHTML = 'Bấm nút vàng bên dưới để vào bản mới nhất.<br>Nếu Flow hiện màn hình <b>"Công cụ được chia sẻ"</b>, hãy bấm <b>"Dùng thử trong một dự án"</b> để vào tool.<br>Sau khi vào, hãy <b>đóng thẻ tool cũ</b> để khỏi nhầm.';
   }
   function savedMa() { try { return localStorage.getItem('pt1c_ma') || ''; } catch (e) { return ''; } }
+  // Khách đã mua thêm chức năng (anh Nam duyệt trên Sheet): lấy mã mới về máy này để nút vàng sao chép đúng mã mới
+  (function () {
+    var m = savedMa();
+    if (!m) return;
+    callApi({ action: 'thumbstatus', ma: m }).then(function (r) {
+      if (r && r.ok && r.status === 'paid' && r.code && r.code !== m) { try { localStorage.setItem('pt1c_ma', r.code); } catch (e) {} }
+    }).catch(function () {});
+  })();
   getConfig().then(function (c) {
     var link = c.toolLink;
     $('go').href = link;
