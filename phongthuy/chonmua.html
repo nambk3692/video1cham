@@ -42,6 +42,6 @@
   });
   inp.oninput = refresh;
   try { var m = sessionStorage.getItem('pt_may'); if (m && !inp.value) inp.value = m; } catch (e) {}
-  var q = params().may; if (q && !inp.value) inp.value = q;
+  var q = params().may; if (q && !inp.value) inp.value = q; if (isDeviceId(q)) { inp.readOnly = true; inp.style.opacity = '.85'; inp.style.cursor = 'not-allowed'; }
   refresh();
 </script></body></html>
