@@ -14,14 +14,12 @@
   </div>
 
   <div id="normal">
-    <p class="sub" id="sub">Chưa có mã kích hoạt? Vào tool rồi bấm <b>Dùng thử</b> hoặc <b>Mua tool</b> ngay trên màn hình kích hoạt.</p>
-    <a class="btn main" id="go" href="#">Vào tool</a>
-  </div>
-  <div id="luu" class="hide" style="margin-top:18px;text-align:left;border-top:1px solid #2a2a30;padding-top:14px">
-    <p class="sub" style="margin:0 0 8px;color:#e5e5ea"><b>Mẹo: lưu trang này để lần sau vào nhanh, kể cả khi có bản mới.</b></p>
-    <p class="note" style="margin:6px 0"><b>Máy tính:</b> bấm hình dấu sao trên thanh địa chỉ (hoặc nhấn Ctrl + D), rồi Xong.</p>
-    <p class="note" style="margin:6px 0"><b>Điện thoại Android (Chrome):</b> bấm dấu ba chấm góc trên bên phải, chọn "Thêm vào màn hình chính".</p>
-    <p class="note" style="margin:6px 0"><b>iPhone (Safari):</b> bấm nút Chia sẻ, chọn "Thêm vào Màn hình chính".</p>
+    <p class="sub" id="sub">Đã có mã kích hoạt: bấm nút vàng, mã sẽ tự sao chép, vào tool dán vào ô rồi bấm Kích hoạt.</p>
+    <a class="btn main" id="go" href="#" target="_blank" rel="noopener" style="font-size:16px;padding:16px">ĐÃ MUA TOOL, BẤM VÀO ĐÂY ĐỂ VÀO</a>
+    <p class="note hide" id="gonote"></p>
+    <a class="btn zalo" id="first" href="chonmua.html" style="font-size:16px;padding:16px">LẦN ĐẦU VÀO TOOL, BẤM ĐỂ ĐĂNG KÝ</a>
+    <a class="btn ghost" id="adv" href="nangcao.html">MỞ KHÓA CHỨC NĂNG NÂNG CAO</a>
+    <p style="margin:14px 0 0"><a href="themmay2.html" style="color:#9a9aa2;font-size:13px;text-decoration:underline">Thêm máy thứ hai</a></p>
   </div>
   <p class="note hide" id="err">Chưa tải được đường dẫn tool. Vui lòng tải lại trang.</p>
 </div>
@@ -32,12 +30,36 @@
   var android = /Android/i.test(ua);
   if (/[?&]capnhat=1(&|$)/.test(location.search)) {
     $('title').textContent = 'Cập nhật bản mới';
-    $('sub').innerHTML = 'Bấm <b>Vào tool</b> bên dưới để vào bản mới nhất.<br>Nếu Flow hiện màn hình <b>"Công cụ được chia sẻ"</b>, hãy bấm <b>"Dùng thử trong một dự án"</b> để vào tool.<br>Sau khi vào, hãy <b>đóng thẻ tool cũ</b> để khỏi nhầm.';
+    $('sub').innerHTML = 'Bấm nút vàng bên dưới để vào bản mới nhất.<br>Nếu Flow hiện màn hình <b>"Công cụ được chia sẻ"</b>, hãy bấm <b>"Dùng thử trong một dự án"</b> để vào tool.<br>Sau khi vào, hãy <b>đóng thẻ tool cũ</b> để khỏi nhầm.';
   }
-  if (/[?&]luu=1(&|$)/.test(location.search)) { $('luu').classList.remove('hide'); }
+  function savedMa() { try { return localStorage.getItem('sk1c_ma') || ''; } catch (e) { return ''; } }
+  // Khách đã mua thêm chức năng (anh Nam duyệt trên Sheet): lấy mã mới về máy này để nút vàng sao chép đúng mã mới
+  (function () {
+    var m = savedMa();
+    if (!m) return;
+    callApi({ action: 'thumbstatus', ma: m }).then(function (r) {
+      if (r && r.ok && r.status === 'paid' && r.code && r.code !== m) { try { localStorage.setItem('sk1c_ma', r.code); } catch (e) {} }
+    }).catch(function () {});
+  })();
   getConfig().then(function (c) {
     var link = c.toolLink;
     $('go').href = link;
+    // Bấm nút vàng: sao chép mã đã nhớ trên máy này (nếu có) rồi mở tool ở thẻ mới
+    $('go').onclick = function () {
+      var ma = savedMa();
+      var note = $('gonote');
+      note.classList.remove('hide');
+      if (ma) {
+        copyText(ma, function (ok) {
+          note.textContent = ok
+            ? 'Đã sao chép mã kích hoạt. Vào tool, dán mã vào ô rồi bấm KÍCH HOẠT.'
+            : 'Mã của bạn: ' + ma + ' (bấm giữ để sao chép), vào tool dán vào ô rồi bấm KÍCH HOẠT.';
+        });
+      } else {
+        note.textContent = 'Máy này chưa lưu mã. Vào tool, dán mã kích hoạt bạn đã nhận vào ô rồi bấm KÍCH HOẠT.';
+      }
+      return true; // vẫn mở tool
+    };
     if (inApp) {
       $('inapp').classList.remove('hide');
       $('normal').classList.add('hide');
