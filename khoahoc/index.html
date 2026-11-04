@@ -849,7 +849,7 @@
       fetch(tl.api + '?api=config').then(function (r) { return r.json(); }).then(function (cfg) {
         var link = String((cfg && cfg.toolLink) || '');
         if (/^https:\/\/flow\.google\.com\/shared\/tool\//.test(link)) {
-          open.href = link;
+          if (tl.dir !== 'phongthuy/') open.href = link; // Phong Thủy: giữ link trang ngoài để khách qua nút vàng/xanh
           sw.href = 'https://accounts.google.com/AccountChooser?continue=' + encodeURIComponent(link);
         }
       }).catch(function () {});
