@@ -12,12 +12,14 @@
     <input id="ma" type="text" autocomplete="off" placeholder="Dán mã kích hoạt vào đây" style="text-align:center">
     <p class="hide" id="manote" style="color:#fca5a5;font-size:13px;margin:8px 0 0">Hãy dán mã kích hoạt của bạn vào ô trên.</p>
     <button class="btn main" id="thumb" type="button">TẠO TIÊU ĐỀ VÀ THUMBNAIL - 399.000đ</button>
+    <button class="btn ghost" id="kho_nha" type="button">KHO PHONG THỦY NHÀ - SẮP MỞ BÁN</button>
+    <button class="btn ghost" id="kho_tuong" type="button">KHO THUẬT XEM TƯỚNG - SẮP MỞ BÁN</button>
     <div id="m0" class="msg"></div>
     <a class="btn ghost" href="index.html">Quay lại</a>
   </div>
 
   <div id="none" class="hide">
-    <h2>Tạo tiêu đề và thumbnail</h2>
+    <h2 id="ptitle">Tạo tiêu đề và thumbnail</h2>
     <p class="sub" style="margin-bottom:6px">Phí mở khóa một lần: <b id="price" style="color:#f59e0b"></b>. Quét mã bên dưới bằng app ngân hàng, số tiền đã điền sẵn.</p>
     <img class="qr" id="qr" alt="Mã QR chuyển khoản">
     <div class="bank" style="text-align:left">
@@ -25,7 +27,7 @@
       Số tài khoản: <b id="bk-acc"></b><br>
       Chủ tài khoản: <b id="bk-owner"></b><br>
       Số tiền: <b id="bk-price"></b><br>
-      Nội dung: <b>THUMB + tên + số điện thoại</b>
+      Nội dung: <b id="pcontent">THUMB + tên + số điện thoại</b>
     </div>
     <p class="note">Chuyển khoản xong, bấm nút bên dưới.</p>
     <button class="btn main" id="paid" type="button">Tôi đã chuyển khoản</button>
@@ -51,7 +53,9 @@
 </div>
 <script src="common.js"></script>
 <script>
-  var inp = $('ma'), cfg = {}, last = null, poll = null;
+  var inp = $('ma'), cfg = {}, last = null, poll = null, item = 'thumb';
+  var KHO_OPEN = false; // đổi thành true khi kho đã nhúng vào tool và sẵn sàng bán
+  var KHO = { nha: 'Kho Phong thủy nhà', tuong: 'Kho Thuật xem tướng' }, KHO_AMOUNT = 686000;
   try { var m0 = localStorage.getItem('pt1c_ma'); if (m0) inp.value = m0; } catch (e) {}
   function cur() { return inp.value.trim(); }
   function okCode() { return cur().split('.').length >= 3; }
@@ -85,15 +89,39 @@
   }
 
   $('thumb').onclick = function () {
-    $('m0').textContent = '';
+    item = 'thumb'; $('m0').textContent = '';
     if (!okCode()) { $('manote').classList.remove('hide'); inp.focus(); return; }
     var b = $('thumb'); b.disabled = true; b.textContent = 'Đang kiểm tra...';
     check().then(function () { b.disabled = false; b.textContent = 'TẠO TIÊU ĐỀ VÀ THUMBNAIL - 399.000đ'; });
   };
-  $('back1').onclick = function () { show('pick'); };
+
+  function openKho(k) {
+    $('m0').textContent = '';
+    if (!okCode()) { $('manote').classList.remove('hide'); inp.focus(); return; }
+    if (!KHO_OPEN) { $('m0').className = 'msg'; $('m0').textContent = KHO[k] + ' sẽ mở bán khi kho đã có trong tool. Nam sẽ báo cho bạn.'; return; }
+    item = k;
+    $('ptitle').textContent = KHO[k];
+    $('pcontent').textContent = (k === 'nha' ? 'KHO NHA' : 'KHO TUONG') + ' + tên + số điện thoại';
+    $('price').textContent = '686.000đ'; $('bk-price').textContent = '686.000đ';
+    $('bk-name').textContent = cfg.bankName || ''; $('bk-acc').textContent = cfg.bankAccount || ''; $('bk-owner').textContent = cfg.bankOwner || '';
+    $('qr').src = 'https://img.vietqr.io/image/' + (cfg.bankCode || 'TCB') + '-' + (cfg.bankAccount || '') + '-compact2.png?amount=' + KHO_AMOUNT + '&accountName=' + encodeURIComponent(cfg.bankOwner || '');
+    show('none');
+  }
+  if (KHO_OPEN) { $('kho_nha').textContent = 'KHO PHONG THỦY NHÀ - 686.000đ'; $('kho_tuong').textContent = 'KHO THUẬT XEM TƯỚNG - 686.000đ'; }
+  $('kho_nha').onclick = function () { openKho('nha'); };
+  $('kho_tuong').onclick = function () { openKho('tuong'); };
+  $('back1').onclick = function () { item = 'thumb'; $('ptitle').textContent = 'Tạo tiêu đề và thumbnail'; show('pick'); };
   $('paid').addEventListener('click', function () {
     var b = $('paid'), m = $('m');
     b.disabled = true; b.textContent = 'Đang gửi...'; m.textContent = '';
+    if (item !== 'thumb') {
+      callApi({ action: 'khopending', code: cur(), kho: item }).then(function (r) {
+        if (!r || !r.ok) { m.className = 'msg err'; m.textContent = (r && r.msg) || 'Có lỗi, vui lòng thử lại.'; b.disabled = false; b.textContent = 'Tôi đã chuyển khoản'; return; }
+        b.disabled = false; b.textContent = 'Tôi đã chuyển khoản';
+        m.className = 'msg ok'; m.textContent = 'Đã gửi. Nam sẽ kiểm tra và mở khóa cho bạn, mã mới sẽ gửi về email.';
+      }).catch(function () { m.className = 'msg err'; m.textContent = 'Có lỗi kết nối, vui lòng thử lại.'; b.disabled = false; b.textContent = 'Tôi đã chuyển khoản'; });
+      return;
+    }
     callApi({ action: 'thumbpay', ma: cur() }).then(function (r) {
       if (!r || !r.ok) { m.className = 'msg err'; m.textContent = (r && r.msg) || 'Có lỗi, vui lòng thử lại.'; b.disabled = false; b.textContent = 'Tôi đã chuyển khoản'; return; }
       render(r);
