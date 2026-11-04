@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mở khóa chức năng nâng cao - Tạo Video Phong Thủy 1 Chạm</title>
+<link rel="stylesheet" href="style.css"></head>
+<body><div class="card" style="text-align:center">
+  <h1>Mở khóa chức năng nâng cao</h1>
+  <p class="sub">Chọn chức năng muốn mở. Chuyển khoản xong, mã kích hoạt mới sẽ gửi về email của bạn.</p>
+
+  <label for="ma" style="text-align:left">Mã kích hoạt của bạn</label>
+  <input id="ma" type="text" autocomplete="off" placeholder="Dán mã kích hoạt vào đây" style="text-align:center">
+  <p class="note hide" id="manote" style="color:#fca5a5;font-size:13px;margin:8px 0 0">Hãy dán mã kích hoạt của bạn vào ô trên.</p>
+
+  <a class="btn main" id="thumb" href="#">TẠO TIÊU ĐỀ VÀ THUMBNAIL - 399.000đ</a>
+
+  <a class="btn ghost" href="index.html">Quay lại</a>
+</div>
+<script src="common.js"></script>
+<script>
+  var inp = $('ma');
+  try { var m = localStorage.getItem('pt1c_ma'); if (m) inp.value = m; } catch (e) {}
+  function cur() { return inp.value.trim(); }
+  function ok() { return cur().split('.').length >= 3; }
+  $('thumb').onclick = function (e) {
+    e.preventDefault();
+    if (!ok()) { $('manote').classList.remove('hide'); inp.focus(); return; }
+    location.href = 'thumb.html#ma=' + encodeURIComponent(cur());
+  };
+  inp.oninput = function () { if (ok()) $('manote').classList.add('hide'); };
+</script></body></html>
