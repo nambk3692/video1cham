@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đăng ký - Tạo Video Sức Khỏe 1 Chạm</title>
+<link rel="stylesheet" href="style.css"></head>
+<body><div class="card" style="text-align:center">
+  <h1>Chưa có mã kích hoạt</h1>
+
+  <label for="may" style="text-align:left">Mã máy</label>
+  <input id="may" type="text" maxlength="8" autocomplete="off" placeholder="Nhập 8 ký tự mã máy" style="text-transform:uppercase;text-align:center;letter-spacing:.15em">
+  <p class="note hide" id="maynote">Mã máy gồm 8 ký tự chữ và số. Mở tool để xem lại.</p>
+
+  <a class="btn main" id="mua" href="#" style="background:#ff8a00;color:#fff">MUA TOOL</a>
+  <a class="btn" id="thu" href="#" style="background:#7c3aed;color:#fff">DÙNG THỬ 1 NGÀY</a>
+  <a class="btn ghost" href="index.html">Quay lại</a>
+</div>
+<script src="common.js"></script>
+<script>
+  var inp = $('may');
+  function cur() { return inp.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+  function refresh() {
+    var v = cur(), ok = isDeviceId(v);
+    ['mua', 'thu'].forEach(function (id) {
+      var a = $(id);
+      a.href = ok ? 'dangky.html?dk=' + id + '&may=' + v : '#';
+      a.style.opacity = ok ? '1' : '.45';
+    });
+    $('maynote').classList.toggle('hide', ok || !v);
+    if (ok) try { sessionStorage.setItem('sk_may', v); } catch (e) {}
+  }
+  ['mua', 'thu'].forEach(function (id) {
+    $(id).onclick = function (e) { if (!isDeviceId(cur())) { e.preventDefault(); $('maynote').classList.remove('hide'); inp.focus(); } };
+  });
+  inp.oninput = refresh;
+  try { var m = sessionStorage.getItem('sk_may'); if (m && !inp.value) inp.value = m; } catch (e) {}
+  var q = params().may; if (q && !inp.value) inp.value = q; if (isDeviceId(q)) { inp.readOnly = true; inp.style.opacity = '.85'; inp.style.cursor = 'not-allowed'; }
+  (function () {
+    var AL = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    function gpu() { try { var c = document.createElement('canvas'); var gl = c.getContext('webgl') || c.getContext('experimental-webgl'); if (!gl) return 'nogl'; var ext = gl.getExtension('WEBGL_debug_renderer_info'); var v = ext ? gl.getParameter(ext.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR); var r = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER); return String(v) + '|' + String(r); } catch (e) { return 'nogl'; } }
+    var touch = Number(navigator.maxTouchPoints) || 0, y = new Date().getFullYear();
+    var parts = [gpu(), 'c' + (navigator.hardwareConcurrency || 0), 'p' + (navigator.platform || ''), 't' + touch, 'z' + (new Date(y, 0, 1).getTimezoneOffset() + '/' + new Date(y, 6, 1).getTimezoneOffset())];
+    if (touch > 0) { var a = screen.width, b = screen.height; parts.push('s' + Math.min(a, b) + 'x' + Math.max(a, b)); }
+    if (!window.crypto || !crypto.subtle) return;
+    crypto.subtle.digest('SHA-256', new TextEncoder().encode(parts.join('#'))).then(function (buf) {
+      var h = new Uint8Array(buf), id = '';
+      for (var i = 0; i < 8; i++) id += AL[h[i] % 32];
+      if (!isDeviceId(inp.value)) { inp.value = id; inp.readOnly = true; inp.style.opacity = '.85'; inp.style.cursor = 'not-allowed'; refresh(); }
+    });
+  })();
+  refresh();
+</script></body></html>
