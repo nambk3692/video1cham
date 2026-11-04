@@ -5,8 +5,9 @@
 <link rel="stylesheet" href="style.css"></head>
 <body><div class="card">
   <div id="bad" class="hide">
-    <h2>Liên kết không hợp lệ</h2>
-    <p class="sub">Hãy mở tool và bấm <b>Dùng thử</b> hoặc <b>Mua tool</b> trong tool để đăng ký.</p>
+    <h2>Link đăng ký đã đổi</h2>
+    <p class="sub">Vui lòng vào tool, bấm nút xanh <b>SAO CHÉP LINK ĐĂNG KÝ</b>, rồi dán link đó vào thanh địa chỉ của Chrome hoặc Safari để đăng ký. Cần hỗ trợ, nhắn Zalo Huệ 0813941658.</p>
+    <a class="btn main" href="index.html">Về trang vào tool</a>
   </div>
 
   <div id="home" class="hide">
@@ -123,7 +124,7 @@
   var trial = plan === 'thu';
   var paidFirst = plan === 'paid';
   var label = trial ? 'Nhận mã dùng thử' : paidFirst ? 'Gửi' : 'Tiếp tục thanh toán';
-  if ((plan !== 'thu' && plan !== 'mua' && plan !== 'paid') || (plan !== 'paid' && !isDeviceId(may)) || (may && !isDeviceId(may))) {
+  if ((plan !== 'thu' && plan !== 'mua' && plan !== 'paid') || !isDeviceId(may)) {
     $('bad').classList.remove('hide');
   } else {
     saveRef(P.ref);
