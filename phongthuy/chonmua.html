@@ -15,8 +15,8 @@
   <a class="btn" id="thu" href="#" style="background:#7c3aed;color:#fff">DÙNG THỬ 1 NGÀY</a>
 
   <div style="border-top:1px solid #2a2a2e;margin-top:20px;padding-top:6px">
-    <p class="note">Đã chuyển khoản rồi thì không cần mã máy:</p>
-    <a class="btn" id="paid" href="dangky.html?dk=paid" style="background:#16a34a;color:#fff">TÔI ĐÃ CHUYỂN TIỀN</a>
+    <p class="note">Đã chuyển khoản rồi: nhập mã máy ở trên rồi bấm:</p>
+    <a class="btn" id="paid" href="#" style="background:#16a34a;color:#fff">TÔI ĐÃ CHUYỂN TIỀN</a>
   </div>
 
   <div style="margin-top:14px"><a href="daily.html" style="color:#9a9aa2;font-size:13px">Đăng ký làm đại lý</a></div>
@@ -29,7 +29,7 @@
   function cur() { return inp.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); }
   function refresh() {
     var v = cur(), ok = isDeviceId(v);
-    ['mua', 'thu'].forEach(function (id) {
+    ['mua', 'thu', 'paid'].forEach(function (id) {
       var a = $(id);
       a.href = ok ? 'dangky.html?dk=' + id + '&may=' + v : '#';
       a.style.opacity = ok ? '1' : '.45';
@@ -37,7 +37,7 @@
     $('maynote').classList.toggle('hide', ok || !v);
     if (ok) try { sessionStorage.setItem('pt_may', v); } catch (e) {}
   }
-  ['mua', 'thu'].forEach(function (id) {
+  ['mua', 'thu', 'paid'].forEach(function (id) {
     $(id).onclick = function (e) { if (!isDeviceId(cur())) { e.preventDefault(); $('maynote').classList.remove('hide'); inp.focus(); } };
   });
   inp.oninput = refresh;
