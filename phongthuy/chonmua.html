@@ -5,17 +5,14 @@
 <link rel="stylesheet" href="style.css"></head>
 <body><div class="card" style="text-align:center">
   <h1>Chưa có mã kích hoạt</h1>
-  <p class="sub">Mã kích hoạt gắn với máy bạn đang dùng. Mã máy của máy này đã điền sẵn bên dưới. Hãy dùng đúng trình duyệt này (Chrome hoặc Safari) để mở tool.</p>
 
   <label for="may" style="text-align:left">Mã máy</label>
   <input id="may" type="text" maxlength="8" autocomplete="off" placeholder="Nhập 8 ký tự mã máy" style="text-transform:uppercase;text-align:center;letter-spacing:.15em">
   <p class="note hide" id="maynote">Mã máy gồm 8 ký tự chữ và số. Mở tool để xem lại.</p>
 
   <a class="btn main" id="mua" href="#" style="background:#ff8a00;color:#fff">MUA TOOL</a>
-  <a class="btn" id="thu" href="#" style="background:#7c3aed;color:#fff">DÙNG THỬ 1 NGÀY</a>
 
   <div style="border-top:1px solid #2a2a2e;margin-top:20px;padding-top:6px">
-    <p class="note">Đã chuyển khoản rồi thì bấm:</p>
     <a class="btn" id="paid" href="#" style="background:#16a34a;color:#fff">TÔI ĐÃ CHUYỂN TIỀN</a>
   </div>
 
@@ -29,7 +26,7 @@
   function cur() { return inp.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); }
   function refresh() {
     var v = cur(), ok = isDeviceId(v);
-    ['mua', 'thu', 'paid'].forEach(function (id) {
+    ['mua', 'paid'].forEach(function (id) {
       var a = $(id);
       a.href = ok ? 'dangky.html?dk=' + id + '&may=' + v : '#';
       a.style.opacity = ok ? '1' : '.45';
@@ -37,7 +34,7 @@
     $('maynote').classList.toggle('hide', ok || !v);
     if (ok) try { sessionStorage.setItem('pt_may', v); } catch (e) {}
   }
-  ['mua', 'thu', 'paid'].forEach(function (id) {
+  ['mua', 'paid'].forEach(function (id) {
     $(id).onclick = function (e) { if (!isDeviceId(cur())) { e.preventDefault(); $('maynote').classList.remove('hide'); inp.focus(); } };
   });
   inp.oninput = refresh;
