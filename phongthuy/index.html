@@ -14,10 +14,11 @@
   </div>
 
   <div id="normal">
-    <p class="sub" id="sub">Chưa có mã kích hoạt? Vào tool rồi bấm <b>Dùng thử</b> hoặc <b>Mua tool</b> ngay trên màn hình kích hoạt.</p>
-    <a class="btn main" id="go" href="#">Vào tool</a>
+    <p class="sub" id="sub">Đã có mã kích hoạt: bấm nút vàng, mã sẽ tự sao chép, vào tool dán vào ô rồi bấm Kích hoạt.</p>
+    <a class="btn main" id="go" href="#" target="_blank" rel="noopener" style="font-size:16px;padding:16px">ĐÃ MUA TOOL, BẤM VÀO ĐÂY ĐỂ VÀO</a>
+    <p class="note hide" id="gonote"></p>
+    <a class="btn zalo" id="first" href="chonmua.html" style="font-size:16px;padding:16px">LẦN ĐẦU VÀO TOOL, BẤM ĐỂ ĐĂNG KÝ</a>
   </div>
-  <a class="btn ghost" href="daily.html">Đăng ký làm đại lý</a>
   <p class="note hide" id="err">Chưa tải được đường dẫn tool. Vui lòng tải lại trang.</p>
 </div>
 <script src="common.js"></script>
@@ -28,11 +29,28 @@
   var android = /Android/i.test(ua);
   if (/[?&]capnhat=1(&|$)/.test(location.search)) {
     $('title').textContent = 'Cập nhật bản mới';
-    $('sub').innerHTML = 'Bấm <b>Vào tool</b> bên dưới để vào bản mới nhất.<br>Nếu Flow hiện màn hình <b>"Công cụ được chia sẻ"</b>, hãy bấm <b>"Dùng thử trong một dự án"</b> để vào tool.<br>Sau khi vào, hãy <b>đóng thẻ tool cũ</b> để khỏi nhầm.';
+    $('sub').innerHTML = 'Bấm nút vàng bên dưới để vào bản mới nhất.<br>Nếu Flow hiện màn hình <b>"Công cụ được chia sẻ"</b>, hãy bấm <b>"Dùng thử trong một dự án"</b> để vào tool.<br>Sau khi vào, hãy <b>đóng thẻ tool cũ</b> để khỏi nhầm.';
   }
+  function savedMa() { try { return localStorage.getItem('pt1c_ma') || ''; } catch (e) { return ''; } }
   getConfig().then(function (c) {
     var link = c.toolLink;
     $('go').href = link;
+    // Bấm nút vàng: sao chép mã đã nhớ trên máy này (nếu có) rồi mở tool ở thẻ mới
+    $('go').onclick = function () {
+      var ma = savedMa();
+      var note = $('gonote');
+      note.classList.remove('hide');
+      if (ma) {
+        copyText(ma, function (ok) {
+          note.textContent = ok
+            ? 'Đã sao chép mã kích hoạt. Vào tool, dán mã vào ô rồi bấm KÍCH HOẠT.'
+            : 'Mã của bạn: ' + ma + ' (bấm giữ để sao chép), vào tool dán vào ô rồi bấm KÍCH HOẠT.';
+        });
+      } else {
+        note.textContent = 'Máy này chưa lưu mã. Vào tool, dán mã kích hoạt bạn đã nhận vào ô rồi bấm KÍCH HOẠT.';
+      }
+      return true; // vẫn mở tool
+    };
     if (inApp) {
       $('inapp').classList.remove('hide');
       $('normal').classList.add('hide');
