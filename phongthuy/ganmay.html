@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gắn máy - Tạo Video Phong Thủy 1 Chạm</title>
+<link rel="stylesheet" href="style.css"></head>
+<body><div class="card" style="text-align:center">
+  <h1>Gắn máy này</h1>
+  <div id="form">
+    <p class="sub">Nhập email <b>hoặc</b> số điện thoại bạn đã dùng khi mua tool. Chỉ cần làm một lần cho mỗi máy.</p>
+    <label for="may" style="text-align:left">Mã máy này</label>
+    <input id="may" type="text" readonly style="text-align:center;letter-spacing:.15em;opacity:.85;cursor:not-allowed">
+    <label for="em" style="text-align:left">Email đã mua</label>
+    <input id="em" type="email" autocomplete="email" placeholder="ten@gmail.com">
+    <label for="ph" style="text-align:left">Hoặc số điện thoại đã mua</label>
+    <input id="ph" type="tel" inputmode="tel" autocomplete="tel" placeholder="0912345678">
+    <button class="btn main" id="go" type="button">GẮN MÁY NÀY</button>
+    <p class="msg err" id="msg"></p>
+  </div>
+  <div id="done" class="hide">
+    <h2>Đã gắn máy</h2>
+    <p class="sub" id="okmsg"></p>
+    <p class="note">Quay lại thẻ tool, đợi 1 đến 2 phút, tool tự vào. Nếu chưa vào, hãy tải lại tool.</p>
+  </div>
+  <a class="btn ghost" href="index.html">Quay lại</a>
+</div>
+<script src="common.js"></script>
+<script>
+  var may = String(params().may || '').toUpperCase();
+  $('may').value = may;
+  function fail(m) { var e = $('msg'); e.textContent = m; e.className = 'msg err'; $('go').disabled = false; }
+  if (!isDeviceId(may)) { $('go').disabled = true; fail('Chưa nhận diện được mã máy. Hãy mở trang này từ nút "Sao chép link gắn máy" trong tool.'); }
+  $('go').onclick = function () {
+    var em = $('em').value.trim(), ph = $('ph').value.trim();
+    if (!em && !ph) return fail('Hãy nhập email hoặc số điện thoại đã dùng khi mua.');
+    $('go').disabled = true; $('msg').textContent = 'Đang xử lý...'; $('msg').className = 'msg';
+    callApi({ action: 'ganmay', may: may, email: em, phone: ph }).then(function (r) {
+      if (!r || !r.ok) return fail((r && r.msg) || 'Chưa gắn được máy, vui lòng thử lại.');
+      $('form').classList.add('hide'); $('done').classList.remove('hide'); $('okmsg').textContent = r.msg || '';
+    }).catch(function () { fail('Có lỗi kết nối, vui lòng thử lại.'); });
+  };
+</script></body></html>
