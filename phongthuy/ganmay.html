@@ -8,7 +8,8 @@
   <div id="form">
     <p class="sub">Nhập email <b>hoặc</b> số điện thoại bạn đã dùng khi mua tool. Chỉ cần làm một lần cho mỗi máy.</p>
     <label for="may" style="text-align:left">Mã máy này</label>
-    <input id="may" type="text" readonly style="text-align:center;letter-spacing:.15em;opacity:.85;cursor:not-allowed">
+    <input id="may" type="text" readonly maxlength="8" autocapitalize="characters" autocomplete="off" style="text-align:center;letter-spacing:.15em;opacity:.85;cursor:not-allowed">
+    <p class="note" id="hint" style="text-align:left"></p>
     <label for="em" style="text-align:left">Email đã mua</label>
     <input id="em" type="email" autocomplete="email" placeholder="ten@gmail.com">
     <label for="ph" style="text-align:left">Hoặc số điện thoại đã mua</label>
@@ -25,12 +26,17 @@
 </div>
 <script src="common.js"></script>
 <script>
-  var may = String(params().may || '').toUpperCase();
-  $('may').value = may;
+  var mayEl = $('may');
+  mayEl.value = String(params().may || '').toUpperCase();
+  if (!isDeviceId(mayEl.value)) {
+    mayEl.readOnly = false; mayEl.style.cursor = 'text'; mayEl.style.opacity = '1'; mayEl.placeholder = 'Nhập mã máy 8 ký tự';
+    $('hint').textContent = 'Mã máy hiện ở màn Kích hoạt trong tool, dòng "Mã máy". Gõ đúng 8 ký tự.';
+  }
   function fail(m) { var e = $('msg'); e.textContent = m; e.className = 'msg err'; $('go').disabled = false; }
-  if (!isDeviceId(may)) { $('go').disabled = true; fail('Chưa nhận diện được mã máy. Hãy mở trang này từ nút "Sao chép link gắn máy" trong tool.'); }
   $('go').onclick = function () {
+    var may = String(mayEl.value || '').trim().toUpperCase();
     var em = $('em').value.trim(), ph = $('ph').value.trim();
+    if (!isDeviceId(may)) return fail('Mã máy gồm 8 ký tự, xem ở màn Kích hoạt trong tool (dòng "Mã máy").');
     if (!em && !ph) return fail('Hãy nhập email hoặc số điện thoại đã dùng khi mua.');
     $('go').disabled = true; $('msg').textContent = 'Đang xử lý...'; $('msg').className = 'msg';
     callApi({ action: 'ganmay', may: may, email: em, phone: ph }).then(function (r) {
