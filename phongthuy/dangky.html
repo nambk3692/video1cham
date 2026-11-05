@@ -30,7 +30,7 @@
     <p class="sub" id="trial-msg"></p>
     <div class="code hide" id="trial-code"></div>
     <button class="btn main hide" id="trial-copy" type="button">Sao chép mã</button>
-    <p class="sub" style="margin-top:14px">Quay lại tab tool, dán mã vào ô Mã kích hoạt.</p>
+    <p class="sub" style="margin-top:14px">Quay lại tab tool, khoảng 1 đến 2 phút nữa tool tự vào, không cần dán mã.</p>
     <a class="btn zalo hide" id="zalohue" href="https://zalo.me/0813941658" target="_blank">Zalo của Huệ</a>
     <a class="btn zalo" id="zalo1" href="#" target="_blank">Vào nhóm Zalo hỗ trợ sử dụng tool</a>
     <a class="btn ghost" id="contact1" href="#" target="_blank"></a>
@@ -53,7 +53,7 @@
       Số tiền: <b id="bk-price"></b><br>
       Nội dung: <b id="memo"></b>
     </div>
-    <p class="note"><b style="color:#f59e0b">Lưu ý:</b> nội dung chuyển khoản phải ghi đúng theo họ tên và số điện thoại vừa đăng kí. Sau khi chuyển khoản mã kích hoạt sẽ được gửi vào mail của bạn.</p>
+    <p class="note"><b style="color:#f59e0b">Lưu ý:</b> nội dung chuyển khoản phải ghi đúng theo họ tên và số điện thoại vừa đăng kí. Sau khi chuyển khoản và được Nam xác nhận, bạn mở lại tool là vào luôn, không cần dán mã.</p>
     <button class="btn main" id="paid" type="button">Tôi đã chuyển khoản</button>
     <div id="paid-msg" class="msg"></div>
     <a class="btn zalo" id="zalo3" href="#" target="_blank">Vào nhóm Zalo hỗ trợ sử dụng tool</a>
@@ -115,7 +115,7 @@
     b.disabled = true; b.textContent = 'Đang gửi...';
     callApi({ action: 'dachuyen', email: form.email, phone: form.phone }).then(function () {
       b.textContent = 'Đã báo cho Nam';
-      m.className = 'msg ok'; m.textContent = 'Cảm ơn bạn. Nam sẽ kiểm tra và gửi mã kích hoạt vào email của bạn sớm nhất.';
+      m.className = 'msg ok'; m.textContent = 'Cảm ơn bạn. Nam sẽ kiểm tra và kích hoạt cho bạn sớm nhất. Sau đó bạn mở lại tool là vào luôn.';
     }).catch(function () {
       b.disabled = false; b.textContent = 'Tôi đã chuyển khoản';
       m.className = 'msg err'; m.textContent = 'Chưa gửi được, bạn thử bấm lại giúp nhé.';
@@ -136,7 +136,7 @@
     getConfig().then(function (c) {
       cfg = c;
       if (trial) $('title').textContent = 'Dùng thử ' + c.trialDays + ' ngày';
-      $('intro').textContent = (trial ? 'Miễn phí ' + c.trialDays + ' ngày. Mã kích hoạt gửi qua email. ' : paidFirst ? 'Điền đúng thông tin bạn đã dùng khi chuyển tiền. Nam kiểm tra rồi gửi mã kích hoạt vào email của bạn. ' : 'Điền thông tin, sau đó chọn gói và quét mã QR để chuyển khoản. ') +
+      $('intro').textContent = (trial ? 'Miễn phí ' + c.trialDays + ' ngày. ' : paidFirst ? 'Điền đúng thông tin bạn đã dùng khi chuyển tiền. Nam kiểm tra rồi kích hoạt cho bạn. ' : 'Điền thông tin, sau đó chọn gói và quét mã QR để chuyển khoản. ') +
         'Mã chỉ chạy trên máy bạn vừa bấm đăng ký (mã máy ' + may + ').';
       ['zalo1', 'zalo3'].forEach(function (id) { $(id).href = c.zaloGroup; });
       $('contact1').href = 'https://zalo.me/' + c.phone; $('contact1').textContent = 'Liên hệ Nam: ' + c.phone;
