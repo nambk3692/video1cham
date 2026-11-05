@@ -176,7 +176,7 @@
     function fail(msg) { m.className = 'msg err'; m.textContent = msg || 'Có lỗi, vui lòng thử lại.'; b.disabled = false; b.textContent = label; }
     var ref0 = plan === 'mua' ? (cleanRef(P.ref) || loadRef()) : paidFirst ? ($('g').value === 'course' ? '' : cleanRef($('r2').value)) : '';
     var imgP = paidFirst ? readImage($('a').files && $('a').files[0]) : Promise.resolve('');
-    imgP.then(function (anh) { return callApi({ action: paidFirst ? 'mua' : plan, name: $('n').value, email: $('e').value, phone: $('p').value, may: may, ref: ref0, pkg: paidFirst ? $('g').value : 'combo' }).then(function (r) {
+    imgP.then(function (anh) { return callApi({ action: paidFirst ? 'mua' : plan, name: $('n').value, email: $('e').value, phone: $('p').value, may: may, ref: ref0, pkg: paidFirst ? $('g').value : 'combo', coanh: paidFirst ? (anh ? 1 : 0) : undefined }).then(function (r) {
       if (!r.ok) return fail(r.msg);
       if (paidFirst && ref0 && $('g').value !== 'course' && !(r.ref && r.ref.ok)) return fail('Mã giới thiệu chưa đúng. Bạn kiểm tra lại giúp nhé.');
       if (paidFirst) {
