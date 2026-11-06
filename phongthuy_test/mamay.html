@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thử mã máy</title>
+<style>
+  body { margin: 0; padding: 16px; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #0f172a; color: #e2e8f0; }
+  .box { background: #1e293b; border-radius: 12px; padding: 16px; margin: 0 0 12px; }
+  .lbl { font-size: 14px; color: #94a3b8; margin: 0 0 6px; }
+  .code { font-size: 34px; font-weight: 700; letter-spacing: 4px; color: #4ade80; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .small { font-size: 13px; color: #cbd5e1; word-break: break-all; line-height: 1.6; }
+  h1 { font-size: 20px; margin: 0 0 12px; }
+</style>
+</head>
+<body>
+<h1>Thử mã máy</h1>
+<div class="box"><p class="lbl">Mã máy (cách tính giống tool)</p><div class="code" id="full">...</div></div>
+<div class="box"><p class="lbl">Mã rút gọn (bỏ phần loại máy)</p><div class="code" id="short">...</div></div>
+<div class="box"><p class="lbl">Chi tiết</p><div class="small" id="parts"></div></div>
+<script>
+const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function gpuName() {
+  try {
+    const c = document.createElement('canvas');
+    const gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+    if (!gl) return 'nogl';
+    const ext = gl.getExtension('WEBGL_debug_renderer_info');
+    const v = ext ? gl.getParameter(ext.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR);
+    const r = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+    return String(v) + '|' + String(r);
+  } catch (e) { return 'nogl'; }
+}
+async function idOf(parts) {
+  const h = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(parts.join('#'))));
+  let id = '';
+  for (let i = 0; i < 8; i++) id += ALPHABET[h[i] % 32];
+  return id;
+}
+(async () => {
+  const nav = navigator;
+  const touch = Number(nav.maxTouchPoints) || 0;
+  const y = new Date().getFullYear();
+  const zone = new Date(y, 0, 1).getTimezoneOffset() + '/' + new Date(y, 6, 1).getTimezoneOffset();
+  const gpu = gpuName();
+  const full = [gpu, 'c' + (nav.hardwareConcurrency || 0), 'p' + (nav.platform || ''), 't' + touch, 'z' + zone];
+  const shortP = [gpu, 'c' + (nav.hardwareConcurrency || 0), 't' + touch, 'z' + zone];
+  if (touch > 0) {
+    const s = 's' + Math.min(screen.width, screen.height) + 'x' + Math.max(screen.width, screen.height);
+    full.push(s); shortP.push(s);
+  }
+  document.getElementById('full').textContent = await idOf(full);
+  document.getElementById('short').textContent = await idOf(shortP);
+  document.getElementById('parts').innerHTML =
+    'GPU: ' + gpu + '<br>CPU: ' + (nav.hardwareConcurrency || 0) + ' nhân<br>Loại máy (platform): ' + (nav.platform || '') +
+    '<br>Cảm ứng: ' + touch + '<br>Múi giờ: ' + zone + '<br>Màn hình: ' + screen.width + 'x' + screen.height;
+})();
+</script>
+</body>
+</html>
