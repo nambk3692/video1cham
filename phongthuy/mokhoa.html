@@ -41,12 +41,12 @@
       <button class="btn main" id="daCK" type="button" style="width:100%;font-size:16px;padding:16px">TÔI ĐÃ CHUYỂN KHOẢN</button>
     </div>
     <p class="msg hide" id="msg"></p>
-    <a class="btn ghost" id="ve" href="vaothu.html">VỀ TRANG VÀO TOOL</a>
+    <a class="btn ghost" id="ve" href="./">VỀ TRANG VÀO TOOL</a>
   </div>
 </div>
 <script>
-  // BẢN THỬ: gọi Apps Script triển khai thử (chưa phải bản khách)
-  var API_THU = 'https://script.google.com/macros/s/AKfycbz6jcmk08ePsDpG-_7XhVCYdo9jgTDXNP8KMSwj7n3AGKAOs_okhQ27kTbfu55148QwlQ/exec';
+  // Bản khách: Apps Script chính (giống common.js)
+  var API_THU = 'https://script.google.com/macros/s/AKfycbwwUThduSj_h9EVy7fAioMyZqRmM6S3ngpisRHQCMGLHDW0gy4P7EAdznNsmH_3OFDdyA/exec';
   var KEY = 'pt1c_lienhe';
   var $ = function (id) { return document.getElementById(id); };
   var LOAI = (location.search.match(/[?&]loai=(thumb|nha|tuong)/) || [])[1] || '';
