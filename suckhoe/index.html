@@ -2,78 +2,163 @@
 <html lang="vi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tạo Video Sức Khỏe 1 Chạm</title>
-<link rel="stylesheet" href="style.css"></head>
+<link rel="stylesheet" href="style.css">
+<style>
+  .login { text-align: left; margin: 0 0 12px; }
+  .login label { display: block; font-size: 14px; margin: 0 0 6px; }
+  .login input { width: 100%; box-sizing: border-box; font-size: 16px; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; }
+  .who { font-size: 14px; margin: 0 0 10px; }
+  .who a { margin-left: 6px; }
+  .msg { font-size: 14px; margin: 10px 0 0; }
+  .msg.err { color: #f87171; }
+  .msg.ok { color: #34d399; }
+</style></head>
 <body><div class="card" style="text-align:center">
   <h1 id="title">Tạo Video Sức Khỏe 1 Chạm</h1>
 
   <div id="inapp" class="hide">
-    <div class="warn">Bạn đang mở link trong ứng dụng (Zalo, Facebook, TikTok...). Trình duyệt trong ứng dụng không đăng nhập được Google nên sẽ không vào được tool. Hãy mở bằng Chrome hoặc Safari.</div>
-    <a class="btn main hide" id="chrome" href="#">Mở tool bằng Chrome</a>
-    <button class="btn ghost" id="copy" type="button">Sao chép link tool</button>
-    <p class="note" id="copy-note">Bấm "Sao chép link tool", mở Chrome hoặc Safari, dán vào thanh địa chỉ rồi vào.</p>
+    <div class="warn">Bạn đang mở link trong ứng dụng (Zalo, Facebook, TikTok...). Trình duyệt trong ứng dụng không đăng nhập được Google nên sẽ không vào được tool. Hãy mở trang này bằng Chrome hoặc Safari.</div>
+    <a class="btn main hide" id="chrome" href="#">Mở trang này bằng Chrome</a>
+    <button class="btn ghost" id="copy" type="button">Sao chép link trang này</button>
+    <p class="note" id="copy-note">Bấm "Sao chép link trang này", mở Chrome hoặc Safari, dán vào thanh địa chỉ rồi vào.</p>
   </div>
 
   <div id="normal">
-    <p class="sub" id="sub">Đã có mã kích hoạt: bấm nút vàng, mã sẽ tự sao chép, vào tool dán vào ô rồi bấm Kích hoạt.</p>
-    <a class="btn main" id="go" href="#" target="_blank" rel="noopener" style="font-size:16px;padding:16px">ĐÃ MUA TOOL, BẤM VÀO ĐÂY ĐỂ VÀO</a>
-    <p class="note hide" id="gonote"></p>
+    <p class="sub hide" id="sub" style="margin:0 0 10px"></p>
+    <div class="login hide" id="loginBox">
+      <label for="lienhe">Lần đầu vào tool trên máy này: nhập email hoặc số điện thoại bạn đã đăng ký</label>
+      <input id="lienhe" type="text" inputmode="email" autocomplete="email" placeholder="Email hoặc số điện thoại">
+    </div>
+    <p class="who hide" id="who"></p>
+    <button class="btn" id="go" type="button" style="font-size:16px;padding:16px;width:100%;background:#facc15;color:#111">ĐÃ TỪNG DÙNG TOOL, BẤM ĐỂ VÀO</button>
+    <p class="msg hide" id="msg"></p>
     <a class="btn zalo" id="first" href="chonmua.html" style="font-size:16px;padding:16px">LẦN ĐẦU VÀO TOOL, BẤM ĐỂ ĐĂNG KÝ</a>
-    <a class="btn ghost" id="adv" href="nangcao.html">MỞ KHÓA CHỨC NĂNG NÂNG CAO</a>
-    <p style="margin:14px 0 0"><a href="themmay2.html" style="color:#9a9aa2;font-size:13px;text-decoration:underline">Thêm máy thứ hai</a></p>
+    <a class="btn ghost" id="mokhoa" href="mokhoa.html" style="font-size:16px;padding:16px">MỞ KHÓA CHỨC NĂNG NÂNG CAO</a>
   </div>
-  <p class="note hide" id="err">Chưa tải được đường dẫn tool. Vui lòng tải lại trang.</p>
 </div>
 <script src="common.js"></script>
 <script>
+  // Đăng nhập một lần + vé vào tool (6/11). API (bản khách) lấy từ common.js.
+  var TOOL_DU_PHONG = 'https://flow.google.com/shared/tool/6009f598-c20f-46b1-a0d8-9630a6f9e65d';
+  var KEY = 'sk1c_lienhe';
+  var ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var toolLink = TOOL_DU_PHONG;
+
+  function gpuName() {
+    try {
+      var c = document.createElement('canvas');
+      var gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+      if (!gl) return 'nogl';
+      var ext = gl.getExtension('WEBGL_debug_renderer_info');
+      var v = ext ? gl.getParameter(ext.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR);
+      var r = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+      return String(v) + '|' + String(r);
+    } catch (e) { return 'nogl'; }
+  }
+  function maTu(parts) {
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(parts.join('#'))).then(function (buf) {
+      var h = new Uint8Array(buf), id = '';
+      for (var i = 0; i < 8; i++) id += ALPHABET[h[i] % 32];
+      return id;
+    });
+  }
+  function nen() {
+    var nav = navigator;
+    var touch = Number(nav.maxTouchPoints) || 0;
+    var y = new Date().getFullYear();
+    var zone = new Date(y, 0, 1).getTimezoneOffset() + '/' + new Date(y, 6, 1).getTimezoneOffset();
+    var s = touch > 0 ? 's' + Math.min(screen.width, screen.height) + 'x' + Math.max(screen.width, screen.height) : '';
+    return { gpu: gpuName(), c: 'c' + (nav.hardwareConcurrency || 0), t: 't' + touch, z: 'z' + zone, s: s, touch: touch, plat: nav.platform || '' };
+  }
+  // Mã rút gọn của máy: giống mã máy của tool nhưng bỏ phần loại máy (platform)
+  function maRutGon() {
+    var n = nen();
+    var parts = [n.gpu, n.c, n.t, n.z];
+    if (n.s) parts.push(n.s);
+    return maTu(parts);
+  }
+  // Mã máy kiểu cũ của chính máy này (để nhận lại máy đã gắn ở cột Máy 1, Máy 2). Trên iPhone/iPad, tool trong Flow hay báo loại máy MacIntel.
+  function maMayCu() {
+    var n = nen();
+    var plats = [n.plat];
+    if (n.touch > 0 && /apple/i.test(n.gpu)) ['MacIntel', 'iPhone', 'iPad'].forEach(function (p) { if (plats.indexOf(p) < 0) plats.push(p); });
+    return Promise.all(plats.map(function (p) {
+      var parts = [n.gpu, n.c, 'p' + p, n.t, n.z];
+      if (n.s) parts.push(n.s);
+      return maTu(parts);
+    }));
+  }
+  function getSaved() { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
+  function setSaved(v) { try { if (v) localStorage.setItem(KEY, v); else localStorage.removeItem(KEY); } catch (e) {} }
+  function mask(v) {
+    if (v.indexOf('@') >= 0) { var p = v.split('@'); return p[0].slice(0, 2) + '***@' + p[1]; }
+    return '***' + v.replace(/\D/g, '').slice(-3);
+  }
+  function showMsg(t, ok) { var m = $('msg'); m.textContent = t; m.className = 'msg ' + (ok ? 'ok' : 'err'); }
+  function render() {
+    var s = getSaved();
+    if (s) {
+      $('loginBox').classList.add('hide');
+      $('who').classList.remove('hide');
+      $('who').innerHTML = 'Đã đăng nhập: <b>' + mask(s) + '</b> <a href="#" id="doi">Đổi tài khoản</a>';
+      $('doi').onclick = function (e) { e.preventDefault(); setSaved(''); render(); };
+    } else {
+      $('who').classList.add('hide');
+      $('loginBox').classList.remove('hide');
+    }
+  }
+
   var ua = navigator.userAgent;
   var inApp = /Zalo|FBAN|FBAV|FB_IAB|Instagram|Messenger|TikTok|musical_ly|Bytedance|BytedanceWebview|Line\/|; wv\)/i.test(ua);
   var android = /Android/i.test(ua);
+  if (inApp) {
+    $('inapp').classList.remove('hide');
+    $('normal').classList.add('hide');
+    var here = location.href;
+    if (android) {
+      $('chrome').href = 'intent://' + here.replace(/^https:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(here) + ';end';
+      $('chrome').classList.remove('hide');
+    }
+    $('copy').onclick = function () {
+      copyText(here, function (ok) {
+        $('copy').textContent = ok ? 'Đã sao chép link' : 'Không sao chép được, hãy bấm giữ link bên dưới';
+        if (!ok) $('copy-note').textContent = here;
+      });
+    };
+  }
   if (/[?&]capnhat=1(&|$)/.test(location.search)) {
     $('title').textContent = 'Cập nhật bản mới';
-    $('sub').innerHTML = 'Bấm nút vàng bên dưới để vào bản mới nhất.<br>Nếu Flow hiện màn hình <b>"Công cụ được chia sẻ"</b>, hãy bấm <b>"Dùng thử trong một dự án"</b> để vào tool.<br>Sau khi vào, hãy <b>đóng thẻ tool cũ</b> để khỏi nhầm.';
+    $('sub').innerHTML = 'Bấm nút vàng bên dưới để vào bản mới nhất.<br>Nếu Flow hiện màn hình <b>"Công cụ được chia sẻ"</b>, hãy bấm <b>"Dùng thử trong một dự án"</b> để vào tool.';
+    $('sub').classList.remove('hide');
   }
-  function savedMa() { try { return localStorage.getItem('sk1c_ma') || ''; } catch (e) { return ''; } }
-  // Khách đã mua thêm chức năng (anh Nam duyệt trên Sheet): lấy mã mới về máy này để nút vàng sao chép đúng mã mới
-  (function () {
-    var m = savedMa();
-    if (!m) return;
-    callApi({ action: 'thumbstatus', ma: m }).then(function (r) {
-      if (r && r.ok && r.status === 'paid' && r.code && r.code !== m) { try { localStorage.setItem('sk1c_ma', r.code); } catch (e) {} }
-    }).catch(function () {});
-  })();
-  getConfig().then(function (c) {
-    var link = c.toolLink;
-    $('go').href = link;
-    // Bấm nút vàng: sao chép mã đã nhớ trên máy này (nếu có) rồi mở tool ở thẻ mới
-    $('go').onclick = function () {
-      var ma = savedMa();
-      var note = $('gonote');
-      note.classList.remove('hide');
-      if (ma) {
-        copyText(ma, function (ok) {
-          note.textContent = ok
-            ? 'Đã sao chép mã kích hoạt. Vào tool, dán mã vào ô rồi bấm KÍCH HOẠT.'
-            : 'Mã của bạn: ' + ma + ' (bấm giữ để sao chép), vào tool dán vào ô rồi bấm KÍCH HOẠT.';
-        });
-      } else {
-        note.textContent = 'Máy này chưa lưu mã. Vào tool, dán mã kích hoạt bạn đã nhận vào ô rồi bấm KÍCH HOẠT.';
+  render();
+  getConfig().then(function (c) { if (c && c.toolLink) toolLink = c.toolLink; }).catch(function () {});
+
+  var busy = false;
+  $('go').onclick = function () {
+    if (busy) return;
+    var lh = getSaved() || $('lienhe').value.trim();
+    if (!lh) { showMsg('Hãy nhập email hoặc số điện thoại bạn đã đăng ký.'); $('lienhe').focus(); return; }
+    busy = true;
+    $('go').textContent = 'Đang vào tool...';
+    showMsg('', true);
+    Promise.all([maRutGon(), maMayCu()]).then(function (v) {
+      return callApi({ action: 've', lienhe: lh, ma: v[0], mays: v[1] });
+    }).then(function (r) {
+      if (r && r.ok) {
+        setSaved(lh);
+        showMsg('Đang mở tool...', true);
+        location.href = toolLink;
+        return;
       }
-      return true; // vẫn mở tool
-    };
-    if (inApp) {
-      $('inapp').classList.remove('hide');
-      $('normal').classList.add('hide');
-      if (android) {
-        var u = link.replace(/^https:\/\//, '');
-        $('chrome').href = 'intent://' + u + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(link) + ';end';
-        $('chrome').classList.remove('hide');
-      }
-      $('copy').onclick = function () {
-        copyText(link, function (ok) {
-          $('copy').textContent = ok ? 'Đã sao chép link' : 'Không sao chép được, hãy bấm giữ link bên dưới';
-          if (!ok) $('copy-note').textContent = link;
-        });
-      };
-    }
-  }).catch(function () { $('err').classList.remove('hide'); });
+      if (r && r.chuaCo) setSaved('');
+      render();
+      showMsg((r && r.msg) || 'Chưa vào được, bạn bấm lại nhé.');
+    }).catch(function () {
+      showMsg('Mạng chậm hoặc lỗi, bạn bấm lại nhé.');
+    }).then(function () {
+      busy = false;
+      $('go').textContent = 'ĐÃ TỪNG DÙNG TOOL, BẤM ĐỂ VÀO';
+    });
+  };
 </script></body></html>
