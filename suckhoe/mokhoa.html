@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mở khóa chức năng nâng cao</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .login { text-align: left; margin: 0 0 12px; }
+  .login label { display: block; font-size: 14px; margin: 0 0 6px; }
+  .login input { width: 100%; box-sizing: border-box; font-size: 16px; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; }
+  .who { font-size: 14px; margin: 0 0 10px; }
+  .who a { margin-left: 6px; }
+  .msg { font-size: 14px; margin: 10px 0 0; line-height: 1.6; }
+  .msg.err { color: #f87171; }
+  .msg.ok { color: #34d399; }
+  .qr { width: 100%; max-width: 280px; border-radius: 12px; background: #fff; margin: 8px auto; display: block; }
+  .bank { text-align: left; font-size: 15px; line-height: 1.8; margin: 8px 0 12px; }
+  .bank b { word-break: break-all; }
+</style></head>
+<body><div class="card" style="text-align:center">
+  <h1 id="title">Mở khóa Tạo tiêu đề và thumbnail</h1>
+
+  <div id="box">
+    <div class="login hide" id="loginBox">
+      <label for="lienhe">Nhập email hoặc số điện thoại bạn đã đăng ký</label>
+      <input id="lienhe" type="text" inputmode="email" autocomplete="email" placeholder="Email hoặc số điện thoại">
+      <button class="btn main" id="xem" type="button" style="width:100%;margin-top:10px">TIẾP TỤC</button>
+    </div>
+    <p class="who hide" id="who"></p>
+    <div id="pay" class="hide">
+      <p class="sub" id="gia" style="margin:0 0 4px"></p>
+      <img class="qr" id="qr" alt="Mã QR chuyển khoản">
+      <div class="bank" id="bank"></div>
+      <button class="btn main" id="daCK" type="button" style="width:100%;font-size:16px;padding:16px">TÔI ĐÃ CHUYỂN KHOẢN</button>
+    </div>
+    <p class="msg hide" id="msg"></p>
+    <a class="btn ghost" id="ve" href="vaothu.html">VỀ TRANG VÀO TOOL</a>
+  </div>
+</div>
+<script>
+  // API_THU và TRANG_VAO: bản thử trỏ vào triển khai thử + vaothu.html. Khi xuất bản đổi sang API khách (common.js) và './'.
+  var API_THU = 'https://script.google.com/macros/s/AKfycbwMAJTBUuUYiIHoi7M8TDqavxgG7EE9Yq5zL8xOQRzfp4fsgnT--W4UY2L57VR8JD8x/exec';
+  var TRANG_VAO = 'vaothu.html';
+  var KEY = 'sk1c_lienhe';
+  var $ = function (id) { return document.getElementById(id); };
+  var LOAI = 'thumb';
+  $('ve').href = TRANG_VAO;
+
+  function getSaved() { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
+  function setSaved(v) { try { if (v) localStorage.setItem(KEY, v); else localStorage.removeItem(KEY); } catch (e) {} }
+  function mask(v) {
+    if (v.indexOf('@') >= 0) { var p = v.split('@'); return p[0].slice(0, 2) + '***@' + p[1]; }
+    return '***' + v.replace(/\D/g, '').slice(-3);
+  }
+  function showMsg(t, ok) { var m = $('msg'); m.innerHTML = t; m.className = 'msg ' + (ok ? 'ok' : 'err'); }
+  function hide(id) { $(id).classList.add('hide'); }
+  function show(id) { $(id).classList.remove('hide'); }
+  function money(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + 'đ'; }
+  function api(body) {
+    return fetch(API_THU, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json(); });
+  }
+
+  function hienWho(lh) {
+    show('who');
+    $('who').innerHTML = 'Tài khoản: <b>' + mask(lh) + '</b> <a href="#" id="doi">Đổi tài khoản</a>';
+    $('doi').onclick = function (e) { e.preventDefault(); setSaved(''); hide('who'); hide('pay'); hide('msg'); show('loginBox'); };
+  }
+
+  function hienKetQua(r, lh) {
+    hide('loginBox'); hienWho(lh);
+    if (r.status === 'paid') {
+      hide('pay');
+      showMsg('Chức năng <b>' + r.ten + '</b> đã được mở cho tài khoản của bạn.<br>Quay lại trang Vào tool và bấm nút vàng để vào lại tool, chức năng sẽ tự mở.', true);
+      return;
+    }
+    if (r.status === 'pending') {
+      hide('pay');
+      showMsg('Đã ghi nhận bạn chuyển khoản cho <b>' + r.ten + '</b>, đang chờ duyệt.<br>Khi được duyệt, bạn sẽ nhận email. Sau đó quay lại trang Vào tool và bấm nút vàng để vào lại tool.', true);
+      return;
+    }
+    show('pay'); hide('msg');
+    $('gia').innerHTML = 'Mở khóa <b>' + r.ten + '</b>: <b>' + (r.amountText || money(r.amount)) + '</b>, thanh toán một lần, dùng lâu dài.';
+    $('qr').src = 'https://img.vietqr.io/image/' + encodeURIComponent(r.bankCode) + '-' + encodeURIComponent(r.bankAccount) + '-compact2.png' +
+      '?amount=' + encodeURIComponent(r.amount) + '&addInfo=' + encodeURIComponent(r.memo) + '&accountName=' + encodeURIComponent(r.bankOwner);
+    $('bank').innerHTML = 'Ngân hàng: <b>' + r.bankName + '</b><br>Số tài khoản: <b>' + r.bankAccount + '</b><br>Chủ tài khoản: <b>' + r.bankOwner + '</b>' +
+      '<br>Số tiền: <b>' + (r.amountText || money(r.amount)) + '</b><br>Nội dung chuyển khoản: <b>' + r.memo + '</b>';
+  }
+
+  function xem(lh) {
+    hide('msg');
+    showMsg('Đang tải...', true);
+    api({ action: 'mokhoa', lienhe: lh, loai: LOAI }).then(function (r) {
+      if (r && r.ok) { setSaved(lh); hienKetQua(r, lh); return; }
+      if (r && r.chuaCo) setSaved('');
+      show('loginBox'); hide('who'); hide('pay');
+      showMsg((r && r.msg) || 'Chưa tải được, bạn thử lại nhé.');
+    }).catch(function () { showMsg('Mạng chậm hoặc lỗi, bạn thử lại nhé.'); });
+  }
+
+  var s = getSaved();
+  if (s) xem(s); else show('loginBox');
+
+  $('xem').onclick = function () {
+    var lh = $('lienhe').value.trim();
+    if (!lh) { showMsg('Hãy nhập email hoặc số điện thoại bạn đã đăng ký.'); $('lienhe').focus(); return; }
+    xem(lh);
+  };
+
+  var busy = false;
+  $('daCK').onclick = function () {
+    if (busy) return;
+    var lh = getSaved();
+    if (!lh) { hide('pay'); show('loginBox'); return; }
+    busy = true;
+    $('daCK').textContent = 'Đang gửi...';
+    api({ action: 'mokhoa', lienhe: lh, loai: LOAI, xacnhan: true }).then(function (r) {
+      if (r && r.ok) { hienKetQua(r, lh); return; }
+      showMsg((r && r.msg) || 'Chưa gửi được, bạn bấm lại nhé.');
+    }).catch(function () {
+      showMsg('Mạng chậm hoặc lỗi, bạn bấm lại nhé.');
+    }).then(function () {
+      busy = false;
+      $('daCK').textContent = 'TÔI ĐÃ CHUYỂN KHOẢN';
+    });
+  };
+</script></body></html>
