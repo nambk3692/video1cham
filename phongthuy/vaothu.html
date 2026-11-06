@@ -34,7 +34,7 @@
 </div>
 <script>
   // BẢN THỬ: Apps Script triển khai thử + link tool thử (chưa phải bản khách)
-  var API_THU = 'https://script.google.com/macros/s/AKfycbyvjKM9ZOqkP2c1HLwaX7sirbS5ElgB_cIZnEAW6MnkmMqsN2ZhooRdobExYHZjPzKj5w/exec';
+  var API_THU = 'https://script.google.com/macros/s/AKfycbzixBGdA_V4eUXH-QpZnelHX5PkTT0H-4WFHYE3rS1mXUvj0WZLIf7TdIEU1RdjoiI9/exec';
   var TOOL_THU = 'https://flow.google.com/shared/tool/1fb84e93-7dc5-4601-bcf0-1fa00639c351';
   var KEY = 'pt1c_lienhe';
   var $ = function (id) { return document.getElementById(id); };
@@ -64,6 +64,25 @@
       for (var i = 0; i < 8; i++) id += ALPHABET[h[i] % 32];
       return id;
     });
+  }
+  // Mã máy kiểu cũ của chính máy này (để nhận lại máy đã gắn ở cột Máy 1, Máy 2). Trên iPhone/iPad, tool trong Flow hay báo loại máy MacIntel.
+  function maMayCu() {
+    var nav = navigator;
+    var touch = Number(nav.maxTouchPoints) || 0;
+    var y = new Date().getFullYear();
+    var zone = new Date(y, 0, 1).getTimezoneOffset() + '/' + new Date(y, 6, 1).getTimezoneOffset();
+    var gpu = gpuName();
+    var plats = [nav.platform || ''];
+    if (touch > 0 && /apple/i.test(gpu)) ['MacIntel', 'iPhone', 'iPad'].forEach(function (p) { if (plats.indexOf(p) < 0) plats.push(p); });
+    return Promise.all(plats.map(function (p) {
+      var parts = [gpu, 'c' + (nav.hardwareConcurrency || 0), 'p' + p, 't' + touch, 'z' + zone];
+      if (touch > 0) parts.push('s' + Math.min(screen.width, screen.height) + 'x' + Math.max(screen.width, screen.height));
+      return crypto.subtle.digest('SHA-256', new TextEncoder().encode(parts.join('#'))).then(function (buf) {
+        var h = new Uint8Array(buf), id = '';
+        for (var i = 0; i < 8; i++) id += ALPHABET[h[i] % 32];
+        return id;
+      });
+    }));
   }
   function getSaved() { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
   function setSaved(v) { try { if (v) localStorage.setItem(KEY, v); else localStorage.removeItem(KEY); } catch (e) {} }
@@ -98,8 +117,8 @@
     busy = true;
     $('go').textContent = 'Đang vào tool...';
     showMsg('', true);
-    maRutGon().then(function (ma) {
-      return fetch(API_THU, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 've', lienhe: lh, ma: ma }) })
+    Promise.all([maRutGon(), maMayCu()]).then(function (v) {
+      return fetch(API_THU, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 've', lienhe: lh, ma: v[0], mays: v[1] }) })
         .then(function (r) { return r.json(); });
     }).then(function (r) {
       if (r && r.ok) {
