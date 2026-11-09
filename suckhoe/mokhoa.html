@@ -70,12 +70,12 @@
     hide('loginBox'); hienWho(lh);
     if (r.status === 'paid') {
       hide('pay');
-      showMsg('Chức năng <b>' + r.ten + '</b> đã được mở cho tài khoản của bạn.<br>Quay lại trang Vào tool và bấm nút vàng để vào lại tool, chức năng sẽ tự mở.', true);
+      showMsg('Chức năng <b>' + r.ten + '</b> đã được mở cho tài khoản của bạn.<br>Mở lại tool (nếu chưa thấy, chờ vài phút rồi tải lại), chức năng sẽ tự mở.', true);
       return;
     }
     if (r.status === 'pending') {
       hide('pay');
-      showMsg('Đã ghi nhận bạn chuyển khoản cho <b>' + r.ten + '</b>, đang chờ duyệt.<br>Khi được duyệt, bạn sẽ nhận email. Sau đó quay lại trang Vào tool và bấm nút vàng để vào lại tool.', true);
+      showMsg('Đã ghi nhận bạn chuyển khoản cho <b>' + r.ten + '</b>, đang chờ duyệt.<br>Khi được duyệt, bạn sẽ nhận email. Sau đó mở lại tool, chức năng sẽ tự mở (có thể chờ vài phút).', true);
       return;
     }
     show('pay'); hide('msg');
