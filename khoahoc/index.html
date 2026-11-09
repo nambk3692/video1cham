@@ -123,6 +123,9 @@
   #guide .btn.stuck { border-color: #c2570c; color: #c2570c; }
   #guide .btn.big { min-height: 72px; font-size: 24px; }
   #tab-hd { flex: 1; }
+  /* 9/11 Nam chốt: app chỉ còn ô Công cụ (Hướng dẫn và Hỏi đáp đã ẩn, Khóa học giữ lại) */
+  #tab-hd, #tab-hoi { display: none !important; }
+  #tab-hoc, #tab-cu { flex: 1; }
   #guide textarea.glink { padding: 12px 14px; font-family: inherit; resize: none; line-height: 1.35; }
   #guide .glink { width: 100%; min-height: 64px; padding: 0 14px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font-size: 18px; margin: 8px 0 12px; }
   #guide .glink:focus { outline: 3px solid var(--accent); border-color: transparent; }
@@ -445,11 +448,10 @@
     loadVideos();
     setupInstall();
     if (/(^|[#&])from=tool/.test(location.hash)) {
-      var lastTab = store('kh_tab') || (/(^|[#&])tab=cu/.test(location.hash) ? 'cu' : 'hoc');
-      if (lastTab === 'hoi' || lastTab === 'cu' || lastTab === 'hd') showTab(lastTab);
+      showTab('cu'); // chỉ còn ô Công cụ
     } else if (/(^|[#&])tab=cu/.test(location.hash)) showTab('cu');
     else {
-      store('kh_hd_seen', '1'); showTab('hd'); // Nam chốt 28/10: mọi lần vào app đều mở sẵn tab Hướng dẫn
+      store('kh_hd_seen', '1'); showTab('cu'); // Nam chốt 9/11: app chỉ còn ô Công cụ
     }
   }
 
@@ -849,7 +851,7 @@
       fetch(tl.api + '?api=config').then(function (r) { return r.json(); }).then(function (cfg) {
         var link = String((cfg && cfg.toolLink) || '');
         if (/^https:\/\/flow\.google\.com\/shared\/tool\//.test(link)) {
-          if (tl.dir !== 'phongthuy/') open.href = link; // Phong Thủy: giữ link trang ngoài để khách qua nút vàng/xanh
+          open.href = link;
           sw.href = 'https://accounts.google.com/AccountChooser?continue=' + encodeURIComponent(link);
         }
       }).catch(function () {});
