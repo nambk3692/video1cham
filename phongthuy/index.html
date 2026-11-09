@@ -25,21 +25,16 @@
 
   <div id="normal">
     <p class="sub hide" id="sub" style="margin:0 0 10px"></p>
-    <div class="login hide" id="loginBox">
-      <label for="lienhe">Lần đầu vào tool trên máy này: nhập email hoặc số điện thoại bạn đã đăng ký</label>
-      <input id="lienhe" type="text" inputmode="email" autocomplete="email" placeholder="Email hoặc số điện thoại">
-    </div>
-    <p class="who hide" id="who"></p>
-    <button class="btn main" id="go" type="button" style="font-size:16px;padding:16px;width:100%">ĐÃ TỪNG DÙNG TOOL, BẤM ĐỂ VÀO</button>
-    <p class="msg hide" id="msg"></p>
-    <a class="btn zalo" id="first" href="chonmua.html" style="font-size:16px;padding:16px">LẦN ĐẦU VÀO TOOL, BẤM ĐỂ ĐĂNG KÝ</a>
+    <button class="btn main" id="go" type="button" style="font-size:16px;padding:16px;width:100%">VÀO TOOL</button>
+    <p class="msg" id="msg" style="color:#475569">Lần đầu vào, tool sẽ hỏi email hoặc số điện thoại bạn đã đăng ký mua tool.</p>
+    <a class="btn zalo" id="first" href="chonmua.html" style="font-size:16px;padding:16px">CHƯA MUA TOOL, BẤM ĐỂ ĐĂNG KÝ</a>
     <a class="btn ghost" id="mokhoa" href="mokhoa.html" style="font-size:16px;padding:16px">MỞ KHÓA CHỨC NĂNG NÂNG CAO</a>
   </div>
 </div>
 <script src="common.js"></script>
 <script>
   // Đăng nhập một lần + vé vào tool (6/11). API (bản khách) lấy từ common.js.
-  var TOOL_DU_PHONG = 'https://flow.google.com/shared/tool/bec36211-4376-4c2d-be6c-855d4bba68fd';
+  var TOOL_DU_PHONG = 'https://flow.google.com/shared/tool/b768a568-de90-4492-9759-4d4f22eea9b7';
   var KEY = 'pt1c_lienhe';
   var ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   var toolLink = TOOL_DU_PHONG;
@@ -129,37 +124,10 @@
   }
   if (/[?&]capnhat=1(&|$)/.test(location.search)) {
     $('title').textContent = 'Cập nhật bản mới';
-    $('sub').innerHTML = 'Bấm nút vàng bên dưới để vào bản mới nhất.<br>Nếu Flow hiện màn hình <b>"Công cụ được chia sẻ"</b>, hãy bấm <b>"Dùng thử trong một dự án"</b> để vào tool.';
+    $('sub').innerHTML = 'Bấm nút VÀO TOOL bên dưới để vào bản mới nhất.<br>Nếu Flow hiện màn hình <b>"Công cụ được chia sẻ"</b>, hãy bấm <b>"Dùng thử trong một dự án"</b> để vào tool.';
     $('sub').classList.remove('hide');
   }
-  render();
   getConfig().then(function (c) { if (c && c.toolLink) toolLink = c.toolLink; }).catch(function () {});
 
-  var busy = false;
-  $('go').onclick = function () {
-    if (busy) return;
-    var lh = getSaved() || $('lienhe').value.trim();
-    if (!lh) { showMsg('Hãy nhập email hoặc số điện thoại bạn đã đăng ký.'); $('lienhe').focus(); return; }
-    busy = true;
-    $('go').textContent = 'Đang vào tool...';
-    showMsg('', true);
-    Promise.all([maRutGon(), maMayCu()]).then(function (v) {
-      return callApi({ action: 've', lienhe: lh, ma: v[0], mays: v[1] });
-    }).then(function (r) {
-      if (r && r.ok) {
-        setSaved(lh);
-        showMsg('Đang mở tool...', true);
-        location.href = toolLink;
-        return;
-      }
-      if (r && r.chuaCo) setSaved('');
-      render();
-      showMsg((r && r.msg) || 'Chưa vào được, bạn bấm lại nhé.');
-    }).catch(function () {
-      showMsg('Mạng chậm hoặc lỗi, bạn bấm lại nhé.');
-    }).then(function () {
-      busy = false;
-      $('go').textContent = 'ĐÃ TỪNG DÙNG TOOL, BẤM ĐỂ VÀO';
-    });
-  };
+  $('go').onclick = function () { location.href = toolLink; };
 </script></body></html>
